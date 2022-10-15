@@ -8,11 +8,30 @@ import re
 
 
 def setup_ticket():
+    """
+    Name: 
+    setup_ticket
+
+    When code is run: 
+    After choosing to create a ticket.
+
+    Purpose: 
+    Prompt the user for contact and issue information.
+    Add prompted information to an array.
+    Repeat this process until all prompts are answered.
+
+    Result: 
+    An array containing all prompted contact and issue information is returned.
+    """
+
+    # Create an empty array, that will contain all prompted information
     base_ticket = []
     print("\nCreating a new ticket...\n")
 
+    # Prompt the user for their name - Add user's name to array
     base_ticket.append(get_user())
 
+    # Prompt the user for contact information - Add contact information to array
     print("Contact Information:")
     number = input("What's their callback number? ")
     name = input("Who is being helped? ")
@@ -23,20 +42,32 @@ def setup_ticket():
     base_ticket.append(name)
     base_ticket.append(address)
 
+    # Prompt user for issue information - Add issue information to array.
     print("Issue:")
     custom_issue = input("What do they need help with? ")
     print("")
-
     base_ticket.append(custom_issue)
 
     base_ticket.append(get_service())
-
     base_ticket.append(get_category())
 
+    # Return array containing all contact and issue information.
     return base_ticket
 
 
 def get_user():
+    """
+    Name: 
+    get_user
+
+    When code is run: 
+
+
+    Purpose: 
+
+
+    """
+
     user = input("Who's creating this ticket? Enter first and last name. ")
 
     two_words = re.search(" {1}.+", user)

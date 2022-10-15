@@ -9,6 +9,20 @@ import ticket
 
 
 def print_main_menu():
+    """
+    Name: 
+    print_main_menu
+
+    When code is run: 
+    At start of application.
+
+    Purpose: 
+    Prints the main menu for the application. 
+
+    Offers options to: 
+    Create a ticket.
+    End the program.
+    """
     # print("----- *  -----")
     # print("|   |  |")
     # print("|   |  -----")
