@@ -61,27 +61,33 @@ def get_user():
     get_user
 
     When code is run: 
-
+    When setup_ticket function is called
 
     Purpose: 
+    Prompts the user for their first and last name.
 
-
+    Result: 
+    Returns the user's name in format of first_name_initial + last_name
     """
 
     user = input("Who's creating this ticket? Enter first and last name. ")
 
+    # Find out if user entered at least two words.
     two_words = re.search(" {1}.+", user)
 
+    # While user has not entered at least two words, prompt user to enter at least two words.
     while two_words == None:
         print("Enter a first and last name.\n")
 
         user = input("Who's creating this ticket? Enter first and last name. ")
         two_words = re.search(" {1}.+", user)
 
-    allNames = re.split("\s", user)
+    # Sepearte words entered by user, and assign them as names in an array called 'all_names'.
+    all_names = re.split("\s", user)
 
+    # Format names from all_names in format of first_name_initial + last_name + any_other_last_names
     signature = ""
-    for index, name in enumerate(allNames):
+    for index, name in enumerate(all_names):
 
         if index == 0:
             signature += name[0].lower()
