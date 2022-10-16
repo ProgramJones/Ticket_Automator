@@ -6,13 +6,6 @@
 
 # TASKS
 
-# Add these to ticket - Replace hardcoded references to services and categories with these
-# - services = [[internet_services], email, tv]
-# - internet_services = ["dsl", "fiber", etc...]
-# - internet_categories = ["general", "connectivity", "speed", etc...]
-# - email_categories = ["general", "setup", "configuration", etc...]
-# - tv_categories = ["general", "remote configuration", "no picture", etc...]
-
 # - Add steps and diagnostic questions
 # Print steps and diagnostic questions
 # ...
@@ -249,7 +242,7 @@ class Ticket():
         """
 
         # If category is intermittent connectivity/speed and if method hasn't been run before, run the following code...
-        if (self.category == "intermittent connectivity/speed") and (self.isOnline == None):
+        if (self.category == "Intermittent Connectivity/Speed") and (self.isOnline == None):
 
             # Prompt the user for network status.
             print("Is the internet online? \n")
