@@ -12,6 +12,9 @@ def setup_ticket():
     Name: 
     setup_ticket
 
+    Parameters:
+    None
+
     When code is run: 
     After choosing to create a ticket.
 
@@ -60,6 +63,9 @@ def get_user():
     Name: 
     get_user
 
+    Parameters:
+    None
+
     When code is run: 
     When setup_ticket function is called.
 
@@ -101,6 +107,9 @@ def get_service():
     Name: 
     get_service
 
+    Parameters:
+    None
+
     When code is run: 
     When setup_ticket function is called.
 
@@ -109,7 +118,7 @@ def get_service():
     While entered service does not match a predefined service from program, prompt user for service.
 
     Result: 
-    Returns service enetered by user.
+    Returns service entered by user.
     """
 
     print("Service:")

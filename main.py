@@ -13,6 +13,9 @@ def print_main_menu():
     Name: 
     print_main_menu
 
+    Parameters:
+    None
+
     When code is run: 
     At start of application.
 
