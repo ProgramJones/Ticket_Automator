@@ -4,7 +4,30 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# TASKS
+
+# Add these to ticket - Replace hardcoded references to services and categories with these
+# - services = [[internet_services], email, tv]
+# - internet_services = ["dsl", "fiber", etc...]
+# - internet_categories = ["general", "connectivity", "speed", etc...]
+# - email_categories = ["general", "setup", "configuration", etc...]
+# - tv_categories = ["general", "remote configuration", "no picture", etc...]
+
+# Prompt user for internet, email, or tv service/category
+# - Different groups of services/categories appear on seperate lines
+
+# - Add steps and diagnostic questions
+# Print steps and diagnostic questions
+# ...
+
 import re
+
+internet_services = ["Fiber", "DSL", "Cable", "Fixed Wireless"]
+internet_categories = [
+    "General", "Connectivity", "Speed", "Intermittent Connectivity/Speed"]
+email_categories = ["General", "Setup", "Configuration"]
+tv_categories = ["General"]
+services = [internet_services, ["Email"], ["TV"], ["N/A"]]
 
 
 def setup_ticket():
@@ -88,6 +111,8 @@ def get_user():
         user = input("Who's creating this ticket? Enter first and last name. ")
         two_words = re.search(" {1}.+", user)
 
+    print()
+
     # Sepearte words entered by user, and assign them as names in an array called 'all_names'.
     all_names = re.split("\s", user)
 
@@ -115,28 +140,31 @@ def get_service():
 
     Purpose: 
     Prompts the user for what service they're having issues with.
-    While entered service does not match a predefined service from program, prompt user for service.
+    While entered service is not in the program's 'service' list, prompt user for service.
 
     Result: 
     Returns service entered by user.
     """
 
-    print("Service:")
-    print("What service is being worked on?\n")
+    print("Service:\n")
+    print("Which of the following services are being worked on: ?")
+
+    # Print all services.
+    for item in services:
+        for innerValue in item:
+            print(innerValue)
 
     # Prompts the user for what service they're having issues with.
     service = input(
-        "Enter \"Fiber\", \"DSL\", \"Cable\", \"Fixed Wireless\", or \"N/A\". "
-    ).lower()
+        "\nEnter a service from the above list, with correct casing: "
+    )
 
-    # While entered service does not match a predefined service from program, prompt user for service.
-    while (service != "fiber") and (service != "dsl") and (
-            service != "cable") and (service !=
-                                     "fixed wireless") and (service != "n/a"):
+    # While entered service is not in the program's 'service' list, prompt user for service.
+    while (not any(service in x for x in services)):
         print("Please enter a valid service\n")
         service = input(
-            "Enter \"Fiber\", \"DSL\", \"Cable\", \"Fixed Wireless\", or \"N/A\". "
-        ).lower()
+            "\nEnter a service from the above list, with correct casing: "
+        )
 
     # Return service enetered by user.
     print("")
@@ -419,15 +447,15 @@ class Ticket():
         """
 
         options = [
-            "Add Question – Add a diagnostic question to the ticket.",
-            "Add Step – Add a troubleshooting step to the ticket.",
-            "Add Line – Add a custom line of text and choose where to insert it.",
+            "Add Question - Add a diagnostic question to the ticket.",
+            "Add Step - Add a troubleshooting step to the ticket.",
+            "Add Line - Add a custom line of text and choose where to insert it.",
             "Add Category - Add a new service and/or category to the ticket.",
-            "Remove Question – Remove a diagnostic question from the ticket.",
-            "Remove Step – Remove a troubleshooting step from the ticket.",
-            "Remove Line – Remove a custom line from the ticket.",
+            "Remove Question - Remove a diagnostic question from the ticket.",
+            "Remove Step - Remove a troubleshooting step from the ticket.",
+            "Remove Line - Remove a custom line from the ticket.",
             "Remove Category - Remove a service and/or category from the ticket.",
-            "Main - Return to the main menu.", "End – End the program."
+            "Main - Return to the main menu.", "End - End the program."
         ]
 
         print("Options:")
