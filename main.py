@@ -49,12 +49,9 @@ while flag != "end" and flag != "create":
     flag = input().lower()
 
 if flag == "create":
-    newTicketValues = ticket.setup_ticket()
+    newTicket = ticket.Ticket()
 
-    newTicket = ticket.Ticket(newTicketValues[0], newTicketValues[1],
-                              newTicketValues[2], newTicketValues[3],
-                              newTicketValues[4], newTicketValues[5],
-                              newTicketValues[6])
+    newTicket.setup_ticket()
 
     print("\n")
 

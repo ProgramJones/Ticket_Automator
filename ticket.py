@@ -13,217 +13,203 @@
 # - email_categories = ["general", "setup", "configuration", etc...]
 # - tv_categories = ["general", "remote configuration", "no picture", etc...]
 
-# Prompt user for internet, email, or tv service/category
-# - Different groups of services/categories appear on seperate lines
-
 # - Add steps and diagnostic questions
 # Print steps and diagnostic questions
 # ...
 
 import re
 
-internet_services = ["Fiber", "DSL", "Cable", "Fixed Wireless"]
-internet_categories = [
-    "General", "Connectivity", "Speed", "Intermittent Connectivity/Speed"]
-email_categories = ["General", "Setup", "Configuration"]
-tv_categories = ["General"]
-services = [internet_services, ["Email"], ["TV"], ["N/A"]]
 
+class Ticket():
 
-def setup_ticket():
-    """
-    Name: 
-    setup_ticket
+    def __init__(self):
+        self.user = None
+        self.name = None
+        self.number = None
+        self.address = None
+        self.custom_issue = None
+        self.service = None
+        self.category = None
+        self.isOnline = None
 
-    Parameters:
-    None
+        self.internet_services = ["Fiber", "DSL", "Cable", "Fixed Wireless"]
+        self.services = [self.internet_services, ["Email"], ["TV"], ["N/A"]]
 
-    When code is run: 
-    After choosing to create a ticket.
+        self.internet_categories = [
+            "General", "Connectivity", "Speed", "Intermittent Connectivity/Speed"]
+        self.email_categories = ["General", "Setup", "Configuration"]
+        self.tv_categories = ["General"]
 
-    Purpose: 
-    Prompt the user for contact and issue information.
-    Add prompted information to an array.
-    Repeat this process until all prompts are answered.
+    def setup_ticket(self):
+        """
+        Name: 
+        setup_ticket
 
-    Result: 
-    An array containing all prompted contact and issue information is returned.
-    """
+        Parameters:
+        None
 
-    # Create an empty array, that will contain all prompted information
-    base_ticket = []
-    print("\nCreating a new ticket...\n")
+        When code is run: 
+        After choosing to create a ticket.
 
-    # Prompt the user for their name - Add user's name to array
-    base_ticket.append(get_user())
+        Purpose: 
+        Prompt the user for contact and issue information.
+        Add prompted information to an array.
+        Repeat this process until all prompts are answered.
 
-    # Prompt the user for contact information - Add contact information to array
-    print("Contact Information:")
-    number = input("What's their callback number? ")
-    name = input("Who is being helped? ")
-    address = input("What's their address? ")
-    print("")
+        Result: 
+        An array containing all prompted contact and issue information is returned.
+        """
 
-    base_ticket.append(number)
-    base_ticket.append(name)
-    base_ticket.append(address)
+        print("\nCreating a new ticket...\n")
 
-    # Prompt user for issue information - Add issue information to array.
-    print("Issue:")
-    custom_issue = input("What do they need help with? ")
-    print("")
-    base_ticket.append(custom_issue)
+        # Prompt the user for their name - Add user's name to array
+        self.user = self.get_user()
 
-    base_ticket.append(get_service())
-    base_ticket.append(get_category())
+        # Prompt the user for contact information - Add contact information to array
+        print("Contact Information:")
+        self.number = input("What's their callback number? ")
+        self.name = input("Who is being helped? ")
+        self.address = input("What's their address? ")
 
-    # Return array containing all contact and issue information.
-    return base_ticket
+        print("")
 
+        # Prompt user for issue information - Add issue information to array.
+        print("Issue:")
+        self.custom_issue = input("What do they need help with? ")
 
-def get_user():
-    """
-    Name: 
-    get_user
+        print("")
 
-    Parameters:
-    None
+        self.service = self.get_service()
+        self.category = self.get_category()
 
-    When code is run: 
-    When setup_ticket function is called.
+    def get_user(self):
+        """
+        Name: 
+        get_user
 
-    Purpose: 
-    Prompts the user for their first and last name.
+        Parameters:
+        None
 
-    Result: 
-    Returns the user's name in format of first_name_initial + last_name.
-    """
+        When code is run: 
+        When setup_ticket function is called.
 
-    user = input("Who's creating this ticket? Enter first and last name. ")
+        Purpose: 
+        Prompts the user for their first and last name.
 
-    # Find out if user entered at least two words.
-    two_words = re.search(" {1}.+", user)
-
-    # While user has not entered at least two words, prompt user to enter at least two words.
-    while two_words == None:
-        print("Enter a first and last name.\n")
+        Result: 
+        Returns the user's name in format of first_name_initial + last_name.
+        """
 
         user = input("Who's creating this ticket? Enter first and last name. ")
+
+        # Find out if user entered at least two words.
         two_words = re.search(" {1}.+", user)
 
-    print()
+        # While user has not entered at least two words, prompt user to enter at least two words.
+        while two_words == None:
+            print("Enter a first and last name.\n")
 
-    # Sepearte words entered by user, and assign them as names in an array called 'all_names'.
-    all_names = re.split("\s", user)
+            user = input(
+                "Who's creating this ticket? Enter first and last name. ")
+            two_words = re.search(" {1}.+", user)
 
-    # Format names from all_names in format of first_name_initial + last_name + any_other_last_names
-    signature = ""
-    for index, name in enumerate(all_names):
+        print()
 
-        if index == 0:
-            signature += name[0].lower()
-        else:
-            signature += name.title()
-    return signature
+        # Sepearte words entered by user, and assign them as names in an array called 'all_names'.
+        all_names = re.split("\s", user)
 
+        # Format names from all_names in format of first_name_initial + last_name + any_other_last_names
+        signature = ""
+        for index, name in enumerate(all_names):
 
-def get_service():
-    """
-    Name: 
-    get_service
+            if index == 0:
+                signature += name[0].lower()
+            else:
+                signature += name.title()
+        return signature
 
-    Parameters:
-    None
+    def get_service(self):
+        """
+        Name: 
+        get_service
 
-    When code is run: 
-    When setup_ticket function is called.
+        Parameters:
+        None
 
-    Purpose: 
-    Prompts the user for what service they're having issues with.
-    While entered service is not in the program's 'service' list, prompt user for service.
+        When code is run: 
+        When setup_ticket function is called.
 
-    Result: 
-    Returns service entered by user.
-    """
+        Purpose: 
+        Prompts the user for what service they're having issues with.
+        While entered service is not in the program's 'service' list, prompt user for service.
 
-    print("Service:\n")
-    print("Which of the following services are being worked on: ?")
+        Result: 
+        Returns service entered by user.
+        """
 
-    # Print all services.
-    for item in services:
-        for innerValue in item:
-            print(innerValue)
+        print("Service:\n")
+        print("Which of the following services are being worked on: ?")
 
-    # Prompts the user for what service they're having issues with.
-    service = input(
-        "\nEnter a service from the above list, with correct casing: "
-    )
+        # Print all services.
+        for item in self.services:
+            for innerValue in item:
+                print(innerValue)
 
-    # While entered service is not in the program's 'service' list, prompt user for service.
-    while (not any(service in x for x in services)):
-        print("Please enter a valid service\n")
+        # Prompts the user for what service they're having issues with.
         service = input(
             "\nEnter a service from the above list, with correct casing: "
         )
 
-    # Return service enetered by user.
-    print("")
-    return service
+        # While entered service is not in the program's 'service' list, prompt user for service.
+        while (not any(service in x for x in self.services)):
+            print("Please enter a valid service\n")
+            service = input(
+                "\nEnter a service from the above list, with correct casing: "
+            )
 
+        # Return service enetered by user.
+        print("")
+        return service
 
-def get_category():
-    """
-    Name: 
-    get_category
+    def get_category(self):
+        """
+        Name: 
+        get_category
 
-    Parameters:
-    None
+        Parameters:
+        None
 
-    When code is run: 
-    When setup_ticket function is called.
+        When code is run: 
+        When setup_ticket function is called.
 
-    Purpose: 
-    Prompts the user for what service category they're having issues with.
-    While entered service category does not match a predefined service from program, prompt user for service.
+        Purpose: 
+        Prompts the user for what service category they're having issues with.
+        While entered service category does not match a predefined service from program, prompt user for service.
 
-    Result: 
-    Returns service category entered by user.
-    """
+        Result: 
+        Returns service category entered by user.
+        """
 
-    print("Category:")
-    print("What category is being worked on?\n")
+        print("Category:")
+        print("What category is being worked on?\n")
 
-    # Prompts the user for what service category they're having issues with.
-    category = input(
-        "Enter \"General\", \"Connectivity\", \"Speed\", \"Intermittent Connectivity/Speed\", or \"N/A\". "
-    ).lower()
-
-    # While entered service category does not match a predefined service from program, prompt user for service.
-    while (category != "general") and (category != "connectivity") and (
-            category != "speed") and (
-                category != "intermittent connectivity/speed") and (category !=
-                                                                    "n/a"):
-        print("Please enter a valid category\n")
+        # Prompts the user for what service category they're having issues with.
         category = input(
             "Enter \"General\", \"Connectivity\", \"Speed\", \"Intermittent Connectivity/Speed\", or \"N/A\". "
-        ).lower()
+        )
 
-    # Return service category entered by user.
-    return category
+        # While entered service category does not match a predefined service from program, prompt user for service.
+        while (category != "General") and (category != "Connectivity") and (
+                category != "Speed") and (
+                    category != "Intermittent Connectivity/Speed") and (category !=
+                                                                        "N/A"):
+            print("Please enter a valid category\n")
+            category = input(
+                "Enter \"General\", \"Connectivity\", \"Speed\", \"Intermittent Connectivity/Speed\", or \"N/A\". "
+            )
 
-
-class Ticket():
-
-    def __init__(self, user, number, name, address, custom_issue, service,
-                 category):
-        self.user = user
-        self.name = name
-        self.number = number
-        self.address = address
-        self.custom_issue = custom_issue
-        self.service = service
-        self.category = category
-        self.isOnline = None
+        # Return service category entered by user.
+        return category
 
     def is_online_or_not(self):
         """
@@ -266,7 +252,7 @@ class Ticket():
         print("")
 
         print("Issue: " + self.custom_issue)
-        if (self.service == "dsl"):
+        if (self.service == "DSL"):
             print(self.service.upper() + " - " + self.category.title())
         else:
             print(self.service.title() + " - " + self.category.title())
@@ -347,47 +333,47 @@ class Ticket():
         ]
 
         # Connectivity Steps
-        if (self.service == "dsl" and self.category == "connectivity") or (
-                self.service == "dsl"
-                and self.category == "intermittent connectivity/speed"
+        if (self.service == "DSL" and self.category == "Connectivity") or (
+                self.service == "DSL"
+                and self.category == "Intermittent Connectivity/Speed"
                 and self.isOnline == "no"):
             for index, item in enumerate(dsl_connectivity):
                 print(str(index + 1) + ". " + item)
 
-        elif (self.service == "fiber" and self.category == "connectivity") or (
-                self.service == "fiber"
-                and self.category == "intermittent connectivity/speed"
+        elif (self.service == "Fiber" and self.category == "Connectivity") or (
+                self.service == "Fiber"
+                and self.category == "Intermittent Connectivity/Speed"
                 and self.isOnline == "no"):
             for index, item in enumerate(fiber_connectivity):
                 print(str(index + 1) + ". " + item)
 
-        elif (self.service == "cable" and self.category == "connectivity") or (
-                self.service == "cable"
-                and self.category == "intermittent connectivity/speed"
+        elif (self.service == "Cable" and self.category == "Connectivity") or (
+                self.service == "Cable"
+                and self.category == "Intermittent Connectivity/Speed"
                 and self.isOnline == "no"):
             for index, item in enumerate(cable_connectivity):
                 print(str(index + 1) + ". " + item)
 
-        elif (self.service == "fixed wireless"
-              and self.category == "connectivity") or (
-                  self.service == "fixed wireless"
-                  and self.category == "intermittent connectivity/speed"
+        elif (self.service == "Fixed Wireless"
+              and self.category == "Connectivity") or (
+                  self.service == "Fixed Wireless"
+                  and self.category == "Intermittent Connectivity/Speed"
                   and self.isOnline == "no"):
             for index, item in enumerate(fixed_wireless_connectivity):
                 print(str(index + 1) + ". " + item)
 
         # General Connectivity
-        elif self.service == "n/a" and self.category == "connectivity":
+        elif self.service == "N/A" and self.category == "Connectivity":
             for index, item in enumerate(general_connectivity):
                 print(str(index + 1) + ". " + item)
 
         # General Speed
-        elif self.category == "speed":
+        elif self.category == "Speed":
             for index, item in enumerate(speed):
                 print(str(index + 1) + ". " + item)
 
         # General Intermittent Connectivity/Speed
-        elif self.category == "intermittent connectivity/speed" and self.isOnline == "yes":
+        elif self.category == "Intermittent Connectivity/Speed" and self.isOnline == "yes":
             for index, item in enumerate(intermittent_connectivity_and_speed):
                 print(str(index + 1) + ". " + item)
 
@@ -426,13 +412,13 @@ class Ticket():
 
         print("Diagnostic Questions:")
 
-        if (service == "fiber") or (service == "dsl") or (
-                service == "cable") or (service == "fixed wireless"):
+        if (service == "Fiber") or (service == "DSL") or (
+                service == "Cable") or (service == "Fixed wireless"):
             ticket_questions.append(internet_general_questions)
             ticket_questions.append(wifi_questions)
-        if (service == "dsl"):
+        if (service == "DSL"):
             ticket_questions.append(dsl_questions)
-        if (category == "intermittent connectivity/speed"):
+        if (category == "Intermittent Connectivity/Speed"):
             ticket_questions.append(intermittent_questions)
 
         count = 1
