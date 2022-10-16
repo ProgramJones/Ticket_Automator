@@ -144,13 +144,33 @@ def get_service():
 
 
 def get_category():
+    """
+    Name: 
+    get_category
+
+    Parameters:
+    None
+
+    When code is run: 
+    When setup_ticket function is called.
+
+    Purpose: 
+    Prompts the user for what service category they're having issues with.
+    While entered service category does not match a predefined service from program, prompt user for service.
+
+    Result: 
+    Returns service category entered by user.
+    """
+
     print("Category:")
     print("What category is being worked on?\n")
 
+    # Prompts the user for what service category they're having issues with.
     category = input(
         "Enter \"General\", \"Connectivity\", \"Speed\", \"Intermittent Connectivity/Speed\", or \"N/A\". "
     ).lower()
 
+    # While entered service category does not match a predefined service from program, prompt user for service.
     while (category != "general") and (category != "connectivity") and (
             category != "speed") and (
                 category != "intermittent connectivity/speed") and (category !=
@@ -160,6 +180,7 @@ def get_category():
             "Enter \"General\", \"Connectivity\", \"Speed\", \"Intermittent Connectivity/Speed\", or \"N/A\". "
         ).lower()
 
+    # Return service category entered by user.
     return category
 
 
