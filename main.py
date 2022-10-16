@@ -60,10 +60,10 @@ while flag != "end" and flag != "create":
     ).lower()
 
 if flag == "create":
+
     newTicket = ticket.Ticket()
 
     newTicket.setup_ticket()
-
     newTicket.print_ticket_steps_questions_and_options()
 
 elif flag == "end":

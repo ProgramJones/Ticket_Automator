@@ -6,11 +6,6 @@
 
 # TASKS
 
-# Comment and docstring:
-# print_ticket_steps_questions_and_options
-
-# Change hardcoded values in 'print_diagnostic_questions'
-
 # Make print_options add all lines to a dictionary and then print those lines
 
 # - Ability to add steps and diagnostic questions to ticket
@@ -115,8 +110,8 @@ class Ticket():
             "Do lights on the router look the same when internet disconnects? "
         ]
         self.dsl_questions = [
-            "Are there any splitters on the wall jack? ",
-            "Does the landline phone have dial tone? "
+            "Does the landline phone have dial tone? ",
+            "Are there any splitters on the wall jack? "
         ]
         self.wifi_questions = [
             "Is the router in a closed space like a closet, cabinet, entertainment center, kitchen/laundry room, or besides a phone’s base? ",
@@ -175,7 +170,7 @@ class Ticket():
         print("\n\n")
 
         print("All questions answered!\nOutputting relevant information...")
-        time.sleep(1.5)
+        time.sleep(1)
 
     def get_user(self):
         """
@@ -464,7 +459,7 @@ class Ticket():
             for index, item in enumerate(self.intermittent_connectivity_and_speed_steps):
                 print(str(index + 1) + ". " + item)
 
-    def print_diagnostic_questions(self, service, category):
+    def print_diagnostic_questions(self):
         """
         Name: 
         print_diagnostic_questions
@@ -487,16 +482,15 @@ class Ticket():
 
         print("Diagnostic Questions:")
 
+        # if service is DSL, append dsl_questions to ticket_questions
+        if (self.service == "DSL"):
+            ticket_questions.append(self.dsl_questions)
         # if service is Fiber, DSL, Cable, or Fixed Wireless, append internet_general_questions and wifi_questions to ticket_questions.
-        if (service == "Fiber") or (service == "DSL") or (
-                service == "Cable") or (service == "Fixed Wireless"):
+        if (self.service in self.internet_services):
             ticket_questions.append(self.internet_general_questions)
             ticket_questions.append(self.wifi_questions)
-        # if service is DSL, append dsl_questions to ticket_questions
-        if (service == "DSL"):
-            ticket_questions.append(self.dsl_questions)
         # if category is Intermittent Connectivity/Speed, append intermittent_questions to ticket questions.
-        if (category == "Intermittent Connectivity/Speed"):
+        if (self.category == "Intermittent Connectivity/Speed"):
             ticket_questions.append(self.intermittent_questions)
 
         # Print all items in ticket_questions.
@@ -577,7 +571,7 @@ class Ticket():
 
         print("\n\n")
 
-        self.print_diagnostic_questions(self.service, self.category)
+        self.print_diagnostic_questions()
 
         # print("\n")
 
