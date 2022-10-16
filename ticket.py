@@ -52,20 +52,19 @@ class Ticket():
         After choosing to create a ticket.
 
         Purpose: 
-        Prompt the user for contact and issue information.
-        Add prompted information to an array.
-        Repeat this process until all prompts are answered.
+        Prompt the user for their name, the contact information, and the issue information.
+        Assigns what's entered into class isntance's respective attributes.
 
         Result: 
-        An array containing all prompted contact and issue information is returned.
+        number, name, address, custom_issue, service, and category attributes are overwritten.
         """
 
         print("\nCreating a new ticket...\n")
 
-        # Prompt the user for their name - Add user's name to array
+        # Prompt the user for their name - Assign user's name to class instance's attributes.
         self.user = self.get_user()
 
-        # Prompt the user for contact information - Add contact information to array
+        # Prompt the user for contact information - Assign contact information to class instance's attributes.
         print("Contact Information:")
         self.number = input("What's their callback number? ")
         self.name = input("Who is being helped? ")
@@ -73,7 +72,7 @@ class Ticket():
 
         print("")
 
-        # Prompt user for issue information - Add issue information to array.
+        # Prompt user for issue information - Assign issue information to class instance's attributes.
         print("Issue:")
         self.custom_issue = input("What do they need help with? ")
 
