@@ -470,6 +470,10 @@ class Ticket():
             for index, item in enumerate(self.intermittent_connectivity_and_speed_steps):
                 print(str(index + 1) + ". " + item)
 
+        # if category is General, print "No troubleshooting steps defined for general categories"
+        elif (self.category == "General"):
+            print("No troubleshooting steps defined for general categories")
+
     def print_diagnostic_questions(self):
         """
         Name: 
