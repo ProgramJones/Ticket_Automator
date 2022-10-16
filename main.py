@@ -57,7 +57,8 @@ if flag == "create":
                               newTicketValues[6])
 
     print("\n")
-    newTicket.is_online_or_not()
+
     newTicket.generate_ticket_automator()
+
 elif flag == "end":
     os.sys.exit(0)

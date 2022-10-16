@@ -198,9 +198,12 @@ class Ticket():
         self.isOnline = None
 
     def is_online_or_not(self):
-        if (self.category == "intermittent connectivity/speed"):
+
+        if (self.category == "intermittent connectivity/speed") and (self.isOnline == None):
+
             print("Is the internet online? \n")
             self.isOnline = input("Enter yes or no to respond. ").lower()
+
             while (self.isOnline.lower() != "yes") and (self.isOnline.lower()
                                                         != "no"):
                 print("Please enter a valid response.\n")
@@ -414,6 +417,9 @@ class Ticket():
             print("• " + option)
 
     def generate_ticket_automator(self):
+
+        self.is_online_or_not()
+
         print("\n\nGenerating Ticket Automator...\n\n")
         print("----------------------------------\n")
 
