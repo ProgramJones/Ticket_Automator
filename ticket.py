@@ -6,6 +6,16 @@
 
 # TASKS
 
+# Add troubleshooting steps for:
+# Email - Setup
+# Email - Configuration
+
+# Add diagnostic_questions for:
+# Email - General
+# Email - Setup
+# Email - Configuration
+# TV - General
+
 # Make print_options add all lines to a dictionary and then print those lines
 
 # - Ability to add steps and diagnostic questions to ticket
@@ -190,7 +200,8 @@ class Ticket():
         Returns the user's name in format of first_name_initial + last_name.
         """
 
-        user = input("Who's creating this ticket? Enter first and last name. ")
+        user = input(
+            "Who's creating this ticket? Enter first and last name. ").strip()
 
         # Find out if user entered at least two words.
         two_words = re.search(" {1}.+", user)
