@@ -6,6 +6,15 @@
 
 import os
 import ticket
+import platform
+
+
+if (platform.system() == "Windows"):
+    # If operating system is Windows, clear command prompt with 'clr'
+    os.system("clr")
+else:
+    # If operating system is Unix, clear terminal with 'clear'
+    os.system("clear")
 
 
 def print_main_menu():
