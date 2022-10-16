@@ -198,12 +198,31 @@ class Ticket():
         self.isOnline = None
 
     def is_online_or_not(self):
+        """
+        Name: 
+        is_online_or_not
 
+        Parameters:
+        None
+
+        When code is run: 
+        When generate_ticket_automator method is called.
+
+        Purpose: 
+        When category is intermittent connectivity/speed,  
+
+        Result: 
+        Re-assigns isOnline variable to 'yes' or 'no', when category is intermittent connectivity/speed
+        """
+
+        # If category is intermittent connectivity/speed and if method hasn't been run before, run the following code...
         if (self.category == "intermittent connectivity/speed") and (self.isOnline == None):
 
+            # Prompt the user for network status.
             print("Is the internet online? \n")
             self.isOnline = input("Enter yes or no to respond. ").lower()
 
+            # While response is not 'yes' or 'no', prompt user for network status.
             while (self.isOnline.lower() != "yes") and (self.isOnline.lower()
                                                         != "no"):
                 print("Please enter a valid response.\n")
