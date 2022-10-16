@@ -6,15 +6,19 @@
 
 # TASKS
 
+# Comment and docstring:
+# print_ticket_steps_questions_and_options
+
+# Change hardcoded values in 'print_diagnostic_questions'
+
+# Make print_options add all lines to a dictionary and then print those lines
+
 # - Ability to add steps and diagnostic questions to ticket
 # Print steps and diagnostic questions
 # ...
 
-# Make print_options add all lines to a dictionary and then print those lines
-
-# Compartmentalize print_troubleshooting_steps and print_diagnostic_questions
-
 import re
+import time
 
 
 class Ticket():
@@ -128,7 +132,7 @@ class Ticket():
         None
 
         When code is run: 
-        After choosing to create a ticket.
+        Right after an object is instantiated.
 
         Purpose: 
         Prompt the user for their name, the contact information, and the issue information.
@@ -170,7 +174,8 @@ class Ticket():
 
         print("\n\n")
 
-        print("No further questions!")
+        print("All questions answered!\nOutputting relevant information...")
+        time.sleep(1.5)
 
     def get_user(self):
         """
@@ -327,7 +332,7 @@ class Ticket():
         None
 
         When code is run: 
-        When generate_ticket_automator method is called.
+        When print_ticket_steps_questions_and_options method is called.
 
         Purpose: 
         When category is Intermittent Connectivity/Speed, determine if internet is online or not.
@@ -351,8 +356,22 @@ class Ticket():
 
     def print_ticket(self):
         """
-        Print the most current ticket. 
+        Name: 
+        print_ticket
+
+        Parameters:
+        None
+
+        When code is run: 
+        When print_ticket_steps_questions_and_options method is called.
+
+        Purpose: 
+        When ticket is first created, print the ticket's current number, name, address, custom_issue, category, service, and user values.
+
+        Result: 
+        Prints current ticket information.
         """
+
         print("cb: " + self.number)
         print("s/w: " + self.name)
         print("address: " + self.address)
@@ -367,12 +386,28 @@ class Ticket():
 
     def print_troubleshooting_steps(self):
         """
-        Print all troubleshooting steps relevant to the service and category. 
+        Name: 
+        print_troubleshooting_steps
+
+        Parameters:
+        None
+
+        When code is run: 
+        When print_ticket_steps_questions_and_options method is called.
+
+        Purpose: 
+        Print certain troubleshooting steps, depending on current service, category, and isOnline status
+
+        Result: 
+        Prints all relevant troubleshooting steps.
         """
 
         print("Troubleshooting Steps:")
 
         # Connectivity Steps
+
+        # If current service is DSL and category is Connectivity, print troubleshooting steps from dsl_connectivity_steps list
+        # If category is Intermittent Connectivity/Speed and isOnline is no, print troubleshooting steps from dsl_connectivity_steps list
         if (self.service == "DSL" and self.category == "Connectivity") or (
                 self.service == "DSL"
                 and self.category == "Intermittent Connectivity/Speed"
@@ -380,6 +415,8 @@ class Ticket():
             for index, item in enumerate(self.dsl_connectivity_steps):
                 print(str(index + 1) + ". " + item)
 
+        # If current service is Fiber and category is Connectivity, print troubleshooting steps from fiber_connectivity_steps list
+        # If category is Intermittent Connectivity/Speed and isOnline is no, print troubleshooting steps from fiber_connectivity_steps list
         elif (self.service == "Fiber" and self.category == "Connectivity") or (
                 self.service == "Fiber"
                 and self.category == "Intermittent Connectivity/Speed"
@@ -387,6 +424,8 @@ class Ticket():
             for index, item in enumerate(self.fiber_connectivity_steps):
                 print(str(index + 1) + ". " + item)
 
+        # If current service is Cable and category is Connectivity, print troubleshooting steps from cable_connectivity_steps list
+        # If category is Intermittent Connectivity/Speed and isOnline is no, print troubleshooting steps from cable_connectivity_steps list
         elif (self.service == "Cable" and self.category == "Connectivity") or (
                 self.service == "Cable"
                 and self.category == "Intermittent Connectivity/Speed"
@@ -394,6 +433,8 @@ class Ticket():
             for index, item in enumerate(self.cable_connectivity_steps):
                 print(str(index + 1) + ". " + item)
 
+        # If current service is Fixed Wireless and category is Connectivity, print troubleshooting steps from fixed_wireless_connectivity_steps list
+        # If category is Intermittent Connectivity/Speed and isOnline is no, print troubleshooting steps from fixed_wireless_connectivity_steps list
         elif (self.service == "Fixed Wireless"
               and self.category == "Connectivity") or (
                   self.service == "Fixed Wireless"
@@ -403,38 +444,63 @@ class Ticket():
                 print(str(index + 1) + ". " + item)
 
         # General Connectivity Steps
+
+        # If current service is N/A and category is Connectivity, print troubleshooting steps from general_connectivity_steps list
         elif self.service == "N/A" and self.category == "Connectivity":
             for index, item in enumerate(self.general_connectivity_steps):
                 print(str(index + 1) + ". " + item)
 
         # General Speed Steps
+
+        # If category is Speed, print troubleshooting steps from speed_steps list
         elif self.category == "Speed":
             for index, item in enumerate(self.speed_steps):
                 print(str(index + 1) + ". " + item)
 
         # General Intermittent Connectivity/Speed Steps
+
+        # If category is Intermittent Connectivity/Speed and isOnline is yes, print troubleshooting steps from intermittent_connectivity_and_speed_steps list
         elif self.category == "Intermittent Connectivity/Speed" and self.isOnline == "yes":
             for index, item in enumerate(self.intermittent_connectivity_and_speed_steps):
                 print(str(index + 1) + ". " + item)
 
     def print_diagnostic_questions(self, service, category):
         """
-        Print all diagnostic questions relevant to the service and category. 
+        Name: 
+        print_diagnostic_questions
+
+        Parameters:
+        service, category
+
+        When code is run: 
+        When print_ticket_steps_questions_and_options method is called.
+
+        Purpose: 
+        Print certain diagnostic questions, depending on current service, category, and isOnline status
+
+        Result: 
+        Prints all relevant diagnostic questions.
         """
 
+        # Initialize an empty list called ticket_questions.
         ticket_questions = []
 
         print("Diagnostic Questions:")
 
+        # if service is Fiber, DSL, Cable, or Fixed Wireless, append internet_general_questions and wifi_questions to ticket_questions.
         if (service == "Fiber") or (service == "DSL") or (
-                service == "Cable") or (service == "Fixed wireless"):
+                service == "Cable") or (service == "Fixed Wireless"):
             ticket_questions.append(self.internet_general_questions)
             ticket_questions.append(self.wifi_questions)
+        # if service is DSL, append dsl_questions to ticket_questions
         if (service == "DSL"):
             ticket_questions.append(self.dsl_questions)
+        # if category is Intermittent Connectivity/Speed, append intermittent_questions to ticket questions.
         if (category == "Intermittent Connectivity/Speed"):
             ticket_questions.append(self.intermittent_questions)
 
+        # Print all items in ticket_questions.
+        # Format: some_number. question_example | 1. "What devices are affected?"
         count = 1
         for list in ticket_questions:
             for item in list:
@@ -443,7 +509,21 @@ class Ticket():
 
     def print_options(self):
         """
-        Print all options available for editing the ticket.
+        Name: 
+        print_options
+
+        Parameters:
+        None
+
+        When code is run: 
+        When print_ticket_steps_questions_and_options method is called.
+
+        Purpose: 
+        Prints all options. 
+        User can enter any of these options to do something in the program.
+
+        Result: 
+        Prints all options.
         """
 
         options = [
@@ -460,10 +540,28 @@ class Ticket():
 
         print("Options:")
 
+        # Print all items in options.
+        # Format: • Add Question - Add a diagnostic question to the ticket.
         for option in options:
             print("• " + option)
 
     def print_ticket_steps_questions_and_options(self):
+        """
+        Name: 
+        print_ticket_steps_questions_and_options
+
+        Parameters:
+        None
+
+        When code is run: 
+        Right after setup_ticket method is run. 
+
+        Purpose: 
+        Prints the ticket, relevant troubleshooting steps, relevant diagnostic questions, and options.
+
+        Result: 
+        Prints the ticket, relevant troubleshooting steps, relevant diagnostic questions, and options.
+        """
 
         self.is_online_or_not()
 
