@@ -209,10 +209,10 @@ class Ticket():
         When generate_ticket_automator method is called.
 
         Purpose: 
-        When category is intermittent connectivity/speed,  
+        When category is intermittent connectivity/speed, determine if internet is online or not.
 
         Result: 
-        Re-assigns isOnline variable to 'yes' or 'no', when category is intermittent connectivity/speed
+        Re-assigns isOnline variable to 'yes' or 'no', when category is intermittent connectivity/speed.
         """
 
         # If category is intermittent connectivity/speed and if method hasn't been run before, run the following code...
