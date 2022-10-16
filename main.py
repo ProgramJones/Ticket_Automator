@@ -10,8 +10,8 @@ import platform
 
 
 if (platform.system() == "Windows"):
-    # If operating system is Windows, clear command prompt with 'clr'
-    os.system("clr")
+    # If operating system is Windows, clear command prompt with 'cls'
+    os.system("cls")
 else:
     # If operating system is Unix, clear terminal with 'clear'
     os.system("clear")
