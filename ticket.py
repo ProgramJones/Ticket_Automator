@@ -46,7 +46,6 @@ class Ticket():
             "Check a device for internet.", "Check ONT",
             "Check ONT's battery backup", "Run ping tests on a computer."
         ]
-
         self.dsl_connectivity_steps = [
             "Check if there’s a landline phone with dial tone.",
             "Check each network device’s name, model, and lights.",
@@ -56,7 +55,6 @@ class Ticket():
             "Check each network device’s name, model, and lights.",
             "Check a device for internet.", "Run ping tests on a computer."
         ]
-
         self.cable_connectivity_steps = [
             "Check each network device’s name, model, and lights.",
             "Check a router for Wi-Fi.", "Check cabling.",
@@ -65,7 +63,6 @@ class Ticket():
             "Check each network device’s name, model, and lights.",
             "Check a device for internet.", "Run ping tests on a computer."
         ]
-
         self.fixed_wireless_connectivity_steps = [
             "Check each network device’s name, model, and lights.",
             "Check a router for Wi-Fi.", "Check cabling.",
@@ -74,7 +71,6 @@ class Ticket():
             "Check each network device’s name, model, and lights.",
             "Check a device for internet.", "Run ping tests on a computer."
         ]
-
         self.general_connectivity_steps = [
             "Check each network device’s name, model, and lights.",
             "Check a router for Wi-Fi.", "Check cabling.",
@@ -83,7 +79,6 @@ class Ticket():
             "Check each network device’s name, model, and lights.",
             "Check a device for internet.", "Run ping tests on a computer."
         ]
-
         self.speed_steps = [
             "Run speed tests on a device.",
             "Check each network device’s name, model, and lights.",
@@ -92,7 +87,6 @@ class Ticket():
             "Check each network device’s name, model, and lights.",
             "Run speed tests on a device.", "Run ping tests on a computer."
         ]
-
         self.intermittent_connectivity_and_speed_steps = [
             "Run speed tests on a device.", "Run ping tests on a computer.",
             "Check each network device’s name, model, and lights.",
@@ -100,6 +94,29 @@ class Ticket():
             "Power cycle all network devices.",
             "Check each network device’s name, model, and lights.",
             "Run speed tests on a device.", "Run ping tests on a computer."
+        ]
+
+        self.internet_general_questions = [
+            "Are any services still working? ",
+            "Are all devices effected? If not, what is affected? ",
+            "How long has issue been happening for? ",
+            "Where there any equipment changes or outside disturbances like weather or maintenance when issue first started happening? "
+        ]
+        self.intermittent_questions = [
+            "Is issue only happening during a certain time frame? If so, during what time(s)? ",
+            "Is issue only happening when a certain device is online? If so, which device? ",
+            "Is issue only happening when a lot of devices are online? ",
+            "How long is internet affected for? ",
+            "Does the equipment typically have to be powercycled to temporarily resolve the issue? ",
+            "Do lights on the router look the same when internet disconnects? "
+        ]
+        self.dsl_questions = [
+            "Are there any splitters on the wall jack? ",
+            "Does the landline phone have dial tone? "
+        ]
+        self.wifi_questions = [
+            "Is the router in a closed space like a closet, cabinet, entertainment center, kitchen/laundry room, or besides a phone’s base? ",
+            "Are there sources of interference like radios, extenders, metal doors, or metal ceilings? "
         ]
 
     def setup_ticket(self):
@@ -396,44 +413,18 @@ class Ticket():
         Print all diagnostic questions relevant to the service and category. 
         """
 
-        internet_general_questions = [
-            "Are any services still working? ",
-            "Are all devices effected? If not, what is affected? ",
-            "How long has issue been happening for? ",
-            "Where there any equipment changes or outside disturbances like weather or maintenance when issue first started happening? "
-        ]
-
-        intermittent_questions = [
-            "Is issue only happening during a certain time frame? If so, during what time(s)? ",
-            "Is issue only happening when a certain device is online? If so, which device? ",
-            "Is issue only happening when a lot of devices are online? ",
-            "How long is internet affected for? ",
-            "Does the equipment typically have to be powercycled to temporarily resolve the issue? ",
-            "Do lights on the router look the same when internet disconnects? "
-        ]
-
-        dsl_questions = [
-            "Are there any splitters on the wall jack? ",
-            "Does the landline phone have dial tone? "
-        ]
-
-        wifi_questions = [
-            "Is the router in a closed space like a closet, cabinet, entertainment center, kitchen/laundry room, or besides a phone’s base? ",
-            "Are there sources of interference like radios, extenders, metal doors, or metal ceilings? "
-        ]
-
         ticket_questions = []
 
         print("Diagnostic Questions:")
 
         if (service == "Fiber") or (service == "DSL") or (
                 service == "Cable") or (service == "Fixed wireless"):
-            ticket_questions.append(internet_general_questions)
-            ticket_questions.append(wifi_questions)
+            ticket_questions.append(self.internet_general_questions)
+            ticket_questions.append(self.wifi_questions)
         if (service == "DSL"):
-            ticket_questions.append(dsl_questions)
+            ticket_questions.append(self.dsl_questions)
         if (category == "Intermittent Connectivity/Speed"):
-            ticket_questions.append(intermittent_questions)
+            ticket_questions.append(self.intermittent_questions)
 
         count = 1
         for list in ticket_questions:
