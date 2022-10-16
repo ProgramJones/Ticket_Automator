@@ -147,7 +147,7 @@ class Ticket():
         """
 
         print("Service:\n")
-        print("Which of the following services are being worked on: ?")
+        print("Which of the following services are being worked on: ")
 
         # Print all services.
         for item in self.services:
@@ -189,22 +189,42 @@ class Ticket():
         Returns service category entered by user.
         """
 
-        print("Category:")
-        print("What category is being worked on?\n")
+        print("Category:\n")
+        print("Which of the following categories are being worked on: ")
+
+        # Current categories is an array that will contain categories relevent to the selected service
+        current_categories = []
+
+        # if service is also in internet_services list, assign current_categories to the value of internet_categories
+        if (self.service in self.internet_services):
+            current_categories = self.internet_categories
+
+        # if service is 'Email', assign current_categories to the value of email_categories
+        elif (self.service == "Email"):
+            current_categories = self.email_categories
+
+        # if service is 'TV', assign current_categories to the value of tv_categories
+        elif (self.service == "TV"):
+            current_categories = self.tv_categories
+
+        # if service is 'N/A', just append "general" to current_categories
+        elif (self.service == 'N/A'):
+            current_categories.append("General")
+
+        # Print the categories to choose from
+        for item in current_categories:
+            print(item)
 
         # Prompts the user for what service category they're having issues with.
         category = input(
-            "Enter \"General\", \"Connectivity\", \"Speed\", \"Intermittent Connectivity/Speed\", or \"N/A\". "
+            "\nEnter a category from the above list, with correct casing: "
         )
 
         # While entered service category does not match a predefined service from program, prompt user for service.
-        while (category != "General") and (category != "Connectivity") and (
-                category != "Speed") and (
-                    category != "Intermittent Connectivity/Speed") and (category !=
-                                                                        "N/A"):
+        while (category not in current_categories):
             print("Please enter a valid category\n")
             category = input(
-                "Enter \"General\", \"Connectivity\", \"Speed\", \"Intermittent Connectivity/Speed\", or \"N/A\". "
+                "\nEnter a category from the above list, with correct casing: "
             )
 
         # Return service category entered by user.
@@ -251,10 +271,8 @@ class Ticket():
         print("")
 
         print("Issue: " + self.custom_issue)
-        if (self.service == "DSL"):
-            print(self.service.upper() + " - " + self.category.title())
-        else:
-            print(self.service.title() + " - " + self.category.title())
+        print(self.service + " - " + self.category)
+
         print("\n\n")
 
         print(self.user)
