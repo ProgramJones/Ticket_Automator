@@ -361,7 +361,7 @@ class Ticket():
         print("Issue: " + self.custom_issue)
         print(self.service + " - " + self.category)
 
-        print("\n\n")
+        print()
 
         print(self.user)
 
