@@ -6,9 +6,13 @@
 
 # TASKS
 
-# - Add steps and diagnostic questions
+# - Ability to add steps and diagnostic questions to ticket
 # Print steps and diagnostic questions
 # ...
+
+# Make print_options add all lines to a dictionary and then print those lines
+
+# Compartmentalize print_troubleshooting_steps and print_diagnostic_questions
 
 import re
 
@@ -32,6 +36,71 @@ class Ticket():
             "General", "Connectivity", "Speed", "Intermittent Connectivity/Speed"]
         self.email_categories = ["General", "Setup", "Configuration"]
         self.tv_categories = ["General"]
+
+        self.fiber_connectivity_steps = [
+            "Check each network device’s name, model, and lights.",
+            "Check a router for Wi-Fi.", "Check cabling.",
+            "Check if cables are in the correct ports.",
+            "Check cable conditions.", "Power cycle all network devices.",
+            "Check each network device’s name, model, and lights.",
+            "Check a device for internet.", "Check ONT",
+            "Check ONT's battery backup", "Run ping tests on a computer."
+        ]
+
+        self.dsl_connectivity_steps = [
+            "Check if there’s a landline phone with dial tone.",
+            "Check each network device’s name, model, and lights.",
+            "Check a router for Wi-Fi.", "Check cabling.",
+            "Check if cables are in the correct ports.",
+            "Check cable conditions.", "Power cycle all network devices.",
+            "Check each network device’s name, model, and lights.",
+            "Check a device for internet.", "Run ping tests on a computer."
+        ]
+
+        self.cable_connectivity_steps = [
+            "Check each network device’s name, model, and lights.",
+            "Check a router for Wi-Fi.", "Check cabling.",
+            "Check if cables are in the correct ports.",
+            "Check cable conditions.", "Power cycle all network devices.",
+            "Check each network device’s name, model, and lights.",
+            "Check a device for internet.", "Run ping tests on a computer."
+        ]
+
+        self.fixed_wireless_connectivity_steps = [
+            "Check each network device’s name, model, and lights.",
+            "Check a router for Wi-Fi.", "Check cabling.",
+            "Check if cables are in the correct ports.",
+            "Check cable conditions.", "Power cycle all network devices.",
+            "Check each network device’s name, model, and lights.",
+            "Check a device for internet.", "Run ping tests on a computer."
+        ]
+
+        self.general_connectivity_steps = [
+            "Check each network device’s name, model, and lights.",
+            "Check a router for Wi-Fi.", "Check cabling.",
+            "Check if cables are in the correct ports.",
+            "Check cable conditions.", "Power cycle all network devices.",
+            "Check each network device’s name, model, and lights.",
+            "Check a device for internet.", "Run ping tests on a computer."
+        ]
+
+        self.speed_steps = [
+            "Run speed tests on a device.",
+            "Check each network device’s name, model, and lights.",
+            "Check cabling.", "Check cable conditions.",
+            "Power cycle all network devices.",
+            "Check each network device’s name, model, and lights.",
+            "Run speed tests on a device.", "Run ping tests on a computer."
+        ]
+
+        self.intermittent_connectivity_and_speed_steps = [
+            "Run speed tests on a device.", "Run ping tests on a computer.",
+            "Check each network device’s name, model, and lights.",
+            "Check cabling.", "Check cable conditions.",
+            "Power cycle all network devices.",
+            "Check each network device’s name, model, and lights.",
+            "Run speed tests on a device.", "Run ping tests on a computer."
+        ]
 
     def setup_ticket(self):
         """
@@ -235,7 +304,7 @@ class Ticket():
         When generate_ticket_automator method is called.
 
         Purpose: 
-        When category is intermittent connectivity/speed, determine if internet is online or not.
+        When category is Intermittent Connectivity/Speed, determine if internet is online or not.
 
         Result: 
         Re-assigns isOnline variable to 'yes' or 'no', when category is intermittent connectivity/speed.
@@ -277,91 +346,26 @@ class Ticket():
 
         print("Troubleshooting Steps:")
 
-        fiber_connectivity = [
-            "Check each network device’s name, model, and lights.",
-            "Check a router for Wi-Fi.", "Check cabling.",
-            "Check if cables are in the correct ports.",
-            "Check cable conditions.", "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
-            "Check a device for internet.", "Check ONT",
-            "Check ONT's battery backup", "Run ping tests on a computer."
-        ]
-
-        dsl_connectivity = [
-            "Check if there’s a landline phone with dial tone.",
-            "Check each network device’s name, model, and lights.",
-            "Check a router for Wi-Fi.", "Check cabling.",
-            "Check if cables are in the correct ports.",
-            "Check cable conditions.", "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
-            "Check a device for internet.", "Run ping tests on a computer."
-        ]
-
-        cable_connectivity = [
-            "Check each network device’s name, model, and lights.",
-            "Check a router for Wi-Fi.", "Check cabling.",
-            "Check if cables are in the correct ports.",
-            "Check cable conditions.", "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
-            "Check a device for internet.", "Run ping tests on a computer."
-        ]
-
-        fixed_wireless_connectivity = [
-            "Check each network device’s name, model, and lights.",
-            "Check a router for Wi-Fi.", "Check cabling.",
-            "Check if cables are in the correct ports.",
-            "Check cable conditions.", "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
-            "Check a device for internet.", "Run ping tests on a computer."
-        ]
-
-        general_connectivity = [
-            "Check each network device’s name, model, and lights.",
-            "Check a router for Wi-Fi.", "Check cabling.",
-            "Check if cables are in the correct ports.",
-            "Check cable conditions.", "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
-            "Check a device for internet.", "Run ping tests on a computer."
-        ]
-
-        speed = [
-            "Run speed tests on a device.",
-            "Check each network device’s name, model, and lights.",
-            "Check cabling.", "Check cable conditions.",
-            "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
-            "Run speed tests on a device.", "Run ping tests on a computer."
-        ]
-
-        intermittent_connectivity_and_speed = [
-            "Run speed tests on a device.", "Run ping tests on a computer.",
-            "Check each network device’s name, model, and lights.",
-            "Check cabling.", "Check cable conditions.",
-            "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
-            "Run speed tests on a device.", "Run ping tests on a computer."
-        ]
-
         # Connectivity Steps
         if (self.service == "DSL" and self.category == "Connectivity") or (
                 self.service == "DSL"
                 and self.category == "Intermittent Connectivity/Speed"
                 and self.isOnline == "no"):
-            for index, item in enumerate(dsl_connectivity):
+            for index, item in enumerate(self.dsl_connectivity_steps):
                 print(str(index + 1) + ". " + item)
 
         elif (self.service == "Fiber" and self.category == "Connectivity") or (
                 self.service == "Fiber"
                 and self.category == "Intermittent Connectivity/Speed"
                 and self.isOnline == "no"):
-            for index, item in enumerate(fiber_connectivity):
+            for index, item in enumerate(self.fiber_connectivity_steps):
                 print(str(index + 1) + ". " + item)
 
         elif (self.service == "Cable" and self.category == "Connectivity") or (
                 self.service == "Cable"
                 and self.category == "Intermittent Connectivity/Speed"
                 and self.isOnline == "no"):
-            for index, item in enumerate(cable_connectivity):
+            for index, item in enumerate(self.cable_connectivity_steps):
                 print(str(index + 1) + ". " + item)
 
         elif (self.service == "Fixed Wireless"
@@ -369,22 +373,22 @@ class Ticket():
                   self.service == "Fixed Wireless"
                   and self.category == "Intermittent Connectivity/Speed"
                   and self.isOnline == "no"):
-            for index, item in enumerate(fixed_wireless_connectivity):
+            for index, item in enumerate(self.fixed_wireless_connectivity_steps):
                 print(str(index + 1) + ". " + item)
 
-        # General Connectivity
+        # General Connectivity Steps
         elif self.service == "N/A" and self.category == "Connectivity":
-            for index, item in enumerate(general_connectivity):
+            for index, item in enumerate(self.general_connectivity_steps):
                 print(str(index + 1) + ". " + item)
 
-        # General Speed
+        # General Speed Steps
         elif self.category == "Speed":
-            for index, item in enumerate(speed):
+            for index, item in enumerate(self.speed_steps):
                 print(str(index + 1) + ". " + item)
 
-        # General Intermittent Connectivity/Speed
+        # General Intermittent Connectivity/Speed Steps
         elif self.category == "Intermittent Connectivity/Speed" and self.isOnline == "yes":
-            for index, item in enumerate(intermittent_connectivity_and_speed):
+            for index, item in enumerate(self.intermittent_connectivity_and_speed_steps):
                 print(str(index + 1) + ". " + item)
 
     def print_diagnostic_questions(self, service, category):
