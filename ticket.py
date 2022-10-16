@@ -61,13 +61,13 @@ def get_user():
     get_user
 
     When code is run: 
-    When setup_ticket function is called
+    When setup_ticket function is called.
 
     Purpose: 
     Prompts the user for their first and last name.
 
     Result: 
-    Returns the user's name in format of first_name_initial + last_name
+    Returns the user's name in format of first_name_initial + last_name.
     """
 
     user = input("Who's creating this ticket? Enter first and last name. ")
@@ -97,13 +97,30 @@ def get_user():
 
 
 def get_service():
+    """
+    Name: 
+    get_service
+
+    When code is run: 
+    When setup_ticket function is called.
+
+    Purpose: 
+    Prompts the user for what service they're having issues with.
+    While entered service does not match a predefined service from program, prompt user for service.
+
+    Result: 
+    Returns service enetered by user.
+    """
+
     print("Service:")
     print("What service is being worked on?\n")
 
+    # Prompts the user for what service they're having issues with.
     service = input(
         "Enter \"Fiber\", \"DSL\", \"Cable\", \"Fixed Wireless\", or \"N/A\". "
     ).lower()
 
+    # While entered service does not match a predefined service from program, prompt user for service.
     while (service != "fiber") and (service != "dsl") and (
             service != "cable") and (service !=
                                      "fixed wireless") and (service != "n/a"):
@@ -112,6 +129,7 @@ def get_service():
             "Enter \"Fiber\", \"DSL\", \"Cable\", \"Fixed Wireless\", or \"N/A\". "
         ).lower()
 
+    # Return service enetered by user.
     print("")
     return service
 
