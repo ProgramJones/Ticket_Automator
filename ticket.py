@@ -138,27 +138,39 @@ class Ticket():
         number, name, address, custom_issue, service, and category attributes are overwritten.
         """
 
-        print("\nCreating a new ticket...\n")
+        print("\n\n-------------------------------------------\n\n")
+        print("More information needed to create the ticket.\nPlease answer the following questions:")
+
+        print("\n\n")
 
         # Prompt the user for their name - Assign user's name to class instance's attributes.
         self.user = self.get_user()
 
+        print("\n\n")
+
         # Prompt the user for contact information - Assign contact information to class instance's attributes.
         print("Contact Information:")
-        self.number = input("What's their callback number? ")
+        self.number = input("What's the best callback number? ")
         self.name = input("Who is being helped? ")
         self.address = input("What's their address? ")
 
-        print("")
+        print("\n\n")
 
         # Prompt user for issue information - Assign issue information to class instance's attributes.
         print("Issue:")
-        self.custom_issue = input("What do they need help with? ")
+        self.custom_issue = input("What's the Issue? ")
 
-        print("")
+        print("\n\n")
 
         self.service = self.get_service()
+
+        print("\n\n")
+
         self.category = self.get_category()
+
+        print("\n\n")
+
+        print("No further questions!")
 
     def get_user(self):
         """
@@ -190,8 +202,6 @@ class Ticket():
             user = input(
                 "Who's creating this ticket? Enter first and last name. ")
             two_words = re.search(" {1}.+", user)
-
-        print()
 
         # Sepearte words entered by user, and assign them as names in an array called 'all_names'.
         all_names = re.split("\s", user)
@@ -225,8 +235,8 @@ class Ticket():
         Returns service entered by user.
         """
 
-        print("Service:\n")
-        print("Which of the following services are being worked on: ")
+        print("Service:")
+        print("Which of the following services is being worked on? \n")
 
         # Print all services.
         for item in self.services:
@@ -246,7 +256,6 @@ class Ticket():
             )
 
         # Return service enetered by user.
-        print("")
         return service
 
     def get_category(self):
@@ -268,8 +277,8 @@ class Ticket():
         Returns service category entered by user.
         """
 
-        print("Category:\n")
-        print("Which of the following categories are being worked on: ")
+        print("Category:")
+        print("Which of the following categories is being worked on? \n")
 
         # Current categories is an array that will contain categories relevent to the selected service
         current_categories = []
@@ -454,20 +463,21 @@ class Ticket():
         for option in options:
             print("• " + option)
 
-    def generate_ticket_automator(self):
+    def print_ticket_steps_questions_and_options(self):
 
         self.is_online_or_not()
 
-        print("\n\nGenerating Ticket Automator...\n\n")
-        print("----------------------------------\n")
+        print("\n\n----------------------------------\n\n")
+
+        print("Ticket:\n")
 
         self.print_ticket()
 
-        print("\n----------------------------------\n\n")
+        print("\n\n")
 
         self.print_troubleshooting_steps()
 
-        print("\n")
+        print("\n\n")
 
         self.print_diagnostic_questions(self.service, self.category)
 

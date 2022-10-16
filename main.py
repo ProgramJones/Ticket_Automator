@@ -30,32 +30,32 @@ def print_main_menu():
     # print("|   |  |")
     # print("|   |  -----")
 
-    print("Ticket Automator\n")
-    print("\nEnter \"Create\" to create a new ticket")
-    print("Enter \"End\" at any time to end the program")
-    print("")
+    print("\nTicket Automator\n\n")
+
+    print("Options:")
+    print("Create - Create a new ticket")
+    print("End - End the program")
 
 
 print_main_menu()
 
-flag = input().lower()
+flag = input(
+    "\n\nEnter an option from the above list: "
+).lower()
 
 while flag != "end" and flag != "create":
     print("Please enter a valid option.\n")
 
-    print("\nEnter \"Create\" to create a new ticket")
-    print("Enter \"End\" at any time to end the program\n")
-
-    flag = input().lower()
+    flag = input(
+        "\nEnter an option from the above list: "
+    ).lower()
 
 if flag == "create":
     newTicket = ticket.Ticket()
 
     newTicket.setup_ticket()
 
-    print("\n")
-
-    newTicket.generate_ticket_automator()
+    newTicket.print_ticket_steps_questions_and_options()
 
 elif flag == "end":
     os.sys.exit(0)
