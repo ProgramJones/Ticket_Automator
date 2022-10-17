@@ -10,12 +10,6 @@
 # Email - Setup
 # Email - Configuration
 
-# Add diagnostic_questions for:
-# Email - General
-# Email - Setup
-# Email - Configuration
-# TV - General
-
 # Let user enter service and category with any casing
 
 # Make ticket output all lines from a dictionary
@@ -110,7 +104,7 @@ class Ticket():
         self.internet_general_questions = [
             "Are any services still working? ",
             "Are all devices effected? If not, what is affected? ",
-            "How long has issue been happening for? ",
+            "How long has this issue been happening for? ",
             "Where there any equipment changes or outside disturbances like weather or maintenance when issue first started happening? "
         ]
         self.intermittent_questions = [
@@ -129,6 +123,14 @@ class Ticket():
             "Is the router in a closed space like a closet, cabinet, entertainment center, kitchen/laundry room, or besides a phone’s base? ",
             "Are there sources of interference like radios, extenders, metal doors, or metal ceilings? "
         ]
+
+        self.email_general_questions = [
+            "How long has this issue been happening for? "]
+        self.email_setup_questions = []
+        self.email_configuration_questions = []
+
+        self.tv_general_questions = [
+            "How long has this issue been happening for? "]
 
     def setup_ticket(self):
         """
@@ -184,8 +186,10 @@ class Ticket():
         print("All questions answered!\n")
 
         print("Service: " + self.service + " | Category: " + self.category)
-        print("Outputting ticket, relevant information, and commands.",
+        print("Outputting ticket and relevant information.",
               end="", flush=True)
+        # print("Outputting ticket, relevant information, and commands.",
+        #       end="", flush=True)
 
         time.sleep(.75)
         print(".", end="", flush=True)
@@ -483,6 +487,16 @@ class Ticket():
             for index, item in enumerate(self.intermittent_connectivity_and_speed_steps):
                 print(str(index + 1) + ". " + item)
 
+        # Email
+
+        # if service is Email and category is Setup, print "No steps defined yet."
+        elif self.service == "Email" and self.category == "Setup":
+            print("No steps defined yet.")
+
+        # if service is Email and category is Configuration, print "No steps defined yet."
+        elif self.service == "Email" and self.category == "Configuration":
+            print("No steps defined yet.")
+
         # General
 
         # if category is General, print "No troubleshooting steps defined for general categories"
@@ -508,22 +522,40 @@ class Ticket():
         """
 
         # Initialize an empty list called ticket_questions.
+        # The content will later depend on the current service and category
         ticket_questions = []
 
         print("Diagnostic Questions:")
 
-        # if service is DSL, append dsl_questions to ticket_questions
-        if (self.service == "DSL"):
-            ticket_questions.append(self.dsl_questions)
-        # if service is Fiber, DSL, Cable, or Fixed Wireless, append internet_general_questions and wifi_questions to ticket_questions.
+        # if service is in internet_services list, run the following code
         if (self.service in self.internet_services):
+            # append internet_general_questions and wifi_questions to ticket_questions.
             ticket_questions.append(self.internet_general_questions)
             ticket_questions.append(self.wifi_questions)
-        # if category is Intermittent Connectivity/Speed, append intermittent_questions to ticket questions.
-        if (self.category == "Intermittent Connectivity/Speed"):
-            ticket_questions.append(self.intermittent_questions)
+            # if service is DSL, append dsl_questions to ticket_questions
+            if (self.service == "DSL"):
+                ticket_questions.append(self.dsl_questions)
+            # if category is Intermittent Connectivity/Speed, append intermittent_questions to ticket_questions.
+            if (self.category == "Intermittent Connectivity/Speed"):
+                ticket_questions.append(self.intermittent_questions)
 
-        # Print all items in ticket_questions.
+        # if service is Email, run the following code
+        elif (self.service == "Email"):
+            # append email_general_questions to ticket_questions
+            ticket_questions.append(self.email_general_questions)
+            # if category is Setup, append email_setup_questions to ticket_questions
+            if (self.category == "Setup"):
+                ticket_questions.append(self.email_setup_questions)
+            # if category is Configuration, append email_configuration_questions to ticket_questions
+            if (self.category == "Configuration"):
+                ticket_questions.append(self.email_configuration_questions)
+
+        # if service is TV, run the following code
+        elif (self.service == "TV"):
+            # append tv_general_questions to ticket_questions
+            ticket_questions.append(self.tv_general_questions)
+
+        # Print all items in ticket_questions list.
         # Format: some_number. question_example | 1. "What devices are affected?"
         count = 1
         for list in ticket_questions:
@@ -603,6 +635,6 @@ class Ticket():
 
         self.print_diagnostic_questions()
 
-        # print("\n")
+        print("\n\n")
 
         # self.print_options()
