@@ -411,7 +411,7 @@ class Ticket():
         Prints all relevant troubleshooting steps.
         """
 
-        print("Troubleshooting Steps for:")
+        print("Troubleshooting Steps:")
 
         # Connectivity Steps
 
