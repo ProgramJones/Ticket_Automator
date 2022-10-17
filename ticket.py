@@ -16,9 +16,11 @@
 # Email - Configuration
 # TV - General
 
-# Make print_options add all lines to a dictionary and then print those lines
+# Let user enter service and category with any casing
 
-# - Ability to add steps and diagnostic questions to ticket
+# Make ticket output all lines from a dictionary
+
+# Ability to add steps and diagnostic questions to ticket
 # Print steps and diagnostic questions
 # ...
 
@@ -179,8 +181,9 @@ class Ticket():
 
         print("\n\n")
 
-        print("All questions answered!\nOutputting relevant information...")
-        time.sleep(1)
+        print("All questions answered!")
+        print("Outputting ticket, relevant information, and commands...")
+        time.sleep(1.5)
 
     def get_user(self):
         """
@@ -219,12 +222,13 @@ class Ticket():
 
         # Format names from all_names in format of first_name_initial + last_name + any_other_last_names
         signature = ""
-        for index, name in enumerate(all_names):
 
+        for index, name in enumerate(all_names):
             if index == 0:
                 signature += name[0].lower()
             else:
-                signature += name.title()
+                signature += name.lower()
+
         return signature
 
     def get_service(self):
@@ -372,7 +376,7 @@ class Ticket():
         When print_ticket_steps_questions_and_options method is called.
 
         Purpose: 
-        When ticket is first created, print the ticket's current number, name, address, custom_issue, category, service, and user values.
+        When ticket is first created, print the ticket's current number, name, address, custom_issue, and user values.
 
         Result: 
         Prints current ticket information.
@@ -383,8 +387,7 @@ class Ticket():
         print("address: " + self.address)
         print("")
 
-        print("Issue: " + self.custom_issue)
-        print(self.service + " - " + self.category)
+        print(self.custom_issue)
 
         print()
 
@@ -408,7 +411,7 @@ class Ticket():
         Prints all relevant troubleshooting steps.
         """
 
-        print("Troubleshooting Steps:")
+        print("Troubleshooting Steps for:")
 
         # Connectivity Steps
 
@@ -469,6 +472,8 @@ class Ticket():
         elif self.category == "Intermittent Connectivity/Speed" and self.isOnline == "yes":
             for index, item in enumerate(self.intermittent_connectivity_and_speed_steps):
                 print(str(index + 1) + ". " + item)
+
+        # General
 
         # if category is General, print "No troubleshooting steps defined for general categories"
         elif (self.category == "General"):
