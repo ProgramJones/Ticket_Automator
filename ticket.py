@@ -6,15 +6,21 @@
 
 # TASKS
 
+# Comment and docstring:
+# ticket.py - create_ticket
+# ticket.py - wait_for_command
+# system.py - clear_prompt_or_terminal
+# main_menu.py - print_main_menu_information
+# main_menu.py - choose_menu_command
+# main_menu.py - execute_menu_command
+# main_menu.py - open_main_menu
+
 # Add troubleshooting steps for:
 # Email - Setup
 # Email - Configuration
 
 # Let user enter service and category with any casing
-
-# Add loop of options so program won't end when run in python shell
-# Add enter command and help lines to their own method
-# Can shortcut and double click main.py when this is done
+# Just make a copied list with all lowercase letters
 
 # Make ticket output all lines from a dictionary
 
@@ -24,8 +30,11 @@
 
 # Edit README.md
 
+
+import os
 import re
 import time
+import system
 import main_menu
 
 
@@ -571,7 +580,7 @@ class Ticket():
     def print_commands(self):
         """
         Name: 
-        print_options
+        print_commands
 
         Parameters:
         None
@@ -584,27 +593,33 @@ class Ticket():
         User can enter any of these options to do something in the program.
 
         Result: 
-        Prints all options.
+        Prints all commands.
         """
 
-        options = [
-            "Add Question - Add a diagnostic question to the ticket.",
-            "Add Step - Add a troubleshooting step to the ticket.",
-            "Add Line - Add a custom line of text and choose where to insert it.",
-            "Add Category - Add a new service and/or category to the ticket.",
-            "Remove Question - Remove a diagnostic question from the ticket.",
-            "Remove Step - Remove a troubleshooting step from the ticket.",
-            "Remove Line - Remove a custom line from the ticket.",
-            "Remove Category - Remove a service and/or category from the ticket.",
-            "Main - Return to the main menu.", "End - End the program."
-        ]
+        # # All commands - Uncomment when code written for all commands
+        # print("Commands:")
+        # command = [
+        #     "Add Question - Add a diagnostic question to the ticket.",
+        #     "Add Step - Add a troubleshooting step to the ticket.",
+        #     "Add Line - Add a custom line of text and choose where to insert it.",
+        #     "Add Category - Add a new service and/or category to the ticket.",
+        #     "Remove Question - Remove a diagnostic question from the ticket.",
+        #     "Remove Step - Remove a troubleshooting step from the ticket.",
+        #     "Remove Line - Remove a custom line from the ticket.",
+        #     "Remove Category - Remove a service and/or category from the ticket.",
+        #     "Help - Show all available options.",
+        #     "Main - Return to the main menu.", "End - End the program."
+        # ]
 
-        print("Options:")
+        print("Commands:")
+        commands = ["Help - Show all available options.", "Main - Return to the main menu.",
+                    "End - End the program."
+                    ]
 
         # Print all items in options.
         # Format: • Add Question - Add a diagnostic question to the ticket.
-        for option in options:
-            print("• " + option)
+        for command in commands:
+            print("• " + command)
 
     def print_ticket_steps_questions_and_commands(self):
         """
@@ -642,14 +657,47 @@ class Ticket():
 
         print("\n\n")
 
+        print("Enter 'Help' to view available commands.\n")
+
+    def wait_for_command(self):
+
+        # # Full list of commands - Uncomment when code written for all commands
+        # ticket_command_choices = ["add question", "add step", "add line", "add category",
+        #  "remove question", "remove step", "remove line", "remove category", "help", "main", "end"]
+
+        # Commands not added yet
+        # ticket_command_choices = ["add question", "add step", "add line", "add category",
+        #  "remove question", "remove step", "remove line", "remove category"]
+
+        ticket_command_choices = ["help", "main", "end"]
+
+        ticket_command_choice = input("Enter a command: ").lower()
+
+        while ticket_command_choice not in ticket_command_choices:
+            print("Please enter a valid option.\n")
+
+            ticket_command_choice = input("Enter a command: ").lower()
+
+        if (ticket_command_choice == "help"):
+            print()
+
+            self.print_commands()
+
+            print()
+
+            self.wait_for_command()
+
+        elif (ticket_command_choice == "main"):
+            system.clear_prompt_or_terminal()
+
+            main_menu.open_main_menu()
+
+        elif (ticket_command_choice == "end"):
+            os.sys.exit(0)
+
     def create_ticket(self):
         self.setup_ticket()
 
         self.print_ticket_steps_questions_and_commands()
 
-
-# print("Enter 'Help' to view available commands.\n")
-
-# print("Enter a command: ")
-
-# if user types 'help', print the main menu
+        self.wait_for_command()

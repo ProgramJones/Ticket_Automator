@@ -4,16 +4,9 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-import os
-import platform
+import system
 import main_menu
 
-# Clear the command line or terminal
-if (platform.system() == "Windows"):
-    # If operating system is Windows, clear command prompt with 'cls'
-    os.system("cls")
-else:
-    # If operating system is Unix, clear terminal with 'clear'
-    os.system("clear")
+system.clear_prompt_or_terminal()
 
 main_menu.open_main_menu()
