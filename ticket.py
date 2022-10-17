@@ -181,9 +181,19 @@ class Ticket():
 
         print("\n\n")
 
-        print("All questions answered!")
-        print("Outputting ticket, relevant information, and commands...")
-        time.sleep(1.5)
+        print("All questions answered!\n")
+
+        print("Service: " + self.service + " | Category: " + self.category)
+        print("Outputting ticket, relevant information, and commands.",
+              end="", flush=True)
+
+        time.sleep(.75)
+        print(".", end="", flush=True)
+
+        time.sleep(.75)
+        print(".", end="", flush=True)
+
+        time.sleep(.75)
 
     def get_user(self):
         """
