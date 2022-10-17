@@ -12,14 +12,21 @@
 
 # Let user enter service and category with any casing
 
+# Add loop of options so program won't end when run in python shell
+# Add enter command and help lines to their own method
+# Can shortcut and double click main.py when this is done
+
 # Make ticket output all lines from a dictionary
 
 # Ability to add steps and diagnostic questions to ticket
 # Print steps and diagnostic questions
 # ...
 
+# Edit README.md
+
 import re
 import time
+import main_menu
 
 
 class Ticket():
@@ -186,10 +193,8 @@ class Ticket():
         print("All questions answered!\n")
 
         print("Service: " + self.service + " | Category: " + self.category)
-        print("Outputting ticket and relevant information.",
+        print("Outputting ticket, relevant information, and commands.",
               end="", flush=True)
-        # print("Outputting ticket, relevant information, and commands.",
-        #       end="", flush=True)
 
         time.sleep(.75)
         print(".", end="", flush=True)
@@ -563,7 +568,7 @@ class Ticket():
                 print(str(count) + ". " + item)
                 count += 1
 
-    def print_options(self):
+    def print_commands(self):
         """
         Name: 
         print_options
@@ -601,7 +606,7 @@ class Ticket():
         for option in options:
             print("• " + option)
 
-    def print_ticket_steps_questions_and_options(self):
+    def print_ticket_steps_questions_and_commands(self):
         """
         Name: 
         print_ticket_steps_questions_and_options
@@ -613,10 +618,10 @@ class Ticket():
         Right after setup_ticket method is run. 
 
         Purpose: 
-        Prints the ticket, relevant troubleshooting steps, relevant diagnostic questions, and options.
+        Prints the ticket, relevant troubleshooting steps, relevant diagnostic questions, and commands.
 
         Result: 
-        Prints the ticket, relevant troubleshooting steps, relevant diagnostic questions, and options.
+        Prints the ticket, relevant troubleshooting steps, relevant diagnostic questions, and commands.
         """
 
         self.is_online_or_not()
@@ -637,4 +642,14 @@ class Ticket():
 
         print("\n\n")
 
-        # self.print_options()
+    def create_ticket(self):
+        self.setup_ticket()
+
+        self.print_ticket_steps_questions_and_commands()
+
+
+# print("Enter 'Help' to view available commands.\n")
+
+# print("Enter a command: ")
+
+# if user types 'help', print the main menu
