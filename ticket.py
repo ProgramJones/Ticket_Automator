@@ -6,17 +6,9 @@
 
 # TASKS
 
-# Comment and docstring:
-# ticket.py - create_ticket
-# ticket.py - wait_for_command
-# system.py - clear_prompt_or_terminal
-# main_menu.py - print_main_menu_information
-# main_menu.py - choose_menu_command
-# main_menu.py - execute_menu_command
-# main_menu.py - open_main_menu
-# Remove "Purpose" in each docstring and keep result. Having both seems redundant.
-#
-# Update all docstrings with below format:
+# Comment, when needed, all code in main_menu.py and system.py
+
+# Update all docstrings in main_menu.py and system.py with below format:
 # Name:
 #
 
@@ -26,16 +18,21 @@
 # When code is run:
 #
 
-# Result:
+# Purpose:
 #
 
-# main_menu.py: Add 'Open' comand - Open an existing ticket.
-# ticket.py: Add 'Save' command - Save ticket as a .txt file.
-# ticket.py: Add 'Copy' command - Copy ticket to clipboard.
+# methods in main_menu.py and system.py:
+# system.py - clear_prompt_or_terminal
+# main_menu.py - print_main_menu_information
+# main_menu.py - choose_menu_command
+# main_menu.py - execute_menu_command
+# main_menu.py - open_main_menu
 
-# Ask user if service was provided by an ISP
-# option to print ISPs, in case user isn't sure what ISPs are available
-# When user enters ISP name, troubleshooting steps and diagnostic questions are filtered
+
+# For add question, add step, add line: Figure out how to add keys and values before or after existing keys and values in ticket_content
+
+# Just remove certain keys values in ticket_content when remove question, remove step, and remove line commands are run
+# What about just having one remove command that can remove question, line, and step?
 
 # Add troubleshooting steps for:
 # Email - Setup
@@ -44,6 +41,20 @@
 # Add code for all commands
 
 # Edit README.md
+
+
+# ** Add below with user auth enabled:
+
+# Add user auth with flask so different users can have different options when creating a ticket
+# options: filtering information based on ISP, saving tickets, opening tickets
+
+# main_menu.py: Add 'Open' comand - Open an existing ticket. (For superusers?)
+# ticket.py: Add 'Save' command - Save ticket as a .txt file. (For superusers?)
+# ticket.py: Add 'Copy' command - Copy ticket to clipboard. NEXT
+
+# Ask user if service was provided by an ISP
+# option to print ISPs, in case user isn't sure what ISPs are available
+# When user enters ISP name, troubleshooting steps and diagnostic questions are filtered
 
 
 import os
@@ -175,7 +186,7 @@ class Ticket():
         When code is run:
         When create_ticket is called.
 
-        Result:
+        Purpose:
         Prompt for number, name, address, custom_issue, service, and category and assign inputted information to relevant attributes.
         Append number, name, address, custom_issue, service, and category attributes to ticket_content dictionary.
         """
@@ -229,6 +240,10 @@ class Ticket():
 
         print("\n\n")
 
+        self.is_online_or_not()
+
+        print("\n\n")
+
         print("All questions answered!\n")
 
         print("Service: " + self.service + " | Category: " + self.category)
@@ -246,7 +261,7 @@ class Ticket():
     def set_user(self):
         """
         Name:
-        get_user
+        set_user
 
         Parameters:
         None
@@ -255,10 +270,8 @@ class Ticket():
         When setup_ticket function is called.
 
         Purpose:
-        Prompts the user for their first and last name.
-
-        Result:
-        Returns the user's name in format of first_name_initial + last_name.
+        Prompt the user for their first and last name.
+        Return a formatted version of user's first and last name. ( Format is first_name_initial + last_name(s) ) 
         """
 
         user = input(
@@ -292,7 +305,7 @@ class Ticket():
     def set_service(self):
         """
         Name:
-        get_service
+        set_service
 
         Parameters:
         None
@@ -301,11 +314,8 @@ class Ticket():
         When setup_ticket function is called.
 
         Purpose:
-        Prompts the user for what service they're having issues with.
-        While entered service is not in the program's 'service' list, prompt user for service.
-
-        Result:
-        Returns service entered by user.
+        Prompt the user for what service they're having issues with.
+        Return service entered by user.    
         """
 
         print("Service:")
@@ -345,7 +355,7 @@ class Ticket():
     def set_category(self):
         """
         Name:
-        get_category
+        set_category
 
         Parameters:
         None
@@ -354,11 +364,8 @@ class Ticket():
         When setup_ticket function is called.
 
         Purpose:
-        Prompts the user for what service category they're having issues with.
-        While entered service category does not match a predefined service from program, prompt user for service.
-
-        Result:
-        Returns service category entered by user.
+        Prompt the user for what category they're having issues with.
+        Return category entered by user.
         """
 
         print("Category:")
@@ -415,13 +422,10 @@ class Ticket():
         None
 
         When code is run:
-        When print_ticket_steps_questions_and_options method is called.
+        When setup_ticket method is called.
 
         Purpose:
-        When category is Intermittent Connectivity/Speed, determine if internet is online or not.
-
-        Result:
-        Re-assigns isOnline variable to 'yes' or 'no', when category is intermittent connectivity/speed.
+        Re-assign isOnline variable to 'yes' or 'no' when category is intermittent connectivity/speed.
         """
 
         # If category is intermittent connectivity/speed and if method hasn't been run before, run the following code...
@@ -450,8 +454,8 @@ class Ticket():
         When code is run:
         When print_ticket_steps_and_questions method is called.
 
-        Result:
-        Prints current ticket information from ticket_content dictionary.
+        Purpose:
+        Print all values from ticket_content dictionary.
         """
 
         print(self.ticket_content["number"])
@@ -475,13 +479,10 @@ class Ticket():
         None
 
         When code is run:
-        When print_ticket_steps_questions_and_options method is called.
-
-        Purpose:
-        Print certain troubleshooting steps, depending on current service, category, and isOnline status
+        When print_ticket_steps_and_questions method is called.
 
         Result:
-        Prints all relevant troubleshooting steps.
+        Print certain troubleshooting steps, depending on current service, category, and isOnline status.
         """
 
         print("Troubleshooting Steps:")
@@ -571,13 +572,10 @@ class Ticket():
         service, category
 
         When code is run:
-        When print_ticket_steps_questions_and_options method is called.
+        When print_ticket_steps_and_questions method is called.
 
         Purpose:
-        Print certain diagnostic questions, depending on current service, category, and isOnline status
-
-        Result:
-        Prints all relevant diagnostic questions.
+        Print certain diagnostic questions, depending on current service, category, and isOnline status.
         """
 
         # Initialize an empty list called ticket_questions.
@@ -633,7 +631,7 @@ class Ticket():
         When code is run:
         When wait_for_command() is called.
 
-        Result:
+        Purpose:
         Print all commands.
         """
 
@@ -648,6 +646,7 @@ class Ticket():
         #     "Remove Question - Remove a diagnostic question from the ticket.",
         #     "Remove Line - Remove a custom line from the ticket.",
         #     "Remove Category - Remove a service and/or category from the ticket.",
+        #     "Copy - Copy current ticket to the clipboard.",
         #     "Help - Show all available options.",
         #     "Main - Return to the main menu.",
         #     "End - End the program."
@@ -675,11 +674,9 @@ class Ticket():
         At the end of the setup_ticket() method.
         When create_ticket() is called.
 
-        Result:
+        Purpose:
         Prints the ticket, troubleshooting steps, and diagnostic questions.
         """
-
-        self.is_online_or_not()
 
         print("\n\n----------------------------------\n\n")
 
@@ -698,14 +695,30 @@ class Ticket():
         print("\n\n")
 
     def wait_for_command(self):
+        """
+        Name:
+        wait_for_command
+
+        Parameters:
+        None
+
+        When code is run:
+        At the end of create_ticket().
+        When wait_for_command() is being run and user enters 'help'.
+
+        Purpose:
+        Allow the user to choose a command from a list of commands.
+        Program will do something depending on which command is entered.
+        Ex. typing 'help' shows all available commands. | Ex. typing 'main' will send user back to main menu.
+        """
 
         # # Full list of commands - Uncomment when code written for all commands
         # ticket_command_choices = ["add step", "add question", "add line", "add category",
-        #  "remove step", "remove question", "remove line", "remove category", "help", "main", "end"]
+        #  "remove step", "remove question", "remove line", "remove category", "copy", "help", "main", "end"]
 
         # Commands not added yet
         # ticket_command_choices = ["add step", "add question", "add line", "add category",
-        #  "remove step", "remove question", "remove line", "remove category"]
+        #  "remove step", "remove question", "remove line", "remove category", "copy"]
 
         print("Enter 'Help' to view available commands.\n")
 
@@ -713,11 +726,14 @@ class Ticket():
 
         ticket_command_choice = input("Enter a command: ").lower().strip()
 
+        # while user has not entered a command that's also in ticket_command_choices list, prompt user for a command.
         while ticket_command_choice not in ticket_command_choices:
             print("Please enter a valid option.\n")
 
             ticket_command_choice = input("Enter a command: ").lower().strip()
 
+        # if user enters 'help', print all available commands.
+        # run wait_for_command after doing this, which will prompt user for a command again.
         if (ticket_command_choice == "help"):
             print()
 
@@ -727,15 +743,30 @@ class Ticket():
 
             self.wait_for_command()
 
+        # if user enters 'main', go back to the program's main menu
         elif (ticket_command_choice == "main"):
             system.clear_prompt_or_terminal()
 
             main_menu.open_main_menu()
 
+        # if user enters 'end', end the program
         elif (ticket_command_choice == "end"):
             os.sys.exit(0)
 
     def create_ticket(self):
+        """
+        Name:
+        create_ticket
+
+        Parameters:
+        None
+
+        When code is run:
+        From main_menu.py's execute_menu_command method, when user enters 'create'.
+
+        Purpose:
+        Call the setup_ticket, print_ticket_steps_and_questions, and wait_for_command methods.
+        """
         self.setup_ticket()
 
         self.print_ticket_steps_and_questions()
