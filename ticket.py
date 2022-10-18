@@ -18,9 +18,6 @@
 # main_menu.py - execute_menu_command
 # main_menu.py - open_main_menu
 
-# Let user enter service and category with any casing
-# Just make a copied list with all lowercase letters
-
 
 # Ask user if service was provided by an ISP
 # option to print ISPs, in case user isn't sure what ISPs are available
@@ -156,20 +153,20 @@ class Ticket():
 
     def setup_ticket(self):
         """
-        Name: 
+        Name:
         setup_ticket
 
         Parameters:
         None
 
-        When code is run: 
+        When code is run:
         Right after an object is instantiated.
 
-        Purpose: 
+        Purpose:
         Prompt the user for their name, the contact information, and the issue information.
         Assigns what's entered into class isntance's respective attributes.
 
-        Result: 
+        Result:
         number, name, address, custom_issue, service, and category attributes are overwritten.
         """
 
@@ -221,19 +218,19 @@ class Ticket():
 
     def get_user(self):
         """
-        Name: 
+        Name:
         get_user
 
         Parameters:
         None
 
-        When code is run: 
+        When code is run:
         When setup_ticket function is called.
 
-        Purpose: 
+        Purpose:
         Prompts the user for their first and last name.
 
-        Result: 
+        Result:
         Returns the user's name in format of first_name_initial + last_name.
         """
 
@@ -267,25 +264,29 @@ class Ticket():
 
     def get_service(self):
         """
-        Name: 
+        Name:
         get_service
 
         Parameters:
         None
 
-        When code is run: 
+        When code is run:
         When setup_ticket function is called.
 
-        Purpose: 
+        Purpose:
         Prompts the user for what service they're having issues with.
         While entered service is not in the program's 'service' list, prompt user for service.
 
-        Result: 
+        Result:
         Returns service entered by user.
         """
 
         print("Service:")
         print("Which of the following services is being worked on? \n")
+
+        # Make a temporarily list that's the lowercase version of self.services
+        lowercase_services = [[service.lower() for service in list]
+                              for list in self.services]
 
         # Print all services.
         for item in self.services:
@@ -294,35 +295,42 @@ class Ticket():
 
         # Prompts the user for what service they're having issues with.
         service = input(
-            "\nEnter a service from the above list, with correct casing: "
+            "\nEnter a service from the above list: "
         ).strip()
 
-        # While entered service is not in the program's 'service' list, prompt user for service.
-        while (not any(service in x for x in self.services)):
+        # While entered service is not in the lowercase_services list, prompt user for service.
+        while (not any(service.lower() in x for x in lowercase_services)):
             print("Please enter a valid service\n")
             service = input(
-                "\nEnter a service from the above list, with correct casing: "
+                "\nEnter a service from the above list: "
             ).strip()
 
-        # Return service enetered by user.
-        return service
+        # Reassign and return service enetered by user.
+        # if service is DSL or TV, catapitalize all letters of service
+        if (service.lower() == "dsl" or service.lower() == "tv"):
+            service = service.upper()
+            return service
+        else:
+            # if service is anything besides DSL or TV, uppercase the first letter of each word in service variable
+            service = service.title()
+            return service
 
     def get_category(self):
         """
-        Name: 
+        Name:
         get_category
 
         Parameters:
         None
 
-        When code is run: 
+        When code is run:
         When setup_ticket function is called.
 
-        Purpose: 
+        Purpose:
         Prompts the user for what service category they're having issues with.
         While entered service category does not match a predefined service from program, prompt user for service.
 
-        Result: 
+        Result:
         Returns service category entered by user.
         """
 
@@ -354,34 +362,38 @@ class Ticket():
 
         # Prompts the user for what service category they're having issues with.
         category = input(
-            "\nEnter a category from the above list, with correct casing: "
+            "\nEnter a category from the above list: "
         ).strip()
 
-        # While entered service category does not match a predefined service from program, prompt user for service.
-        while (category not in current_categories):
+        # Make a temporarily list that's the lowercase version of current_categories
+        lowercase_categories = [category.lower()
+                                for category in current_categories]
+
+        # While entered category is not in lowercase_categories list, prompt user for category.
+        while (category.lower() not in lowercase_categories):
             print("Please enter a valid category\n")
             category = input(
-                "\nEnter a category from the above list, with correct casing: "
+                "\nEnter a category from the above list: "
             ).strip()
 
-        # Return service category entered by user.
+        category = category.title()
         return category
 
     def is_online_or_not(self):
         """
-        Name: 
+        Name:
         is_online_or_not
 
         Parameters:
         None
 
-        When code is run: 
+        When code is run:
         When print_ticket_steps_questions_and_options method is called.
 
-        Purpose: 
+        Purpose:
         When category is Intermittent Connectivity/Speed, determine if internet is online or not.
 
-        Result: 
+        Result:
         Re-assigns isOnline variable to 'yes' or 'no', when category is intermittent connectivity/speed.
         """
 
@@ -402,19 +414,19 @@ class Ticket():
 
     def print_ticket(self):
         """
-        Name: 
+        Name:
         print_ticket
 
         Parameters:
         None
 
-        When code is run: 
+        When code is run:
         When print_ticket_steps_questions_and_options method is called.
 
-        Purpose: 
+        Purpose:
         When ticket is first created, print the ticket's current number, name, address, custom_issue, and user values.
 
-        Result: 
+        Result:
         Prints current ticket information.
         """
 
@@ -431,19 +443,19 @@ class Ticket():
 
     def print_troubleshooting_steps(self):
         """
-        Name: 
+        Name:
         print_troubleshooting_steps
 
         Parameters:
         None
 
-        When code is run: 
+        When code is run:
         When print_ticket_steps_questions_and_options method is called.
 
-        Purpose: 
+        Purpose:
         Print certain troubleshooting steps, depending on current service, category, and isOnline status
 
-        Result: 
+        Result:
         Prints all relevant troubleshooting steps.
         """
 
@@ -527,19 +539,19 @@ class Ticket():
 
     def print_diagnostic_questions(self):
         """
-        Name: 
+        Name:
         print_diagnostic_questions
 
         Parameters:
         service, category
 
-        When code is run: 
+        When code is run:
         When print_ticket_steps_questions_and_options method is called.
 
-        Purpose: 
+        Purpose:
         Print certain diagnostic questions, depending on current service, category, and isOnline status
 
-        Result: 
+        Result:
         Prints all relevant diagnostic questions.
         """
 
@@ -587,20 +599,20 @@ class Ticket():
 
     def print_commands(self):
         """
-        Name: 
+        Name:
         print_commands
 
         Parameters:
         None
 
-        When code is run: 
+        When code is run:
         When print_ticket_steps_questions_and_options method is called.
 
-        Purpose: 
-        Prints all options. 
+        Purpose:
+        Prints all options.
         User can enter any of these options to do something in the program.
 
-        Result: 
+        Result:
         Prints all commands.
         """
 
@@ -632,19 +644,19 @@ class Ticket():
 
     def print_ticket_steps_questions_and_commands(self):
         """
-        Name: 
+        Name:
         print_ticket_steps_questions_and_options
 
         Parameters:
         None
 
-        When code is run: 
-        Right after setup_ticket method is run. 
+        When code is run:
+        Right after setup_ticket method is run.
 
-        Purpose: 
+        Purpose:
         Prints the ticket, relevant troubleshooting steps, relevant diagnostic questions, and commands.
 
-        Result: 
+        Result:
         Prints the ticket, relevant troubleshooting steps, relevant diagnostic questions, and commands.
         """
 
