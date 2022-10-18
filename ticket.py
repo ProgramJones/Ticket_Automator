@@ -7,6 +7,9 @@
 # TASKS
 
 # Comment and docstring:
+# ticket.py - print_commands (update docstring to mention where it's called)
+# ticket.py - print_ticket_steps_questions_and_commands (update docstring to mention where it's called)
+# ticket.py - setup_ticket (update docstring to mention where it's called)
 # ticket.py - create_ticket
 # ticket.py - wait_for_command
 # system.py - clear_prompt_or_terminal
@@ -15,18 +18,21 @@
 # main_menu.py - execute_menu_command
 # main_menu.py - open_main_menu
 
+# Let user enter service and category with any casing
+# Just make a copied list with all lowercase letters
+
+
+# Ask user if service was provided by an ISP
+# option to print ISPs, in case user isn't sure what ISPs are available
+# When user enters ISP name, troubleshooting steps and diagnostic questions are filtered
+
 # Add troubleshooting steps for:
 # Email - Setup
 # Email - Configuration
 
-# Let user enter service and category with any casing
-# Just make a copied list with all lowercase letters
-
 # Make ticket output all lines from a dictionary
 
-# Ability to add steps and diagnostic questions to ticket
-# Print steps and diagnostic questions
-# ...
+# Add code for all commands
 
 # Edit README.md
 
@@ -179,15 +185,15 @@ class Ticket():
 
         # Prompt the user for contact information - Assign contact information to class instance's attributes.
         print("Contact Information:")
-        self.number = input("What's the best callback number? ")
-        self.name = input("Who is being helped? ")
-        self.address = input("What's their address? ")
+        self.number = input("What's the best callback number? ").strip()
+        self.name = input("Who is being helped? ").strip()
+        self.address = input("What's their address? ").strip()
 
         print("\n\n")
 
         # Prompt user for issue information - Assign issue information to class instance's attributes.
         print("Issue:")
-        self.custom_issue = input("What's the Issue? ")
+        self.custom_issue = input("What's the Issue? ").strip()
 
         print("\n\n")
 
@@ -242,7 +248,7 @@ class Ticket():
             print("Enter a first and last name.\n")
 
             user = input(
-                "Who's creating this ticket? Enter first and last name. ")
+                "Who's creating this ticket? Enter first and last name. ").strip()
             two_words = re.search(" {1}.+", user)
 
         # Sepearte words entered by user, and assign them as names in an array called 'all_names'.
@@ -289,14 +295,14 @@ class Ticket():
         # Prompts the user for what service they're having issues with.
         service = input(
             "\nEnter a service from the above list, with correct casing: "
-        )
+        ).strip()
 
         # While entered service is not in the program's 'service' list, prompt user for service.
         while (not any(service in x for x in self.services)):
             print("Please enter a valid service\n")
             service = input(
                 "\nEnter a service from the above list, with correct casing: "
-            )
+            ).strip()
 
         # Return service enetered by user.
         return service
@@ -349,14 +355,14 @@ class Ticket():
         # Prompts the user for what service category they're having issues with.
         category = input(
             "\nEnter a category from the above list, with correct casing: "
-        )
+        ).strip()
 
         # While entered service category does not match a predefined service from program, prompt user for service.
         while (category not in current_categories):
             print("Please enter a valid category\n")
             category = input(
                 "\nEnter a category from the above list, with correct casing: "
-            )
+            ).strip()
 
         # Return service category entered by user.
         return category
@@ -384,13 +390,15 @@ class Ticket():
 
             # Prompt the user for network status.
             print("Is the internet online? \n")
-            self.isOnline = input("Enter yes or no to respond. ").lower()
+            self.isOnline = input(
+                "Enter yes or no to respond. ").lower().strip()
 
             # While response is not 'yes' or 'no', prompt user for network status.
             while (self.isOnline.lower() != "yes") and (self.isOnline.lower()
                                                         != "no"):
                 print("Please enter a valid response.\n")
-                self.isOnline = input("Enter yes or no to respond. ").lower()
+                self.isOnline = input(
+                    "Enter yes or no to respond. ").lower().strip()
 
     def print_ticket(self):
         """
@@ -599,16 +607,17 @@ class Ticket():
         # # All commands - Uncomment when code written for all commands
         # print("Commands:")
         # command = [
-        #     "Add Question - Add a diagnostic question to the ticket.",
         #     "Add Step - Add a troubleshooting step to the ticket.",
+        #     "Add Question - Add a diagnostic question to the ticket.",
         #     "Add Line - Add a custom line of text and choose where to insert it.",
         #     "Add Category - Add a new service and/or category to the ticket.",
-        #     "Remove Question - Remove a diagnostic question from the ticket.",
         #     "Remove Step - Remove a troubleshooting step from the ticket.",
+        #     "Remove Question - Remove a diagnostic question from the ticket.",
         #     "Remove Line - Remove a custom line from the ticket.",
         #     "Remove Category - Remove a service and/or category from the ticket.",
         #     "Help - Show all available options.",
-        #     "Main - Return to the main menu.", "End - End the program."
+        #     "Main - Return to the main menu.",
+        #     "End - End the program."
         # ]
 
         print("Commands:")
@@ -662,21 +671,21 @@ class Ticket():
     def wait_for_command(self):
 
         # # Full list of commands - Uncomment when code written for all commands
-        # ticket_command_choices = ["add question", "add step", "add line", "add category",
-        #  "remove question", "remove step", "remove line", "remove category", "help", "main", "end"]
+        # ticket_command_choices = ["add step", "add question", "add line", "add category",
+        #  "remove step", "remove question", "remove line", "remove category", "help", "main", "end"]
 
         # Commands not added yet
-        # ticket_command_choices = ["add question", "add step", "add line", "add category",
-        #  "remove question", "remove step", "remove line", "remove category"]
+        # ticket_command_choices = ["add step", "add question", "add line", "add category",
+        #  "remove step", "remove question", "remove line", "remove category"]
 
         ticket_command_choices = ["help", "main", "end"]
 
-        ticket_command_choice = input("Enter a command: ").lower()
+        ticket_command_choice = input("Enter a command: ").lower().strip()
 
         while ticket_command_choice not in ticket_command_choices:
             print("Please enter a valid option.\n")
 
-            ticket_command_choice = input("Enter a command: ").lower()
+            ticket_command_choice = input("Enter a command: ").lower().strip()
 
         if (ticket_command_choice == "help"):
             print()

@@ -39,14 +39,14 @@ def choose_menu_command():
 
     menu_choice = input(
         "\n\nEnter an option from the above list: "
-    ).lower()
+    ).lower().strip()
 
     while menu_choice not in menu_commands:
         print("Please enter a valid option.\n")
 
         menu_choice = input(
             "\nEnter an option from the above list: "
-        ).lower()
+        ).lower().strip()
 
     return menu_choice
 
