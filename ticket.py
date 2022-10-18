@@ -7,9 +7,6 @@
 # TASKS
 
 # Comment and docstring:
-# ticket.py - print_commands (update docstring to mention where it's called) DONE
-# ticket.py - print_ticket_steps_and_questions (update docstring to mention where it's called) DONE
-# ticket.py - setup_ticket (update docstring to mention where it's called)
 # ticket.py - create_ticket
 # ticket.py - wait_for_command
 # system.py - clear_prompt_or_terminal
@@ -32,6 +29,9 @@
 # Result:
 #
 
+# main_menu.py: Add 'Open' comand - Open an existing ticket.
+# ticket.py: Add 'Save' command - Save ticket as a .txt file.
+# ticket.py: Add 'Copy' command - Copy ticket to clipboard.
 
 # Ask user if service was provided by an ISP
 # option to print ISPs, in case user isn't sure what ISPs are available
@@ -40,8 +40,6 @@
 # Add troubleshooting steps for:
 # Email - Setup
 # Email - Configuration
-
-# Make ticket output all lines from a dictionary
 
 # Add code for all commands
 
@@ -66,6 +64,7 @@ class Ticket():
         self.service = None
         self.category = None
         self.isOnline = None
+        self.ticket_content = {}
 
         self.internet_services = ["Fiber", "DSL", "Cable", "Fixed Wireless"]
         self.services = [self.internet_services, ["Email"], ["TV"], ["N/A"]]
@@ -174,14 +173,11 @@ class Ticket():
         None
 
         When code is run:
-        Right after an object is instantiated.
-
-        Purpose:
-        Prompt the user for their name, the contact information, and the issue information.
-        Assigns what's entered into class isntance's respective attributes.
+        When create_ticket is called.
 
         Result:
-        number, name, address, custom_issue, service, and category attributes are overwritten.
+        Prompt for number, name, address, custom_issue, service, and category and assign inputted information to relevant attributes.
+        Append number, name, address, custom_issue, service, and category attributes to ticket_content dictionary.
         """
 
         print("\n\n-------------------------------------------\n\n")
@@ -190,7 +186,7 @@ class Ticket():
         print("\n\n")
 
         # Prompt the user for their name - Assign user's name to class instance's attributes.
-        self.user = self.get_user()
+        self.user = self.set_user()
 
         print("\n\n")
 
@@ -200,19 +196,36 @@ class Ticket():
         self.name = input("Who is being helped? ").strip()
         self.address = input("What's their address? ").strip()
 
+        # Append number, name, and address key and values to ticket_content
+        self.ticket_content.update({"number": "cb: " + self.number})
+        self.ticket_content.update({"name": "s/w: " + self.name})
+        self.ticket_content.update({"address": "address: " + self.address})
+
         print("\n\n")
 
         # Prompt user for issue information - Assign issue information to class instance's attributes.
         print("Issue:")
         self.custom_issue = input("What's the Issue? ").strip()
 
+        # Append custom issue key and value to ticket_content
+        self.ticket_content.update({"custom_issue": self.custom_issue})
+
         print("\n\n")
 
-        self.service = self.get_service()
+        self.service = self.set_service()
+
+        # Append service key and value to ticket_content
+        self.ticket_content.update({"service": self.service})
 
         print("\n\n")
 
-        self.category = self.get_category()
+        self.category = self.set_category()
+
+        # Append category key and value to ticket_content
+        self.ticket_content.update({"category": self.category})
+
+        # Append user key and value to end of ticket_content
+        self.ticket_content.update({"user": self.user})
 
         print("\n\n")
 
@@ -230,7 +243,7 @@ class Ticket():
 
         time.sleep(.75)
 
-    def get_user(self):
+    def set_user(self):
         """
         Name:
         get_user
@@ -276,7 +289,7 @@ class Ticket():
 
         return signature
 
-    def get_service(self):
+    def set_service(self):
         """
         Name:
         get_service
@@ -329,7 +342,7 @@ class Ticket():
             service = service.title()
             return service
 
-    def get_category(self):
+    def set_category(self):
         """
         Name:
         get_category
@@ -435,25 +448,23 @@ class Ticket():
         None
 
         When code is run:
-        When print_ticket_steps_questions_and_options method is called.
-
-        Purpose:
-        When ticket is first created, print the ticket's current number, name, address, custom_issue, and user values.
+        When print_ticket_steps_and_questions method is called.
 
         Result:
-        Prints current ticket information.
+        Prints current ticket information from ticket_content dictionary.
         """
 
-        print("cb: " + self.number)
-        print("s/w: " + self.name)
-        print("address: " + self.address)
-        print("")
-
-        print(self.custom_issue)
+        print(self.ticket_content["number"])
+        print(self.ticket_content["name"])
+        print(self.ticket_content["address"])
 
         print()
 
-        print(self.user)
+        print(self.ticket_content["custom_issue"])
+
+        print()
+
+        print(self.ticket_content["user"])
 
     def print_troubleshooting_steps(self):
         """
