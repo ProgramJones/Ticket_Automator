@@ -7,8 +7,8 @@
 # TASKS
 
 # Comment and docstring:
-# ticket.py - print_commands (update docstring to mention where it's called)
-# ticket.py - print_ticket_steps_questions_and_commands (update docstring to mention where it's called)
+# ticket.py - print_commands (update docstring to mention where it's called) DONE
+# ticket.py - print_ticket_steps_and_questions (update docstring to mention where it's called) DONE
 # ticket.py - setup_ticket (update docstring to mention where it's called)
 # ticket.py - create_ticket
 # ticket.py - wait_for_command
@@ -17,6 +17,20 @@
 # main_menu.py - choose_menu_command
 # main_menu.py - execute_menu_command
 # main_menu.py - open_main_menu
+# Remove "Purpose" in each docstring and keep result. Having both seems redundant.
+#
+# Update all docstrings with below format:
+# Name:
+#
+
+# Parameters:
+#
+
+# When code is run:
+#
+
+# Result:
+#
 
 
 # Ask user if service was provided by an ISP
@@ -205,7 +219,7 @@ class Ticket():
         print("All questions answered!\n")
 
         print("Service: " + self.service + " | Category: " + self.category)
-        print("Outputting ticket, relevant information, and commands.",
+        print("Outputting ticket, troubleshooting steps, and diagnostic questions.",
               end="", flush=True)
 
         time.sleep(.75)
@@ -606,14 +620,10 @@ class Ticket():
         None
 
         When code is run:
-        When print_ticket_steps_questions_and_options method is called.
-
-        Purpose:
-        Prints all options.
-        User can enter any of these options to do something in the program.
+        When wait_for_command() is called.
 
         Result:
-        Prints all commands.
+        Print all commands.
         """
 
         # # All commands - Uncomment when code written for all commands
@@ -637,27 +647,25 @@ class Ticket():
                     "End - End the program."
                     ]
 
-        # Print all items in options.
+        # In a certain format, print all items in commands.
         # Format: • Add Question - Add a diagnostic question to the ticket.
         for command in commands:
             print("• " + command)
 
-    def print_ticket_steps_questions_and_commands(self):
+    def print_ticket_steps_and_questions(self):
         """
         Name:
-        print_ticket_steps_questions_and_options
+        print_ticket_steps_and_questions
 
         Parameters:
         None
 
         When code is run:
-        Right after setup_ticket method is run.
-
-        Purpose:
-        Prints the ticket, relevant troubleshooting steps, relevant diagnostic questions, and commands.
+        At the end of the setup_ticket() method.
+        When create_ticket() is called.
 
         Result:
-        Prints the ticket, relevant troubleshooting steps, relevant diagnostic questions, and commands.
+        Prints the ticket, troubleshooting steps, and diagnostic questions.
         """
 
         self.is_online_or_not()
@@ -678,8 +686,6 @@ class Ticket():
 
         print("\n\n")
 
-        print("Enter 'Help' to view available commands.\n")
-
     def wait_for_command(self):
 
         # # Full list of commands - Uncomment when code written for all commands
@@ -689,6 +695,8 @@ class Ticket():
         # Commands not added yet
         # ticket_command_choices = ["add step", "add question", "add line", "add category",
         #  "remove step", "remove question", "remove line", "remove category"]
+
+        print("Enter 'Help' to view available commands.\n")
 
         ticket_command_choices = ["help", "main", "end"]
 
@@ -719,6 +727,6 @@ class Ticket():
     def create_ticket(self):
         self.setup_ticket()
 
-        self.print_ticket_steps_questions_and_commands()
+        self.print_ticket_steps_and_questions()
 
         self.wait_for_command()
