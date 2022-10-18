@@ -6,29 +6,6 @@
 
 # TASKS
 
-# Comment, when needed, all code in main_menu.py and system.py
-
-# Update all docstrings in main_menu.py and system.py with below format:
-# Name:
-#
-
-# Parameters:
-#
-
-# When code is run:
-#
-
-# Purpose:
-#
-
-# methods in main_menu.py and system.py:
-# system.py - clear_prompt_or_terminal
-# main_menu.py - print_main_menu_information
-# main_menu.py - choose_menu_command
-# main_menu.py - execute_menu_command
-# main_menu.py - open_main_menu
-
-
 # For add question, add step, add line: Figure out how to add keys and values before or after existing keys and values in ticket_content
 
 # Just remove certain keys values in ticket_content when remove question, remove step, and remove line commands are run
@@ -767,6 +744,7 @@ class Ticket():
         Purpose:
         Call the setup_ticket, print_ticket_steps_and_questions, and wait_for_command methods.
         """
+
         self.setup_ticket()
 
         self.print_ticket_steps_and_questions()
