@@ -219,8 +219,6 @@ class Ticket():
 
         self.is_online_or_not()
 
-        print("\n\n")
-
         print("All questions answered!\n")
 
         print("Service: " + self.service + " | Category: " + self.category)
@@ -419,6 +417,8 @@ class Ticket():
                 print("Please enter a valid response.\n")
                 self.isOnline = input(
                     "Enter yes or no to respond. ").lower().strip()
+
+            print("\n\n")
 
     def print_ticket(self):
         """
