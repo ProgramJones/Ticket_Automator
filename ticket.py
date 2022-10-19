@@ -23,11 +23,14 @@
 # ** Add below with user auth enabled:
 
 # Add user auth with flask so different users can have different options when creating a ticket
+# options: login, logout | if logged out, create from general ticket
 # options: filtering information based on ISP, saving tickets, opening tickets
 
-# main_menu.py: Add 'Open' comand - Open an existing ticket. (For superusers?)
-# ticket.py: Add 'Save' command - Save ticket as a .txt file. (For superusers?)
-# ticket.py: Add 'Copy' command - Copy ticket to clipboard. NEXT
+# if login is chosen, admin_ticket and isp_ticket are possible subclasses depending on credentials
+# ticket, admin_ticket, isp_ticket
+
+# main_menu.py: Add 'Open' comand - Open an existing ticket. (For superusers)
+# ticket.py: Add 'Save' command - Save ticket as a .txt file. (For superusers)
 
 # Ask user if service was provided by an ISP
 # option to print ISPs, in case user isn't sure what ISPs are available
@@ -37,6 +40,7 @@
 import os
 import re
 import time
+import pyperclip
 import system
 import main_menu
 
@@ -202,15 +206,9 @@ class Ticket():
 
         self.service = self.set_service()
 
-        # Append service key and value to ticket_content
-        self.ticket_content.update({"service": self.service})
-
         print("\n\n")
 
         self.category = self.set_category()
-
-        # Append category key and value to ticket_content
-        self.ticket_content.update({"category": self.category})
 
         # Append user key and value to end of ticket_content
         self.ticket_content.update({"user": self.user})
@@ -430,22 +428,28 @@ class Ticket():
 
         When code is run:
         When print_ticket_steps_and_questions method is called.
+        In wait_for_command method, when 'copy' is enetered.
 
         Purpose:
-        Print all values from ticket_content dictionary.
+        Assign all values from ticket_content to ticket_content_string.
+        Return ticket_content_string.
         """
 
-        print(self.ticket_content["number"])
-        print(self.ticket_content["name"])
-        print(self.ticket_content["address"])
+        ticket_content_string = ""
 
-        print()
+        # iterate through ticket_content dictionary
+        for key, value in self.ticket_content.items():
+            # if current key is custom_issue or user, print current value following two new lines.
+            if (key == "custom_issue" or key == "user"):
+                ticket_content_string += "\n\n" + value
+            # if current key is number, print current value.
+            elif (key == "number"):
+                ticket_content_string += value
+            # print current value following one new line.
+            else:
+                ticket_content_string += "\n" + value
 
-        print(self.ticket_content["custom_issue"])
-
-        print()
-
-        print(self.ticket_content["user"])
+        return ticket_content_string
 
     def print_troubleshooting_steps(self):
         """
@@ -659,7 +663,7 @@ class Ticket():
 
         print("Ticket:\n")
 
-        self.print_ticket()
+        print(self.print_ticket())
 
         print("\n\n")
 
@@ -695,11 +699,11 @@ class Ticket():
 
         # Commands not added yet
         # ticket_command_choices = ["add step", "add question", "add line", "add category",
-        #  "remove step", "remove question", "remove line", "remove category", "copy"]
+        #  "remove step", "remove question", "remove line", "remove category"]
 
         print("Enter 'Help' to view available commands.\n")
 
-        ticket_command_choices = ["help", "main", "end"]
+        ticket_command_choices = ["copy", "help", "main", "end"]
 
         ticket_command_choice = input("Enter a command: ").lower().strip()
 
@@ -709,9 +713,22 @@ class Ticket():
 
             ticket_command_choice = input("Enter a command: ").lower().strip()
 
+        # if user enters 'copy', copy contents of ticket into the clipboard
+        if (ticket_command_choice == 'copy'):
+
+            # copied_ticket contains the value of print_ticket()
+            copied_ticket = self.print_ticket()
+
+            # copied_ticket is passed to pyperclip.copy() since methods can't be passed to pyperclip.copy()
+            pyperclip.copy(copied_ticket)
+
+            print("\nTicket copied to clipboard!\n")
+
+            self.wait_for_command()
+
         # if user enters 'help', print all available commands.
         # run wait_for_command after doing this, which will prompt user for a command again.
-        if (ticket_command_choice == "help"):
+        elif (ticket_command_choice == "help"):
             print()
 
             self.print_commands()

@@ -1,3 +1,5 @@
+#! python3
+
 # Copyright (c) <2022>, <Tai Jones>
 # All rights reserved.
 
@@ -7,6 +9,7 @@
 
 import system
 import main_menu
+
 
 system.clear_prompt_or_terminal()
 
