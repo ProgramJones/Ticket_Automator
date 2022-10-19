@@ -4,38 +4,6 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-# TASKS
-
-# For add question, add step, add line: Figure out how to add keys and values before or after existing keys and values in ticket_content
-
-# Just remove certain keys values in ticket_content when remove question, remove step, and remove line commands are run
-# What about just having one remove command that can remove question, line, and step?
-
-# Add troubleshooting steps for:
-# Email - Setup
-# Email - Configuration
-
-# Add code for all commands
-
-# Edit README.md
-
-
-# ** Add below with user auth enabled:
-
-# Add user auth with flask so different users can have different options when creating a ticket
-# options: login, logout | if logged out, create from general ticket
-# options: filtering information based on ISP, saving tickets, opening tickets
-
-# if login is chosen, admin_ticket and isp_ticket are possible subclasses depending on credentials
-# ticket, admin_ticket, isp_ticket
-
-# main_menu.py: Add 'Open' comand - Open an existing ticket. (For superusers)
-# ticket.py: Add 'Save' command - Save ticket as a .txt file. (For superusers)
-
-# Ask user if service was provided by an ISP
-# option to print ISPs, in case user isn't sure what ISPs are available
-# When user enters ISP name, troubleshooting steps and diagnostic questions are filtered
-
 
 import os
 import re
