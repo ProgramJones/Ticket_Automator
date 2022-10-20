@@ -4,12 +4,11 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-# TASKS
-
 
 import os
 import re
 import time
+import itertools
 import pyperclip
 import system
 import main_menu
@@ -23,9 +22,9 @@ class Ticket():
         self.number = None
         self.address = None
         self.custom_issue = None
-        self.service = None
+        self.services = None
         self.category = None
-        self.isOnline = None
+        self.is_online = None
         self.troubleshooting_steps = []
         self.diagnostic_questions = []
         self.ticket_content = {}
@@ -182,6 +181,7 @@ class Ticket():
 
         self.category = self.set_category()
 
+        self.set_is_online()
         self.set_troubleshooting_steps()
         self.set_diagnostic_questions()
 
@@ -189,8 +189,6 @@ class Ticket():
         self.ticket_content.update({"user": self.user})
 
         print("\n\n")
-
-        self.is_online_or_not()
 
         print("All questions answered!\n")
 
@@ -206,6 +204,8 @@ class Ticket():
 
         time.sleep(.75)
 
+        print()
+
     def set_user(self):
         """
         Name:
@@ -219,7 +219,7 @@ class Ticket():
 
         Purpose:
         Prompt the user for their first and last name.
-        Return a formatted version of user's first and last name. ( Format is first_name_initial + last_name(s) ) 
+        Return a formatted version of user's first and last name. ( Format is first_name_initial + last_name(s) )
         """
 
         user = input(
@@ -263,7 +263,7 @@ class Ticket():
 
         Purpose:
         Prompt the user for what service they're having issues with.
-        Return service entered by user.    
+        Return service entered by user.
         """
 
         print("Service:")
@@ -373,42 +373,42 @@ class Ticket():
         When setup_ticket method is called.
 
         Result:
-        Append troubleshooting step lists to self.troubleshooting_steps based off the current service, category, and isOnline status.
+        Append troubleshooting step lists to self.troubleshooting_steps based off the current service, category, and is_online status.
         """
 
         # Connectivity Steps
 
         # If current service is DSL and category is Connectivity, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
-        # If category is Intermittent Connectivity/Speed and isOnline is no, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
+        # If category is Intermittent Connectivity/Speed and self.is_online is no, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
         if (self.service == "DSL" and self.category == "Connectivity") or (
                 self.service == "DSL"
                 and self.category == "Intermittent Connectivity/Speed"
-                and self.isOnline == "no"):
+                and self.is_online == "no"):
             self.troubleshooting_steps.append(self.dsl_connectivity_steps)
 
         # If current service is Fiber and category is Connectivity, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
-        # If category is Intermittent Connectivity/Speed and isOnline is no, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
+        # If category is Intermittent Connectivity/Speed and self.is_online is no, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
         elif (self.service == "Fiber" and self.category == "Connectivity") or (
                 self.service == "Fiber"
                 and self.category == "Intermittent Connectivity/Speed"
-                and self.isOnline == "no"):
+                and self.is_online == "no"):
             self.troubleshooting_steps.append(self.fiber_connectivity_steps)
 
         # If current service is Cable and category is Connectivity, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
-        # If category is Intermittent Connectivity/Speed and isOnline is no, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
+        # If category is Intermittent Connectivity/Speed and self.is_online is no, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
         elif (self.service == "Cable" and self.category == "Connectivity") or (
                 self.service == "Cable"
                 and self.category == "Intermittent Connectivity/Speed"
-                and self.isOnline == "no"):
+                and self.is_online == "no"):
             self.troubleshooting_steps.append(self.cable_connectivity_steps)
 
         # If current service is Fixed Wireless and category is Connectivity, assign self.troubleshooting_steps to value of self.fixed_wireless_connectivity_steps
-        # If category is Intermittent Connectivity/Speed and isOnline is no, assign self.troubleshooting_steps to value of self.fixed_wireless_connectivity_steps
+        # If category is Intermittent Connectivity/Speed and self.is_online is no, assign self.troubleshooting_steps to value of self.fixed_wireless_connectivity_steps
         elif (self.service == "Fixed Wireless"
               and self.category == "Connectivity") or (
                   self.service == "Fixed Wireless"
                   and self.category == "Intermittent Connectivity/Speed"
-                  and self.isOnline == "no"):
+                  and self.is_online == "no"):
             self.troubleshooting_steps.append(
                 self.fixed_wireless_connectivity_steps)
 
@@ -426,8 +426,8 @@ class Ticket():
 
         # General Intermittent Connectivity/Speed Steps
 
-        # If category is Intermittent Connectivity/Speed and isOnline is yes, assign self.troubleshooting_steps to value of self.intermittent_connectivity_and_speed_steps
-        elif self.category == "Intermittent Connectivity/Speed" and self.isOnline == "yes":
+        # If category is Intermittent Connectivity/Speed and is_online is yes, assign self.troubleshooting_steps to value of self.intermittent_connectivity_and_speed_steps
+        elif self.category == "Intermittent Connectivity/Speed" and self.is_online == "yes":
             self.troubleshooting_steps.append(
                 self.intermittent_connectivity_and_speed_steps)
 
@@ -443,41 +443,48 @@ class Ticket():
         When setup_ticket method is called.
 
         Purpose:
-        Assign the value of self.diagnostic_questions based off the current service, category, and isOnline status.
+        Assign the value of self.diagnostic_questions based off the current service, category, and self.is_online status.
         """
+
+        current_questions = []
 
         # if service is in internet_services list, run the following code:
         if (self.service in self.internet_services):
-            # append internet_general_questions and wifi_questions to self.diagnostic_questions.
-            self.diagnostic_questions.append(self.internet_general_questions)
-            self.diagnostic_questions.append(self.wifi_questions)
-            # if service is DSL, append dsl_questions to self.diagnostic_questions.
+            # append internet_general_questions and wifi_questions to current_questions.
+            current_questions.append(self.internet_general_questions)
+            current_questions.append(self.wifi_questions)
+            # if service is DSL, append dsl_questions to current_questions.
             if (self.service == "DSL"):
-                self.diagnostic_questions.append(self.dsl_questions)
-            # if category is Intermittent Connectivity/Speed, append intermittent_questions to self.diagnostic_questions.
+                current_questions.append(self.dsl_questions)
+            # if category is Intermittent Connectivity/Speed, append intermittent_questions to current_questions.
             if (self.category == "Intermittent Connectivity/Speed"):
-                self.diagnostic_questions.append(self.intermittent_questions)
+                current_questions.append(self.intermittent_questions)
 
         # if service is Email, run the following code:
         elif (self.service == "Email"):
-            # append email_general_questions to self.diagnostic_questions.
-            self.diagnostic_questions(self.email_general_questions)
-            # if category is Setup, append email_setup_questions to self.diagnostic_questions.
+            # append email_general_questions to current_questions.
+            current_questions.append(self.email_general_questions)
+            # if category is Setup, append email_setup_questions to current_questions.
             if (self.category == "Setup"):
-                self.diagnostic_questions(self.email_setup_questions)
-            # if category is Configuration, append email_configuration_questions to self.diagnostic_questions.
+                current_questions.append(self.email_setup_questions)
+            # if category is Configuration, append email_configuration_questions to current_questions.
             if (self.category == "Configuration"):
-                self.diagnostic_questions(self.email_configuration_questions)
+                current_questions.append(
+                    self.email_configuration_questions)
 
         # if service is TV, run the following code:
         elif (self.service == "TV"):
-            # append tv_general_questions to self.diagnostic_questions.
-            self.diagnostic_questions(self.tv_general_questions)
+            # append tv_general_questions to current_questions.
+            current_questions.append(self.tv_general_questions)
 
-    def is_online_or_not(self):
+        # Combine the nested current_questions list into one list. Append the combined list to current_questions
+        self.diagnostic_questions.append(list(itertools.chain.from_iterable(
+            current_questions)))
+
+    def set_is_online(self):
         """
         Name:
-        is_online_or_not
+        set_is_online
 
         Parameters:
         None
@@ -486,22 +493,22 @@ class Ticket():
         When setup_ticket method is called.
 
         Purpose:
-        Re-assign isOnline variable to 'yes' or 'no' when category is intermittent connectivity/speed.
+        Re-assign self.is_online variable to 'yes' or 'no' when category is intermittent connectivity/speed.
         """
 
         # If category is intermittent connectivity/speed and if method hasn't been run before, run the following code...
-        if (self.category == "Intermittent Connectivity/Speed") and (self.isOnline == None):
+        if (self.category == "Intermittent Connectivity/Speed") and (self.is_online == None):
 
             # Prompt the user for network status.
             print("Is the internet online? \n")
-            self.isOnline = input(
+            self.is_online = input(
                 "Enter yes or no to respond. ").lower().strip()
 
             # While response is not 'yes' or 'no', prompt user for network status.
-            while (self.isOnline.lower() != "yes") and (self.isOnline.lower()
-                                                        != "no"):
+            while (self.is_online.lower() != "yes") and (self.is_online.lower()
+                                                         != "no"):
                 print("Please enter a valid response.\n")
-                self.isOnline = input(
+                self.is_online = input(
                     "Enter yes or no to respond. ").lower().strip()
 
             print("\n\n")
@@ -528,7 +535,7 @@ class Ticket():
         # iterate through ticket_content dictionary
         for key, value in self.ticket_content.items():
             # if current key is custom_issue or user, print current value following two new lines.
-            if (key == "custom_issue" or key == "user"):
+            if (key == "custom_issue" or key == "user" or key.startswith("question_") or key.startswith("step_")):
                 ticket_content_string += "\n\n" + value
             # if current key is number, print current value.
             elif (key == "number"):
@@ -622,18 +629,28 @@ class Ticket():
         #     "Add Question - Add a diagnostic question to the ticket.",
         #     "Add Line - Add a custom line of text and choose where to insert it.",
         #     "Add Category - Add a new service and/or category to the ticket.",
-        #     "Remove Step - Remove a troubleshooting step from the ticket.",
-        #     "Remove Question - Remove a diagnostic question from the ticket.",
-        #     "Remove Line - Remove a custom line from the ticket.",
+        #     "Remove Line - Remove a step, question, or custom line from the ticket.",
         #     "Remove Category - Remove a service and/or category from the ticket.",
         #     "Copy - Copy current ticket to the clipboard.",
-        #     "Help - Show all available options.",
+        #     "Help - Show all available commands.",
         #     "Main - Return to the main menu.",
         #     "End - End the program."
         # ]
 
+    # # Commands not coded for yet
+        # print("Commands:")
+        # command = [
+        #     "Add Step - Add a troubleshooting step to the ticket.",
+        #     "Add Line - Add a custom line of text and choose where to insert it.",
+        #     "Add Category - Add a new service and/or category to the ticket.",
+        #     "Remove Line - Remove a step, question, or custom line from the ticket.",
+        #     "Remove Category - Remove a service and/or category from the ticket."
+        # ]
+
         print("Commands:")
-        commands = ["Help - Show all available options.", "Main - Return to the main menu.",
+        commands = ["Add Question - Add a diagnostic question to the ticket.",
+                    "Copy - Copy current ticket to the clipboard.",
+                    "Help - Show all available commands.", "Main - Return to the main menu.",
                     "End - End the program."
                     ]
 
@@ -674,6 +691,76 @@ class Ticket():
 
         print("\n\n")
 
+    def add_question(self):
+        """
+        Name:
+        add question
+
+        Parameters:
+        None
+
+        When code is run:
+        In wait_for_command, when 'add_question' is entered.
+
+        Purpose:
+        Prompt the user for a diagnostic question, have user answer question's prompts, and then add the question to the ticket.
+        """
+
+        question_response_sentence = ""
+        question_response = ""
+        question = ""
+
+        print("Select a question by entering in the position of a list and the corresponding number next to the list's item: \nExample. 1 2 | selects first list's second item.\n")
+
+        # Prompt user for a number between 1 and the number of diagnostic_questions. Assign number to question_index
+
+        question_index = input(
+            "Enter position of list and its question: ").strip()
+
+        # Assign first_index and second_index based off two numbers entered by user
+
+        first_index = int(question_index.split()[0]) - 1
+        second_index = int(question_index.split()[1]) - 1
+
+        # Associate first_index and second_index with questions in self.diagnostic_questions
+
+        question = self.diagnostic_questions[first_index][second_index]
+
+        print("\n\n")
+
+        # Find and execute relevant prompts for chosen question
+
+        if (question == "Are any services still working? "):
+            question_response = input(
+                "Are any services still working?\nEnter 'yes' or 'no' to respond | Enter 'exit' to not add question: ").lower()
+            if question_response == "yes":
+                print("\n\n")
+                question_response = input(
+                    "What services are still working?\nEnter exact service name(s) to respond | Enter 'exit' to not add question: ")
+                question_response_sentence = "Still working: " + question_response
+            elif question_response == "no":
+                question_response_sentence = "No services are working"
+            elif question_response == "exit":
+                return
+
+        # Add question_response_sentence in dictionary into a specific spot of ticket_content that's based off keys in ticket_content
+
+        #   Insert question before 'user' key in ticket content.
+        insert_at_index = list(
+            self.ticket_content.keys()).index('user')
+        # Assign ticket_content_items list to the keys and values of ticket_content dictionary
+        ticket_content_items = list(self.ticket_content.items())
+        # Insert key and question_response_sentence value into ticket_content_items at index of insert_at_index
+        ticket_content_items.insert(
+            insert_at_index, ("question_" + self.service + "_" + self.category + "_" + question_response_sentence, question_response_sentence))
+        print("\nTesting:\n" + str(ticket_content_items))
+        # Convert the ticket_content_items list to a dictionary
+        self.ticket_content = dict(ticket_content_items)
+
+        # Once a question is added to ticket_content, print ticket, steps, and questions
+
+        self.print_ticket_steps_and_questions()
+
     def wait_for_command(self):
         """
         Name:
@@ -694,15 +781,16 @@ class Ticket():
 
         # # Full list of commands - Uncomment when code written for all commands
         # ticket_command_choices = ["add step", "add question", "add line", "add category",
-        #  "remove step", "remove question", "remove line", "remove category", "copy", "help", "main", "end"]
+        #  "remove line", "remove category", "copy", "help", "main", "end"]
 
         # Commands not added yet
-        # ticket_command_choices = ["add step", "add question", "add line", "add category",
-        #  "remove step", "remove question", "remove line", "remove category"]
+        # ticket_command_choices = ["add step", "add line", "add category",
+        #  "remove line", "remove category"]
 
         print("Enter 'Help' to view available commands.\n")
 
-        ticket_command_choices = ["copy", "help", "main", "end"]
+        ticket_command_choices = [
+            "add question", "copy", "help", "main", "end"]
 
         ticket_command_choice = input("Enter a command: ").lower().strip()
 
@@ -711,6 +799,15 @@ class Ticket():
             print("Please enter a valid option.\n")
 
             ticket_command_choice = input("Enter a command: ").lower().strip()
+
+        # if user enters 'add question', prompt user for question prompts and then add the question to the ticket.
+        if (ticket_command_choice == 'add question'):
+
+            print("\n\n----------------------------------\n\n")
+
+            self.add_question()
+
+            self.wait_for_command()
 
         # if user enters 'copy', copy contents of ticket into the clipboard
         if (ticket_command_choice == 'copy'):

@@ -88,6 +88,7 @@ def execute_menu_command(menu_choice):
     if menu_choice == "create":
 
         newTicket = ticket.Ticket()
+
         newTicket.create_ticket()
 
     # if user enters 'end', end the program.
