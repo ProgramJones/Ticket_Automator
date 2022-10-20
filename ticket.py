@@ -4,6 +4,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+# TASKS
+
 
 import os
 import re
@@ -24,6 +26,8 @@ class Ticket():
         self.service = None
         self.category = None
         self.isOnline = None
+        self.troubleshooting_steps = []
+        self.diagnostic_questions = []
         self.ticket_content = {}
 
         self.internet_services = ["Fiber", "DSL", "Cable", "Fixed Wireless"]
@@ -177,6 +181,9 @@ class Ticket():
         print("\n\n")
 
         self.category = self.set_category()
+
+        self.set_troubleshooting_steps()
+        self.set_diagnostic_questions()
 
         # Append user key and value to end of ticket_content
         self.ticket_content.update({"user": self.user})
@@ -354,6 +361,119 @@ class Ticket():
         category = category.title()
         return category
 
+    def set_troubleshooting_steps(self):
+        """
+        Name:
+        set_troubleshooting_steps
+
+        Parameters:
+        None
+
+        When code is run:
+        When setup_ticket method is called.
+
+        Result:
+        Append troubleshooting step lists to self.troubleshooting_steps based off the current service, category, and isOnline status.
+        """
+
+        # Connectivity Steps
+
+        # If current service is DSL and category is Connectivity, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
+        # If category is Intermittent Connectivity/Speed and isOnline is no, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
+        if (self.service == "DSL" and self.category == "Connectivity") or (
+                self.service == "DSL"
+                and self.category == "Intermittent Connectivity/Speed"
+                and self.isOnline == "no"):
+            self.troubleshooting_steps.append(self.dsl_connectivity_steps)
+
+        # If current service is Fiber and category is Connectivity, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
+        # If category is Intermittent Connectivity/Speed and isOnline is no, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
+        elif (self.service == "Fiber" and self.category == "Connectivity") or (
+                self.service == "Fiber"
+                and self.category == "Intermittent Connectivity/Speed"
+                and self.isOnline == "no"):
+            self.troubleshooting_steps.append(self.fiber_connectivity_steps)
+
+        # If current service is Cable and category is Connectivity, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
+        # If category is Intermittent Connectivity/Speed and isOnline is no, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
+        elif (self.service == "Cable" and self.category == "Connectivity") or (
+                self.service == "Cable"
+                and self.category == "Intermittent Connectivity/Speed"
+                and self.isOnline == "no"):
+            self.troubleshooting_steps.append(self.cable_connectivity_steps)
+
+        # If current service is Fixed Wireless and category is Connectivity, assign self.troubleshooting_steps to value of self.fixed_wireless_connectivity_steps
+        # If category is Intermittent Connectivity/Speed and isOnline is no, assign self.troubleshooting_steps to value of self.fixed_wireless_connectivity_steps
+        elif (self.service == "Fixed Wireless"
+              and self.category == "Connectivity") or (
+                  self.service == "Fixed Wireless"
+                  and self.category == "Intermittent Connectivity/Speed"
+                  and self.isOnline == "no"):
+            self.troubleshooting_steps.append(
+                self.fixed_wireless_connectivity_steps)
+
+        # General Connectivity Steps
+
+        # If current service is N/A and category is Connectivity, assign self.troubleshooting_steps to value of self.general_connectivity_steps
+        elif self.service == "N/A" and self.category == "Connectivity":
+            self.troubleshooting_steps.append(self.general_connectivity_steps)
+
+        # General Speed Steps
+
+        # If category is Speed, assign self.troubleshooting_steps to value of self.speed_steps
+        elif self.category == "Speed":
+            self.troubleshooting_steps.append(self.speed_steps)
+
+        # General Intermittent Connectivity/Speed Steps
+
+        # If category is Intermittent Connectivity/Speed and isOnline is yes, assign self.troubleshooting_steps to value of self.intermittent_connectivity_and_speed_steps
+        elif self.category == "Intermittent Connectivity/Speed" and self.isOnline == "yes":
+            self.troubleshooting_steps.append(
+                self.intermittent_connectivity_and_speed_steps)
+
+    def set_diagnostic_questions(self):
+        """
+        Name:
+        set_diagnostic_questions
+
+        Parameters:
+        None
+
+        When code is run:
+        When setup_ticket method is called.
+
+        Purpose:
+        Assign the value of self.diagnostic_questions based off the current service, category, and isOnline status.
+        """
+
+        # if service is in internet_services list, run the following code:
+        if (self.service in self.internet_services):
+            # append internet_general_questions and wifi_questions to self.diagnostic_questions.
+            self.diagnostic_questions.append(self.internet_general_questions)
+            self.diagnostic_questions.append(self.wifi_questions)
+            # if service is DSL, append dsl_questions to self.diagnostic_questions.
+            if (self.service == "DSL"):
+                self.diagnostic_questions.append(self.dsl_questions)
+            # if category is Intermittent Connectivity/Speed, append intermittent_questions to self.diagnostic_questions.
+            if (self.category == "Intermittent Connectivity/Speed"):
+                self.diagnostic_questions.append(self.intermittent_questions)
+
+        # if service is Email, run the following code:
+        elif (self.service == "Email"):
+            # append email_general_questions to self.diagnostic_questions.
+            self.diagnostic_questions(self.email_general_questions)
+            # if category is Setup, append email_setup_questions to self.diagnostic_questions.
+            if (self.category == "Setup"):
+                self.diagnostic_questions(self.email_setup_questions)
+            # if category is Configuration, append email_configuration_questions to self.diagnostic_questions.
+            if (self.category == "Configuration"):
+                self.diagnostic_questions(self.email_configuration_questions)
+
+        # if service is TV, run the following code:
+        elif (self.service == "TV"):
+            # append tv_general_questions to self.diagnostic_questions.
+            self.diagnostic_questions(self.tv_general_questions)
+
     def is_online_or_not(self):
         """
         Name:
@@ -431,79 +551,14 @@ class Ticket():
         When print_ticket_steps_and_questions method is called.
 
         Result:
-        Print certain troubleshooting steps, depending on current service, category, and isOnline status.
+        Print troubleshooting steps from the ticket's troubleshooting_steps list, self.troubleshooting_steps.
         """
 
         print("Troubleshooting Steps:")
 
-        # Connectivity Steps
-
-        # If current service is DSL and category is Connectivity, print troubleshooting steps from dsl_connectivity_steps list
-        # If category is Intermittent Connectivity/Speed and isOnline is no, print troubleshooting steps from dsl_connectivity_steps list
-        if (self.service == "DSL" and self.category == "Connectivity") or (
-                self.service == "DSL"
-                and self.category == "Intermittent Connectivity/Speed"
-                and self.isOnline == "no"):
-            for index, item in enumerate(self.dsl_connectivity_steps):
-                print(str(index + 1) + ". " + item)
-
-        # If current service is Fiber and category is Connectivity, print troubleshooting steps from fiber_connectivity_steps list
-        # If category is Intermittent Connectivity/Speed and isOnline is no, print troubleshooting steps from fiber_connectivity_steps list
-        elif (self.service == "Fiber" and self.category == "Connectivity") or (
-                self.service == "Fiber"
-                and self.category == "Intermittent Connectivity/Speed"
-                and self.isOnline == "no"):
-            for index, item in enumerate(self.fiber_connectivity_steps):
-                print(str(index + 1) + ". " + item)
-
-        # If current service is Cable and category is Connectivity, print troubleshooting steps from cable_connectivity_steps list
-        # If category is Intermittent Connectivity/Speed and isOnline is no, print troubleshooting steps from cable_connectivity_steps list
-        elif (self.service == "Cable" and self.category == "Connectivity") or (
-                self.service == "Cable"
-                and self.category == "Intermittent Connectivity/Speed"
-                and self.isOnline == "no"):
-            for index, item in enumerate(self.cable_connectivity_steps):
-                print(str(index + 1) + ". " + item)
-
-        # If current service is Fixed Wireless and category is Connectivity, print troubleshooting steps from fixed_wireless_connectivity_steps list
-        # If category is Intermittent Connectivity/Speed and isOnline is no, print troubleshooting steps from fixed_wireless_connectivity_steps list
-        elif (self.service == "Fixed Wireless"
-              and self.category == "Connectivity") or (
-                  self.service == "Fixed Wireless"
-                  and self.category == "Intermittent Connectivity/Speed"
-                  and self.isOnline == "no"):
-            for index, item in enumerate(self.fixed_wireless_connectivity_steps):
-                print(str(index + 1) + ". " + item)
-
-        # General Connectivity Steps
-
-        # If current service is N/A and category is Connectivity, print troubleshooting steps from general_connectivity_steps list
-        elif self.service == "N/A" and self.category == "Connectivity":
-            for index, item in enumerate(self.general_connectivity_steps):
-                print(str(index + 1) + ". " + item)
-
-        # General Speed Steps
-
-        # If category is Speed, print troubleshooting steps from speed_steps list
-        elif self.category == "Speed":
-            for index, item in enumerate(self.speed_steps):
-                print(str(index + 1) + ". " + item)
-
-        # General Intermittent Connectivity/Speed Steps
-
-        # If category is Intermittent Connectivity/Speed and isOnline is yes, print troubleshooting steps from intermittent_connectivity_and_speed_steps list
-        elif self.category == "Intermittent Connectivity/Speed" and self.isOnline == "yes":
-            for index, item in enumerate(self.intermittent_connectivity_and_speed_steps):
-                print(str(index + 1) + ". " + item)
-
-        # Email
-
         # if service is Email and category is Setup, print "No steps defined yet."
-        elif self.service == "Email" and self.category == "Setup":
-            print("No steps defined yet.")
-
         # if service is Email and category is Configuration, print "No steps defined yet."
-        elif self.service == "Email" and self.category == "Configuration":
+        if (self.service == "Email" and self.category == "Setup") or (self.service == "Email" and self.category == "Configuration"):
             print("No steps defined yet.")
 
         # General
@@ -512,59 +567,35 @@ class Ticket():
         elif (self.category == "General"):
             print("No troubleshooting steps defined for general categories")
 
+        # Print all items in self.troubleshooting_steps list.
+        # Format: some_number. troubleshooting_step_example | 1. "Run Speed tests on a devivce."
+        count = 1
+        for list in self.troubleshooting_steps:
+            for item in list:
+                print(str(count) + ". " + item)
+                count += 1
+
     def print_diagnostic_questions(self):
         """
         Name:
         print_diagnostic_questions
 
         Parameters:
-        service, category
+        None
 
         When code is run:
         When print_ticket_steps_and_questions method is called.
 
         Purpose:
-        Print certain diagnostic questions, depending on current service, category, and isOnline status.
+        Print all questions in self.diagnostic_questions.
         """
-
-        # Initialize an empty list called ticket_questions.
-        # The content will later depend on the current service and category
-        ticket_questions = []
 
         print("Diagnostic Questions:")
 
-        # if service is in internet_services list, run the following code
-        if (self.service in self.internet_services):
-            # append internet_general_questions and wifi_questions to ticket_questions.
-            ticket_questions.append(self.internet_general_questions)
-            ticket_questions.append(self.wifi_questions)
-            # if service is DSL, append dsl_questions to ticket_questions
-            if (self.service == "DSL"):
-                ticket_questions.append(self.dsl_questions)
-            # if category is Intermittent Connectivity/Speed, append intermittent_questions to ticket_questions.
-            if (self.category == "Intermittent Connectivity/Speed"):
-                ticket_questions.append(self.intermittent_questions)
-
-        # if service is Email, run the following code
-        elif (self.service == "Email"):
-            # append email_general_questions to ticket_questions
-            ticket_questions.append(self.email_general_questions)
-            # if category is Setup, append email_setup_questions to ticket_questions
-            if (self.category == "Setup"):
-                ticket_questions.append(self.email_setup_questions)
-            # if category is Configuration, append email_configuration_questions to ticket_questions
-            if (self.category == "Configuration"):
-                ticket_questions.append(self.email_configuration_questions)
-
-        # if service is TV, run the following code
-        elif (self.service == "TV"):
-            # append tv_general_questions to ticket_questions
-            ticket_questions.append(self.tv_general_questions)
-
-        # Print all items in ticket_questions list.
+        # Print all items in self.diagnostic_questions list.
         # Format: some_number. question_example | 1. "What devices are affected?"
         count = 1
-        for list in ticket_questions:
+        for list in self.diagnostic_questions:
             for item in list:
                 print(str(count) + ". " + item)
                 count += 1
