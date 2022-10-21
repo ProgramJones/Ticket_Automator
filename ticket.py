@@ -932,10 +932,7 @@ class Ticket():
         # Print ticket with corresponding line numbers.
         ticket_content_list = list(self.print_ticket_with_line_numbers())
 
-        # Make a list of the values from ticket_content dictionary
-        print(ticket_content_list)
-
-        print("\n\n")
+        print("\n")
 
         # Prompt user to choose which line from ticket to remove.
         index_to_remove = input(
