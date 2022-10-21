@@ -526,7 +526,7 @@ class Ticket():
         In wait_for_command method, when 'copy' is enetered.
 
         Purpose:
-        Assign all values from ticket_content to ticket_content_string.
+        Assign all values from ticket_content dictionary to ticket_content_string.
         Return ticket_content_string.
         """
 
@@ -534,9 +534,12 @@ class Ticket():
 
         # iterate through ticket_content dictionary
         for key, value in self.ticket_content.items():
-            # if current key is custom_issue or user, print current value following two new lines.
-            if (key == "custom_issue" or key == "user" or key.startswith("question_") or key.startswith("step_")):
+            # if current key is user, starts with 'question_', or starts with 'step_', print current value following two new lines.
+            if (key == "user" or key.startswith("question_") or key.startswith("step_")):
                 ticket_content_string += "\n\n" + value
+            # if current key is address or starts with 'current_line_', print a new line, value, and another new line.
+            elif (key == "address") or (key.startswith("custom_line_")):
+                ticket_content_string += "\n" + value + "\n"
             # if current key is number, print current value.
             elif (key == "number"):
                 ticket_content_string += value
@@ -545,6 +548,27 @@ class Ticket():
                 ticket_content_string += "\n" + value
 
         return ticket_content_string
+
+    def print_ticket_with_line_numbers(self):
+        """
+        Name:
+        print_ticket_with_line_numbers
+
+        Parameters:
+        None
+
+        When code is run:
+        When 'add line' is called.
+        When 'remove line' is called.
+
+        Purpose:
+        Print the order of lines in the ticket.
+        """
+
+        ticket_content_list = self.ticket_content.values()
+
+        for index, value in enumerate(ticket_content_list):
+            print(str(index + 1) + ". " + value)
 
     def print_troubleshooting_steps(self):
         """
@@ -640,7 +664,6 @@ class Ticket():
     # # Commands not coded for yet
         # print("Commands:")
         # command = [
-        #     "Add Line - Add a custom line of text and choose where to insert it.",
         #     "Add Category - Add a new service and/or category to the ticket.",
         #     "Remove Line - Remove a step, question, or custom line from the ticket.",
         #     "Remove Category - Remove a service and/or category from the ticket."
@@ -649,6 +672,7 @@ class Ticket():
         print("Commands:")
         commands = ["Add Step - Add a troubleshooting step to the ticket.",
                     "Add Question - Add a diagnostic question to the ticket.",
+                    "Add Line - Add a custom line of text and choose where to insert it.",
                     "Copy - Copy current ticket to the clipboard.",
                     "Help - Show all available commands.",
                     "Main - Return to the main menu.",
@@ -669,8 +693,10 @@ class Ticket():
         None
 
         When code is run:
-        At the end of the setup_ticket() method.
         When create_ticket() is called.
+        At the end of the setup_ticket() method.
+        At the end of the add_step() method.
+        At the end of the add_question() method.
 
         Purpose:
         Prints the ticket, troubleshooting steps, and diagnostic questions.
@@ -833,6 +859,59 @@ class Ticket():
 
         self.print_ticket_steps_and_questions()
 
+    def add_line(self):
+        """
+        Name:
+        add_line
+
+        Parameters:
+        None
+
+        When code is run:
+        In wait_for_command, when 'add_line' is entered.
+
+        Purpose:
+        Prompt user for a custom line of text, have user select which line of ticket to insert it to, and then add the text to the ticket.
+        """
+
+        # Prompt user for a custom line of text, and save that text into 'custom_line'
+
+        custom_line = input(
+            "Enter a custom line of text to respond: | Enter 'exit' to exit prompt: ").strip()
+
+        if custom_line == "exit":
+            return
+
+        print("\n\n")
+
+        # Output ticket with line numbers, so user knows which line to select
+        self.print_ticket_with_line_numbers()
+
+        print("\n\n")
+
+        line_to_insert = input(
+            "Enter which line number of ticket to insert text (Content already on selected line will be pushed onto a new line): \nEnter 'exit' to exit prompt: \n").strip()
+
+        if line_to_insert == "exit":
+            return
+
+        # Convert whatever was typed in into an int. Subtract value by 1 since line numbers start at 0.
+        line_to_insert = int(line_to_insert) - 1
+
+        # Add custom_text into a specific spot of ticket_content that's based off line_to_insert
+
+        # Assign ticket_content_items list to the keys and values of ticket_content dictionary
+        ticket_content_items = list(self.ticket_content.items())
+        # Insert key and custom_line value into ticket_content_items at index of line_to_insert
+        ticket_content_items.insert(
+            line_to_insert, ("custom_line_" + custom_line, custom_line))
+        # Convert the ticket_content_items list to a dictionary
+        self.ticket_content = dict(ticket_content_items)
+
+        # Once a question is added to ticket_content, print ticket, steps, and questions
+
+        self.print_ticket_steps_and_questions()
+
     def wait_for_command(self):
         """
         Name:
@@ -856,13 +935,13 @@ class Ticket():
         #  "remove line", "remove category", "copy", "help", "main", "end"]
 
         # Commands not added yet
-        # ticket_command_choices = ["add line", "add category",
+        # ticket_command_choices = ["add category",
         #  "remove line", "remove category"]
 
         print("Enter 'Help' to view available commands.\n")
 
         ticket_command_choices = [
-            "add step", "add question", "copy", "help", "main", "end"]
+            "add step", "add question", "add line", "copy", "help", "main", "end"]
 
         ticket_command_choice = input("Enter a command: ").lower().strip()
 
@@ -887,6 +966,15 @@ class Ticket():
             print("\n\n----------------------------------\n\n")
 
             self.add_question()
+
+            self.wait_for_command()
+
+        # if user enters 'add line', prompt user for a custom line of text and then add the text to the ticket.
+        if (ticket_command_choice == 'add line'):
+
+            print("\n\n----------------------------------\n\n")
+
+            self.add_line()
 
             self.wait_for_command()
 
