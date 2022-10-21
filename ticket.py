@@ -562,15 +562,33 @@ class Ticket():
         When 'remove line' is called.
 
         Purpose:
-        Print the order of lines in the ticket.
+        Returns the order of lines in the ticket.
         """
 
-        ticket_content_list = self.ticket_content.values()
+        ticket_content_string = ""
+        index = 1
 
-        for index, value in enumerate(ticket_content_list):
-            print(str(index + 1) + ". " + value)
+        # iterate through ticket_content dictionary
+        for key, value in self.ticket_content.items():
+            # if current key is user, starts with 'question_', or starts with 'step_', print current value following two new lines.
+            if (key == "user" or key.startswith("question_") or key.startswith("step_")):
+                ticket_content_string += "\n\n" + str(index) + ". " + value
+                index += 1
+            # if current key is address or starts with 'current_line_', print a new line, value, and another new line.
+            elif (key == "address") or (key.startswith("custom_line_")):
+                ticket_content_string += "\n" + \
+                    str(index) + ". " + value + "\n"
+                index += 1
+            # if current key is number, print current value.
+            elif (key == "number"):
+                ticket_content_string += str(index) + ". " + value
+                index += 1
+            # print current value following one new line.
+            else:
+                ticket_content_string += "\n" + str(index) + ". " + value
+                index += 1
 
-        return ticket_content_list
+        return ticket_content_string
 
     def print_troubleshooting_steps(self):
         """
@@ -884,10 +902,10 @@ class Ticket():
         if custom_line == "exit":
             return
 
-        print("\n\n")
+        print("\n")
 
         # Output ticket with line numbers, so user knows which line to select
-        self.print_ticket_with_line_numbers()
+        print(self.print_ticket_with_line_numbers())
 
         print("\n\n")
 
@@ -929,8 +947,10 @@ class Ticket():
         Prompt user for a number corresponding to a line in the ticket and then remove the line from the ticket.
         """
 
+        ticket_content_list = list(self.ticket_content.values())
+
         # Print ticket with corresponding line numbers.
-        ticket_content_list = list(self.print_ticket_with_line_numbers())
+        print(self.print_ticket_with_line_numbers())
 
         print("\n")
 
