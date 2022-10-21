@@ -640,7 +640,6 @@ class Ticket():
     # # Commands not coded for yet
         # print("Commands:")
         # command = [
-        #     "Add Step - Add a troubleshooting step to the ticket.",
         #     "Add Line - Add a custom line of text and choose where to insert it.",
         #     "Add Category - Add a new service and/or category to the ticket.",
         #     "Remove Line - Remove a step, question, or custom line from the ticket.",
@@ -648,9 +647,11 @@ class Ticket():
         # ]
 
         print("Commands:")
-        commands = ["Add Question - Add a diagnostic question to the ticket.",
+        commands = ["Add Step - Add a troubleshooting step to the ticket.",
+                    "Add Question - Add a diagnostic question to the ticket.",
                     "Copy - Copy current ticket to the clipboard.",
-                    "Help - Show all available commands.", "Main - Return to the main menu.",
+                    "Help - Show all available commands.",
+                    "Main - Return to the main menu.",
                     "End - End the program."
                     ]
 
@@ -691,10 +692,82 @@ class Ticket():
 
         print("\n\n")
 
+    def add_step(self):
+        """
+        Name:
+        add_step
+
+        Parameters:
+        None
+
+        When code is run:
+        In wait_for_command, when 'add_step' is entered.
+
+        Purpose:
+        Prompt the user for a troubleshooting step, have user answer steps's prompts, and then add the step to the ticket.
+        """
+
+        step_response_sentence = ""
+        step_response = ""
+        step = ""
+
+        print("Select a troubleshooting step by entering in the position of a list and the corresponding number next to the list's item: \nExample. 1 2 | selects first list's second item.\n")
+
+        # Prompt user for position of list and its step. Assign number to step_index
+
+        step_index = input(
+            "Enter position of list and its step: ").strip()
+
+        # Assign first_index and second_index based off two numbers entered by user
+
+        first_index = int(step_index.split()[0]) - 1
+        second_index = int(step_index.split()[1]) - 1
+
+        # Associate first_index and second_index with questions in self.troubleshooting_steps
+
+        step = self.troubleshooting_steps[first_index][second_index]
+
+        print("\n\n")
+
+        # Find and execute relevant prompts for chosen step
+
+        if (step == "Check if there’s a landline phone with dial tone."):
+            step_response = input(
+                "Can a landline phone be checked?\nEnter 'yes' or 'no' to respond | Enter 'exit' to not add question: ").lower()
+            if step_response == "yes":
+                print("\n\n")
+                step_response = input(
+                    "Does the landline phone have dial tone?\nEnter 'yes' or 'no' to respond | Enter 'exit' to not add question: ").lower()
+                if step_response == "yes":
+                    step_response_sentence = "Landline phone has dial tone."
+                elif step_response == "no":
+                    step_response_sentence = "Landline phone does not have dial tone."
+            elif step_response == "no":
+                step_response_sentence = "No landline phone can be checked."
+            elif step_response == "exit":
+                return
+
+        # Add step_response_sentence in dictionary into a specific spot of ticket_content that's based off keys in ticket_content
+
+        #   Insert step before 'user' key in ticket content.
+        insert_at_index = list(
+            self.ticket_content.keys()).index('user')
+        # Assign ticket_content_items list to the keys and values of ticket_content dictionary
+        ticket_content_items = list(self.ticket_content.items())
+        # Insert key and step_response_sentence value into ticket_content_items at index of insert_at_index
+        ticket_content_items.insert(
+            insert_at_index, ("step_" + self.service + "_" + self.category + "_" + step_response_sentence, step_response_sentence))
+        # Convert the ticket_content_items list to a dictionary
+        self.ticket_content = dict(ticket_content_items)
+
+        # Once a step is added to ticket_content, print ticket, steps, and questions
+
+        self.print_ticket_steps_and_questions()
+
     def add_question(self):
         """
         Name:
-        add question
+        add_question
 
         Parameters:
         None
@@ -712,7 +785,7 @@ class Ticket():
 
         print("Select a question by entering in the position of a list and the corresponding number next to the list's item: \nExample. 1 2 | selects first list's second item.\n")
 
-        # Prompt user for a number between 1 and the number of diagnostic_questions. Assign number to question_index
+        # Prompt user for position of list and its question. Assign number to question_index
 
         question_index = input(
             "Enter position of list and its question: ").strip()
@@ -753,7 +826,6 @@ class Ticket():
         # Insert key and question_response_sentence value into ticket_content_items at index of insert_at_index
         ticket_content_items.insert(
             insert_at_index, ("question_" + self.service + "_" + self.category + "_" + question_response_sentence, question_response_sentence))
-        print("\nTesting:\n" + str(ticket_content_items))
         # Convert the ticket_content_items list to a dictionary
         self.ticket_content = dict(ticket_content_items)
 
@@ -784,13 +856,13 @@ class Ticket():
         #  "remove line", "remove category", "copy", "help", "main", "end"]
 
         # Commands not added yet
-        # ticket_command_choices = ["add step", "add line", "add category",
+        # ticket_command_choices = ["add line", "add category",
         #  "remove line", "remove category"]
 
         print("Enter 'Help' to view available commands.\n")
 
         ticket_command_choices = [
-            "add question", "copy", "help", "main", "end"]
+            "add step", "add question", "copy", "help", "main", "end"]
 
         ticket_command_choice = input("Enter a command: ").lower().strip()
 
@@ -799,6 +871,15 @@ class Ticket():
             print("Please enter a valid option.\n")
 
             ticket_command_choice = input("Enter a command: ").lower().strip()
+
+        # if user enters 'add step', prompt user for troubleshooting step prompts and then add the step to the ticket.
+        if (ticket_command_choice == 'add step'):
+
+            print("\n\n----------------------------------\n\n")
+
+            self.add_step()
+
+            self.wait_for_command()
 
         # if user enters 'add question', prompt user for question prompts and then add the question to the ticket.
         if (ticket_command_choice == 'add question'):
