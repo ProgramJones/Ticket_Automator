@@ -570,6 +570,8 @@ class Ticket():
         for index, value in enumerate(ticket_content_list):
             print(str(index + 1) + ". " + value)
 
+        return ticket_content_list
+
     def print_troubleshooting_steps(self):
         """
         Name:
@@ -927,7 +929,34 @@ class Ticket():
         Prompt user for a number corresponding to a line in the ticket and then remove the line from the ticket.
         """
 
-        pass
+        # Print ticket with corresponding line numbers.
+        ticket_content_list = list(self.print_ticket_with_line_numbers())
+
+        # Make a list of the values from ticket_content dictionary
+        print(ticket_content_list)
+
+        print("\n\n")
+
+        # Prompt user to choose which line from ticket to remove.
+        index_to_remove = input(
+            "Enter 'exit' at any time to exit prompt.\nSelect which line number to remove: ").strip()
+
+        # Convert prompted line number from a string to an int and subtract by 1 to get the correct index.
+        index_to_remove = int(index_to_remove) - 1
+
+        # Define the value from selected line to be removed
+        value_to_remove = ticket_content_list[index_to_remove]
+
+        # Loop through all keys and values in ticket_content
+        for key, value in self.ticket_content.items():
+            # if the current value is the same value from selected line number, assign current key to key_to_remove
+            if value == value_to_remove:
+                key_to_remove = key
+
+        # Delete ticket_content's key_to_remove key
+        del self.ticket_content[key_to_remove]
+
+        self.print_ticket_steps_and_questions()
 
     def wait_for_command(self):
         """
