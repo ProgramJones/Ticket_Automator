@@ -665,7 +665,6 @@ class Ticket():
         # print("Commands:")
         # command = [
         #     "Add Category - Add a new service and/or category to the ticket.",
-        #     "Remove Line - Remove a step, question, or custom line from the ticket.",
         #     "Remove Category - Remove a service and/or category from the ticket."
         # ]
 
@@ -673,6 +672,7 @@ class Ticket():
         commands = ["Add Step - Add a troubleshooting step to the ticket.",
                     "Add Question - Add a diagnostic question to the ticket.",
                     "Add Line - Add a custom line of text and choose where to insert it.",
+                    "Remove Line - Remove a step, question, or custom line from the ticket.",
                     "Copy - Copy current ticket to the clipboard.",
                     "Help - Show all available commands.",
                     "Main - Return to the main menu.",
@@ -877,7 +877,7 @@ class Ticket():
         # Prompt user for a custom line of text, and save that text into 'custom_line'
 
         custom_line = input(
-            "Enter a custom line of text to respond: | Enter 'exit' to exit prompt: ").strip()
+            "Enter 'exit' at any time to exit prompt.\nEnter a custom line of text: ").strip()
 
         if custom_line == "exit":
             return
@@ -890,7 +890,7 @@ class Ticket():
         print("\n\n")
 
         line_to_insert = input(
-            "Enter which line number of ticket to insert text (Content already on selected line will be pushed onto a new line): \nEnter 'exit' to exit prompt: \n").strip()
+            "Enter 'exit' at any time to exit prompt.\nInsert custom line before line number: ").strip()
 
         if line_to_insert == "exit":
             return
@@ -911,6 +911,23 @@ class Ticket():
         # Once a question is added to ticket_content, print ticket, steps, and questions
 
         self.print_ticket_steps_and_questions()
+
+    def remove_line(self):
+        """
+        Name:
+        remove_line
+
+        Parameters:
+        None
+
+        When code is run:
+        In wait_for_command, when 'remove_line' is entered.
+
+        Purpose:
+        Prompt user for a number corresponding to a line in the ticket and then remove the line from the ticket.
+        """
+
+        pass
 
     def wait_for_command(self):
         """
@@ -936,12 +953,12 @@ class Ticket():
 
         # Commands not added yet
         # ticket_command_choices = ["add category",
-        #  "remove line", "remove category"]
+        #  "remove category"]
 
         print("Enter 'Help' to view available commands.\n")
 
         ticket_command_choices = [
-            "add step", "add question", "add line", "copy", "help", "main", "end"]
+            "add step", "add question", "add line", "remove line", "copy", "help", "main", "end"]
 
         ticket_command_choice = input("Enter a command: ").lower().strip()
 
@@ -975,6 +992,15 @@ class Ticket():
             print("\n\n----------------------------------\n\n")
 
             self.add_line()
+
+            self.wait_for_command()
+
+        # if user enters 'remove line', prompt user for a number corresponding to a line in the ticket and then remove the line from the ticket.
+        if (ticket_command_choice == 'remove line'):
+
+            print("\n\n----------------------------------\n\n")
+
+            self.remove_line()
 
             self.wait_for_command()
 
