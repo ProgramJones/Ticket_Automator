@@ -25,9 +25,10 @@ class Ticket():
         self.services = None
         self.category = None
         self.is_online = None
+        self.ticket_content = {}
+        self.ticket_status = "Ticket Status: Problem not yet resolved in this ticket."
         self.troubleshooting_steps = []
         self.diagnostic_questions = []
-        self.ticket_content = {}
 
         self.internet_services = ["Fiber", "DSL", "Cable", "Fixed Wireless"]
         self.services = [self.internet_services, ["Email"], ["TV"], ["N/A"]]
@@ -193,7 +194,7 @@ class Ticket():
         print("All questions answered!\n")
 
         print("Service: " + self.service + " | Category: " + self.category)
-        print("Outputting ticket, troubleshooting steps, and diagnostic questions.",
+        print("Outputting ticket, ticket status, troubleshooting steps, and diagnostic questions.",
               end="", flush=True)
 
         time.sleep(.75)
@@ -727,6 +728,14 @@ class Ticket():
         print("Ticket:\n")
 
         print(self.print_ticket())
+
+        print("\n\n")
+
+        # Possible values for ticket_status:
+        # self.ticket_status = "Problem not yet resolved in this ticket."
+        # self.ticket_status = "Problem resolved in this ticket. " + (More specific message based on what troubleshooting step resolved issue)
+        # self.ticket_status = "Escalating issue to a higher level is required to solve the issue. " + (Explanation as to why this is true)
+        print(self.ticket_status)
 
         print("\n\n")
 
