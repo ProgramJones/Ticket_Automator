@@ -1973,10 +1973,15 @@ class Ticket():
 
         ticket_content_list = list(self.ticket_content.values())
 
-        # Print ticket with corresponding line numbers.
-        print(self.print_ticket_with_line_numbers())
+        system.clear_prompt_or_terminal()
 
         print("\n")
+
+        # Output ticket with line numbers, so user knows which line to select
+        print("Ticket:\n")
+        print(self.print_ticket_with_line_numbers())
+
+        print("\n\n")
 
         # Prompt user to choose which line from ticket to remove.
         index_to_remove = input(
