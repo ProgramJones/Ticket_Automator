@@ -101,26 +101,23 @@ class Ticket():
         ]
 
         self.internet_general_questions = [
-            "Are any services still working? ",
-            "Are all devices effected? If not, what is affected? ",
-            "How long has this issue been happening for? ",
-            "Where there any equipment changes or outside disturbances like weather or maintenance when issue first started happening? "
+            "How long has this issue been happening for?",
+            "Were there any equipment changes or outside disturbances when the issue first started happening?"
         ]
         self.intermittent_questions = [
-            "Is issue only happening during a certain time frame? If so, during what time(s)? ",
-            "Is issue only happening when a certain device is online? If so, which device? ",
-            "Is issue only happening when a lot of devices are online? ",
-            "How long is internet affected for? ",
-            "Does the equipment typically have to be powercycled to temporarily resolve the issue? ",
-            "Do lights on the router look the same when internet disconnects? "
+            "Is issue only happening during a certain time frame? If so, during what time(s)?",
+            "Is issue only happening when a certain device is online? If so, which device?",
+            "Is issue only happening when a lot of devices are online?",
+            "How long is internet affected for?",
+            "Does the equipment typically have to be powercycled to temporarily resolve the issue?",
+            "Do lights on the router look the same when internet disconnects?"
         ]
         self.dsl_questions = [
-            "Does the landline phone have dial tone? ",
-            "Are there any splitters on the wall jack? "
+            ""
         ]
         self.wifi_questions = [
-            "Is the router in a closed space like a closet, cabinet, entertainment center, kitchen/laundry room, or besides a phone’s base? ",
-            "Are there sources of interference like radios, extenders, metal doors, or metal ceilings? "
+            "Is the router in a closed space?",
+            "Are there sources of interference like radios, extenders, metal doors, or metal ceilings?"
         ]
 
         self.email_general_questions = [
@@ -497,9 +494,9 @@ class Ticket():
             # append internet_general_questions and wifi_questions to current_questions.
             current_questions.append(self.internet_general_questions)
             current_questions.append(self.wifi_questions)
-            # if service is DSL, append dsl_questions to current_questions.
-            if (self.service == "DSL"):
-                current_questions.append(self.dsl_questions)
+            # # if service is DSL, append dsl_questions to current_questions.
+            # if (self.service == "DSL"):
+            #     current_questions.append(self.dsl_questions)
             # if category is Intermittent Connectivity/Speed, append intermittent_questions to current_questions.
             if (self.category == "Intermittent Connectivity/Speed"):
                 current_questions.append(self.intermittent_questions)
@@ -703,7 +700,7 @@ class Ticket():
         print("Commands:")
         commands = ["Add Step - Add a troubleshooting step to the ticket.",
                     "Add Question - Add a diagnostic question to the ticket.",
-                    "Add Line - Add a custom line of text and choose where to insert it.",
+                    "Add Line - Add one or more custom lines to the ticket.",
                     "Remove Line - Remove a step, question, or custom line from the ticket.",
                     "Copy - Copy current ticket to the clipboard.",
                     "Help - Show all available commands.",
@@ -1750,18 +1747,123 @@ class Ticket():
 
         # Find and execute relevant prompts for chosen question
 
-        if (question == "Are any services still working? "):
-            question_response = input(
-                "Are any services still working?\nEnter 'yes' or 'no' to respond | Enter 'exit' to not add question: ").lower()
-            if question_response == "yes":
-                print("\n\n")
-                question_response = input(
-                    "What services are still working?\nEnter exact service name(s) to respond | Enter 'exit' to not add question: ")
-                question_response_sentence = "Still working: " + question_response
-            elif question_response == "no":
-                question_response_sentence = "No services are working"
-            elif question_response == "exit":
+        def happening_for():
+
+            nonlocal question_response
+            nonlocal question_response_sentence
+
+            print("Enter 'exit' at any time to exit prompt.\n")
+
+            happening_for_how_long = input(
+                "How long has the issue been happening since? Enter in example format of '3 weeks ago': ").strip()
+
+            if (happening_for_how_long.lower() == "exit"):
+
+                question_response = "exit"
                 return
+
+            question_response_sentence = "Issue happening since: " + happening_for_how_long
+
+        def recent_changes():
+
+            nonlocal question_response
+            nonlocal question_response_sentence
+
+            print("Enter 'exit' at any time to exit prompt.\n")
+
+            if_recent_changes = input(
+                "Were there any equipment changes or outside disturbances like weather or maintenance when the issue first started happening?\nEnter 'yes' or 'no' to respond: ").strip()
+
+            if (if_recent_changes.lower() == "exit"):
+
+                question_response = "exit"
+                return
+
+            while (if_recent_changes.lower() != "yes" and if_recent_changes.lower() != "no"):
+                print("\nInvalid response - 'yes' or 'no' was not entered.")
+
+                if_recent_changes = input(
+                    "\nWere there any equipment changes or outside disturbances like weather or maintenance when the issue first started happening?\nEnter 'yes' or 'no' to respond: ").strip()
+
+                if (if_recent_changes.lower() == "exit"):
+
+                    question_response = "exit"
+                    return
+
+            if (if_recent_changes == "no"):
+                question_response_sentence = "No equipment changes or outside disturbances like weather or maintenance when issue first started happening."
+
+            if (if_recent_changes == "yes"):
+
+                were_recent_changes = input(
+                    "\nWhat happened when the issue first started happening?\n").strip()
+
+                if (were_recent_changes.lower() == "exit"):
+
+                    question_response = "exit"
+                    return
+
+                question_response_sentence = "Changes when the issue first started: " + were_recent_changes
+
+        def closed_space():
+
+            nonlocal question_response
+            nonlocal question_response_sentence
+
+            print("Enter 'exit' at any time to exit prompt.\n")
+
+            print("Is the router in any of the following closed spaces for example:\n\n")
+
+            print(
+                "Closet\nCabinet\nEntertainment Center\nKitchen\nLaundry room\nBesides a phone’s base\n\n")
+
+            if_closed_space = input(
+                "Enter 'yes' or 'no' to respond: ").lower().strip()
+
+            if (if_closed_space == "exit"):
+
+                question_response = "exit"
+                return
+
+            while (if_closed_space != "yes" and if_closed_space != "no"):
+                print("Invalid response - 'yes' or 'no' was not entered.")
+
+                if_closed_space = input(
+                    "\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+                if (if_closed_space == "exit"):
+
+                    question_response = "exit"
+                    return
+
+            if (if_closed_space == "no"):
+                question_response_sentence = "Router is not in a closed space like a closet, cabinet, entertainment center, kitchen/laundry room, or besides a phone’s base."
+
+            elif (if_closed_space == "yes"):
+
+                what_closed_space = input(
+                    "\nWhere exactly is the router? ").strip()
+
+                if (what_closed_space.lower() == "exit"):
+
+                    question_response = "exit"
+                    return
+
+                question_response_sentence = "Router is in: " + what_closed_space
+
+        if (question == "How long has this issue been happening for?"):
+            happening_for()
+
+        if (question == "Were there any equipment changes or outside disturbances when the issue first started happening?"):
+            recent_changes()
+
+        if (question == "Is the router in a closed space?"):
+            closed_space()
+
+        if (question_response == 'exit'):
+
+            self.print_ticket_steps_and_questions()
+            return
 
         # Add question_response_sentence in dictionary into a specific spot of ticket_content that's based off keys in ticket_content
 
@@ -1792,26 +1894,47 @@ class Ticket():
         In wait_for_command, when 'add_line' is entered.
 
         Purpose:
-        Prompt user for a custom line of text, have user select which line of ticket to insert it to, and then add the text to the ticket.
+        Prompt user for one or more lines of text, have user select which line of ticket to insert it to, and then add the text to the ticket.
         """
 
-        # Prompt user for a custom line of text, and save that text into 'custom_line'
-
-        custom_line = input(
-            "Enter 'exit' at any time to exit prompt.\nEnter a custom line of text: ").strip()
-
-        if custom_line == "exit":
-            return
+        system.clear_prompt_or_terminal()
 
         print("\n")
 
         # Output ticket with line numbers, so user knows which line to select
+        print("Ticket:\n")
         print(self.print_ticket_with_line_numbers())
 
         print("\n\n")
 
+        print("Add Line - Add one or more custom lines to the ticket.\nEnter 'exit' at any time to exit prompt.\n")
+
+        # Prompt user for a custom line of text, and save that text into 'custom_line'
+
+        print("\nPress enter key to input multiple lines.\nEnter “done” when all lines are entered.")
+
+        print("\nEnter lines below:")
+
+        custom_line = input("").strip()
+
+        if (custom_line.lower() == "exit"):
+            return
+
+        while ("done" not in custom_line.lower().strip()):
+
+            custom_line += "\n" + input("").strip()
+
+            if ("exit" in custom_line.lower().strip()):
+                return
+
+        if (len(custom_line) >= 4):
+            custom_line = custom_line.rstrip(
+                custom_line[-4:]).rstrip()
+
+        print("\n\n")
+
         line_to_insert = input(
-            "Enter 'exit' at any time to exit prompt.\nInsert custom line before line number: ").strip()
+            "Insert custom line before which line number: ").strip()
 
         if line_to_insert == "exit":
             return
