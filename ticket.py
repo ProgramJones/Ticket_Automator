@@ -105,9 +105,9 @@ class Ticket():
             "Were there any equipment changes or outside disturbances when the issue first started happening?"
         ]
         self.intermittent_questions = [
-            "Is issue only happening during a certain time frame? If so, during what time(s)?",
-            "Is issue only happening when a certain device is online? If so, which device?",
-            "Is issue only happening when a lot of devices are online?",
+            "Is the issue only happening during a certain time frame? If so, during what time(s)?",
+            "Is the issue only happening when a certain device is online? If so, which device?",
+            "Is the issue only happening when a lot of devices are online?",
             "How long is internet affected for?",
             "Does the equipment typically have to be powercycled to temporarily resolve the issue?",
             "Do lights on the router look the same when internet disconnects?"
@@ -117,7 +117,7 @@ class Ticket():
         ]
         self.wifi_questions = [
             "Is the router in a closed space?",
-            "Are there sources of interference like radios, extenders, metal doors, or metal ceilings?"
+            "Are there any sources of interference?"
         ]
 
         self.email_general_questions = [
@@ -1851,6 +1851,138 @@ class Ticket():
 
                 question_response_sentence = "Router is in: " + what_closed_space
 
+        def check_for_interference():
+
+            nonlocal question_response
+            nonlocal question_response_sentence
+
+            print("Enter 'exit' at any time to exit prompt.\n")
+
+            print("Are there any sources of interference like:\n\n")
+
+            print(
+                "Radios\nExtenders\nConcrete walls\nMetal ceilings\n\n")
+
+            any_interference = input(
+                "Enter 'yes' or 'no' to respond: ").lower().strip()
+
+            if (any_interference == "exit"):
+
+                question_response = "exit"
+                return
+
+            while (any_interference != "yes" and any_interference != "no"):
+
+                print("Invalid response - 'yes' or 'no' was not entered.")
+
+                any_interference = input(
+                    "\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+                if (any_interference == "exit"):
+
+                    question_response = "exit"
+                    return
+
+            if (any_interference == "no"):
+
+                question_response_sentence = "No sources of interference such as radios, extenders, concrete walls, or metal ceilings."
+
+            elif (any_interference == "yes"):
+
+                cause_of_interference = input(
+                    "\nCould the interference be caused by a network device like a radio or extender?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+                if (cause_of_interference == "exit"):
+
+                    question_response = "exit"
+                    return
+
+                while (cause_of_interference != "yes" and cause_of_interference != "no"):
+
+                    print("\nInvalid response - 'yes' or 'no' was not entered.")
+
+                    cause_of_interference = input(
+                        "\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+                    if (cause_of_interference == "exit"):
+
+                        question_response = "exit"
+                        return
+
+                if (cause_of_interference == "no"):
+
+                    interference_caused_by_other = input(
+                        "\nWhat could be causing interference? ").strip()
+
+                    if (interference_caused_by_other.lower() == "exit"):
+
+                        question_response = "exit"
+                        return
+
+                    question_response_sentence = "Interference possibly caused by: " + \
+                        interference_caused_by_other
+
+                elif (cause_of_interference == "yes"):
+
+                    question_response_sentence = "Interference possibly caused by a network device."
+
+                    can_unplug_devices = input(
+                        "\nCan the devices be unplugged from power? Enter 'yes' or 'no' to respond: ").lower().strip()
+
+                    if (can_unplug_devices == "exit"):
+
+                        question_response = "exit"
+                        return
+
+                    while (can_unplug_devices != "yes" and can_unplug_devices != "no"):
+
+                        print("Invalid response - 'yes' or 'no' was not entered.")
+
+                        can_unplug_devices = input(
+                            "\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+                        if (can_unplug_devices == "exit"):
+
+                            question_response = "exit"
+                            return
+
+                    if (can_unplug_devices == "no"):
+                        question_response_sentence += "\nNetwork device can't be unplugged from power."
+
+                    if (can_unplug_devices == "yes"):
+
+                        question_response_sentence += "\nUnplugged network device from power."
+
+                        issue_fixed = input(
+                            "\nIs the issue still happening? Enter 'yes', 'no', or 'maybe' to respond: ").lower().strip()
+
+                        if (issue_fixed == "exit"):
+
+                            question_response = "exit"
+                            return
+
+                        while (issue_fixed != "yes" and issue_fixed != "no" and issue_fixed != "maybe"):
+
+                            print(
+                                "Invalid response - Neither 'yes', 'no', or 'maybe' was entered.")
+
+                            issue_fixed = input(
+                                "\nEnter 'yes', 'no', or 'maybe' to respond: ").lower().strip()
+
+                            if (issue_fixed == "exit"):
+
+                                question_response = "exit"
+                                return
+
+                        if (issue_fixed == 'yes'):
+                            question_response_sentence += "\nIssue is still happening."
+
+                        elif (issue_fixed == 'no'):
+                            question_response_sentence += "\nIssue is resolved."
+
+                        elif (issue_fixed == 'maybe'):
+                            question_response_sentence += "\nCan't determine whether issue is still happening or not."
+
         if (question == "How long has this issue been happening for?"):
             happening_for()
 
@@ -1859,6 +1991,9 @@ class Ticket():
 
         if (question == "Is the router in a closed space?"):
             closed_space()
+
+        if (question == "Are there any sources of interference?"):
+            check_for_interference()
 
         if (question_response == 'exit'):
 
