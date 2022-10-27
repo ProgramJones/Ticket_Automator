@@ -26,9 +26,10 @@ class Ticket():
         self.services = None
         self.category = None
         self.are_devices_online = None
-        self.ont_status = None
+        self.toggle_steps = "Recommended Steps"
         self.ticket_content = {}
         self.ticket_status = "Ticket Status: Problem not resolved yet."
+        self.recommended_troubleshooting_steps = []
         self.troubleshooting_steps = []
         self.diagnostic_questions = []
 
@@ -44,11 +45,11 @@ class Ticket():
             "Check account status.",
             "Check status of all services.",
             "Check each network device’s name, model, and lights.",
-            "Check a router for Wi-Fi.", "Check cabling.",
+            "Check cabling.",
             "Check if cables are in the correct ports.",
             "Check cable conditions.", "Power cycle all network devices.",
             "Check each network device’s name, model, and lights.",
-            "Check a device for internet.", "Check ONT.",
+            "Check network devices for internet.", "Check a device for internet.", "Check ONT.",
             "Check ONT's battery backup.", "Check battery backup for power.", "Run ping tests on a computer."
         ]
         self.dsl_connectivity_steps = [
@@ -378,6 +379,8 @@ class Ticket():
         Append troubleshooting step lists to self.troubleshooting_steps based off the current service, category, and are_devices_online status.
         """
 
+        self.troubleshooting_steps = []
+
         # Connectivity Steps
 
         # If current service is DSL and category is Connectivity, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
@@ -395,50 +398,62 @@ class Ticket():
                 and self.category == "Intermittent Connectivity/Speed"
                 and self.are_devices_online == "no"):
 
-            if (len(self.troubleshooting_steps) == 0):
-                self.troubleshooting_steps.append(["Check account status."])
+            if (self.toggle_steps == "All Steps"):
+                self.troubleshooting_steps.append(
+                    self.fiber_connectivity_steps)
 
-            elif ((self.ticket_status == "Ticket Status: Problem not resolved yet.\nAccount is active, but internet is offline.")
-                  or (self.ticket_status == "Ticket Status: Problem not resolved yet.\nCannot determine account status.")):
-                self.troubleshooting_steps[0].append(
-                    "Check status of all services.")
+            elif (self.toggle_steps == "Recommended Steps"):
 
-            elif (self.ticket_status == "Ticket Status: Problem not resolved yet.\nOnly some devices have internet."):
-                self.troubleshooting_steps[0].append(
-                    "Check a device for internet.")
+                if (len(self.recommended_troubleshooting_steps) == 0):
+                    self.recommended_troubleshooting_steps.append(
+                        ["Check account status."])
 
-            elif (self.ticket_status == "Ticket Status: Problem not resolved yet.\nMultiple and all services are offline."):
-                self.troubleshooting_steps[0].append("Check ONT.")
-                self.troubleshooting_steps[0].append(
-                    "Check ONT's battery backup.")
-                self.troubleshooting_steps[0].append(
-                    "Check battery backup for power.")
+                elif ((self.ticket_status == "Ticket Status: Problem not resolved yet.\nAccount is active, but internet is offline."
+                        or self.ticket_status == "Ticket Status: Problem not resolved yet.\nCannot determine account status.") and len(self.recommended_troubleshooting_steps[0]) == 1):
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check status of all services.")
 
-            elif ((self.ticket_status == "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device.")
-                  or (self.ticket_status == "Ticket Status: Problem not resolved yet.\nOther services are working fine.")
-                  or (self.ticket_status == "Ticket Status: Problem not resolved yet.\n" + self.service + ", the only service is offline.")):
-                self.troubleshooting_steps[0].append(
-                    "Check each network device’s name, model, and lights.")
-                self.troubleshooting_steps[0].append("Check cabling.")
-                self.troubleshooting_steps[0].append(
-                    "Check if cables are in the correct ports.")
-                self.troubleshooting_steps[0].append("Check cable conditions.")
-                self.troubleshooting_steps[0].append(
-                    "Power cycle all network devices.")
-                self.troubleshooting_steps[0].append(
-                    "Check each network device’s name, model, and lights.")
-                self.troubleshooting_steps[0].append(
-                    "Check a device for internet.")
+                elif (self.ticket_status == "Ticket Status: Problem not resolved yet.\nOnly some devices have internet." and len(self.recommended_troubleshooting_steps[0]) == 2):
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check a device for internet.")
 
-                # Temporary: The steps below should not be hardcoded here if steps are based off decisions
-                self.troubleshooting_steps[0].append(
-                    "Run ping tests on a computer.")
-                self.troubleshooting_steps[0].append(
-                    "Check ONT.")
-                self.troubleshooting_steps[0].append(
-                    "Check ONT’s battery backup.")
-                self.troubleshooting_steps[0].append(
-                    "Check battery backup for power.")
+                elif (self.ticket_status == "Ticket Status: Problem not resolved yet.\nMultiple and all services are offline." and len(self.recommended_troubleshooting_steps[0]) == 2):
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check ONT.")
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check ONT's battery backup.")
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check battery backup for power.")
+
+                elif ((self.ticket_status == "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device.")
+                        or (self.ticket_status == "Ticket Status: Problem not resolved yet.\nOther services are working fine.")
+                        or (self.ticket_status == "Ticket Status: Problem not resolved yet.\n" + self.service + ", the only service is offline.") and len(self.recommended_troubleshooting_steps[0]) == 2):
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check each network device’s name, model, and lights.")
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check cabling.")
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check if cables are in the correct ports.")
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check cable conditions.")
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Power cycle all network devices.")
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check each network device’s name, model, and lights.")
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check a device for internet.")
+
+                    # Temporary: The steps below should not be hardcoded here if steps are based off decisions
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Run ping tests on a computer.")
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check ONT.")
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check ONT’s battery backup.")
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Check battery backup for power.")
+
+                self.troubleshooting_steps = self.recommended_troubleshooting_steps
 
         # If current service is Cable and category is Connectivity, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
         # If category is Intermittent Connectivity/Speed and self.are_devices_online is no, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
@@ -526,6 +541,18 @@ class Ticket():
         # Combine the nested current_questions list into one list. Append the combined list to current_questions
         self.diagnostic_questions.append(list(itertools.chain.from_iterable(
             current_questions)))
+
+    def toggling_steps(self):
+
+        if (self.toggle_steps == "Recommended Steps"):
+            self.toggle_steps = "All Steps"
+            self.set_troubleshooting_steps()
+            self.print_ticket_steps_and_questions()
+
+        elif (self.toggle_steps == "All Steps"):
+            self.toggle_steps = "Recommended Steps"
+            self.set_troubleshooting_steps()
+            self.print_ticket_steps_and_questions()
 
     def print_ticket(self):
         """
@@ -707,6 +734,7 @@ class Ticket():
                     "Add Question - Add a diagnostic question to the ticket.",
                     "Add Line - Add one or more custom lines to the ticket.",
                     "Remove Line - Remove a step, question, or custom line from the ticket.",
+                    "Toggle Steps - Switch between viewing only the recommended steps and viewing all the steps.",
                     "Copy - Copy current ticket to the clipboard.",
                     "Help - Show all available commands.",
                     "Main - Return to the main menu.",
@@ -2507,7 +2535,7 @@ class Ticket():
         print("Enter 'Help' to view available commands.\n")
 
         ticket_command_choices = [
-            "add step", "add question", "add line", "remove line", "copy", "help", "main", "end"]
+            "add step", "add question", "add line", "remove line", "toggle steps", "copy", "help", "main", "end"]
 
         ticket_command_choice = input("Enter a command: ").lower().strip()
 
@@ -2550,6 +2578,15 @@ class Ticket():
             print("\n\n----------------------------------\n\n")
 
             self.remove_line()
+
+            self.wait_for_command()
+
+        # if user enters 'toggle steps', switch to viewing either recommended steps and all the steps, based off current self.toggle_steps value
+        if (ticket_command_choice == 'toggle steps'):
+
+            self.toggling_steps()
+
+            print("\nNow showing " + self.toggle_steps.lower() + "!\n")
 
             self.wait_for_command()
 
