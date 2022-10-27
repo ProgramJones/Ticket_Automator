@@ -9,6 +9,7 @@ import os
 import re
 import time
 import itertools
+import random
 import pyperclip
 import system
 import main_menu
@@ -2030,7 +2031,7 @@ class Ticket():
         ticket_content_items = list(self.ticket_content.items())
         # Insert key and step_response_sentence value into ticket_content_items at index of insert_at_index
         ticket_content_items.insert(
-            insert_at_index, ("step_" + self.service + "_" + self.category + "_" + str(first_index) + "_" + str(second_index) + "_" + step_response_sentence, step_response_sentence))
+            insert_at_index, ("step_" + self.service + "_" + self.category + "_" + str(first_index) + "_" + str(second_index) + "_" + str(random.randrange(10000)) + "_" + step_response_sentence, step_response_sentence))
         # Convert the ticket_content_items list to a dictionary
         self.ticket_content = dict(ticket_content_items)
 
@@ -2347,7 +2348,7 @@ class Ticket():
         ticket_content_items = list(self.ticket_content.items())
         # Insert key and question_response_sentence value into ticket_content_items at index of insert_at_index
         ticket_content_items.insert(
-            insert_at_index, ("question_" + self.service + "_" + self.category + "_" + question_response_sentence, question_response_sentence))
+            insert_at_index, ("question_" + self.service + "_" + self.category + "_" + str(random.randrange(10000)) + "_" + question_response_sentence, question_response_sentence))
         # Convert the ticket_content_items list to a dictionary
         self.ticket_content = dict(ticket_content_items)
 
