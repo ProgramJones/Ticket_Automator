@@ -832,21 +832,34 @@ class Ticket():
 
         print("\n\n")
 
-        print("Select a troubleshooting step by entering in the position of a list and the corresponding number next to the list's item: \nExample. 1 2 | selects first list's second item.\n")
+        print("Enter 'exit' at any time to exit prompt.\n")
 
-        # Prompt user for position of list and its step. Assign number to step_index
+        first_index = 0
+        second_index = None
 
-        step_index = input(
-            "Enter position of list and its step: ").strip()
+        # While second_index is not an int and second_index is less than or greater than self.troubleshooting steps list, run the following code
+        while ((isinstance(second_index, int) != True) or (second_index < 1 or second_index > len(self.troubleshooting_steps[0]))):
+            second_index = input(
+                "\nSelect a step by entering the number next to it: ").strip()
 
-        # Assign first_index and second_index based off two numbers entered by user
-
-        first_index = int(step_index.split()[0]) - 1
-        second_index = int(step_index.split()[1]) - 1
-
-        # Associate first_index and second_index with questions in self.troubleshooting_steps
-
-        step = self.troubleshooting_steps[first_index][second_index]
+            if (second_index.lower() == "exit"):
+                self.print_ticket_steps_and_questions()
+                return
+            try:
+                # Convert second_index, entered by user, into a number
+                # Subtract 1 from entered number, since list actually counts from 0
+                second_index = int(second_index) - 1
+            except ValueError:
+                print("Invalid response - a number was not entered.")
+                continue
+            try:
+                # Associate first_index and second_index with steps in self.troubleshooting_steps
+                step = self.troubleshooting_steps[first_index][second_index]
+            except IndexError:
+                print(
+                    "Invalid response - number entered does not correlate with a step.")
+                continue
+            break
 
         print("\n\n")
 
@@ -2094,21 +2107,34 @@ class Ticket():
 
         print("\n\n")
 
-        print("Select a question by entering in the position of a list and the corresponding number next to the list's item: \nExample. 1 2 | selects first list's second item.\n")
+        print("Enter 'exit' at any time to exit prompt.\n")
 
-        # Prompt user for position of list and its question. Assign number to question_index
+        first_index = 0
+        second_index = None
 
-        question_index = input(
-            "Enter position of list and its question: ").strip()
+        # While second_index is not an int and second_index is less than or greater than self.troubleshooting steps list, run the following code
+        while ((isinstance(second_index, int) != True) or (second_index < 1 or second_index > len(self.diagnostic_questions[0]))):
+            second_index = input(
+                "\nSelect a question by entering the number next to it: ").strip()
 
-        # Assign first_index and second_index based off two numbers entered by user
-
-        first_index = int(question_index.split()[0]) - 1
-        second_index = int(question_index.split()[1]) - 1
-
-        # Associate first_index and second_index with questions in self.diagnostic_questions
-
-        question = self.diagnostic_questions[first_index][second_index]
+            if (second_index.lower() == "exit"):
+                self.print_ticket_steps_and_questions()
+                return
+            try:
+                # Convert second_index, entered by user, into a number
+                # Subtract 1 from entered number, since list actually counts from 0
+                second_index = int(second_index) - 1
+            except ValueError:
+                print("Invalid response - a number was not entered.")
+                continue
+            try:
+                # Associate first_index and second_index with question in self.diagnostic_questions
+                question = self.diagnostic_questions[first_index][second_index]
+            except IndexError:
+                print(
+                    "Invalid response - number entered does not correlate with a question.")
+                continue
+            break
 
         print("\n\n")
 
