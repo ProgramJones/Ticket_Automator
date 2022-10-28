@@ -441,6 +441,8 @@ class Ticket():
                     self.recommended_troubleshooting_steps[0].append(
                         "Check each network device’s name, model, and lights.")
                     self.recommended_troubleshooting_steps[0].append(
+                        "Check network devices for internet.")
+                    self.recommended_troubleshooting_steps[0].append(
                         "Check a device for internet.")
 
                     # Temporary: The steps below should not be hardcoded here if steps are based off decisions
@@ -1554,6 +1556,244 @@ class Ticket():
                     step_response_sentence = "Was able to power cycle every device except the: " + \
                         ", ".join(could_not_power_cycle_list)
 
+        def check_network_devices_for_internet():
+
+            nonlocal step_response
+            nonlocal step_response_sentence
+
+            print("Enter 'exit' at any time to exit prompt.\n")
+
+            # Can network devices be checked?
+            can_be_checked = input(
+                "Can network devices be checked?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+            if (can_be_checked == "exit"):
+
+                step_response = "exit"
+                return
+
+            while (can_be_checked != "yes" and can_be_checked != "no"):
+                print("\nInvalid response - 'yes' or 'no' was not entered.")
+
+                can_be_checked = input(
+                    "\nCan network devices be checked?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                if (can_be_checked == "exit"):
+
+                    step_response = "exit"
+                    return
+
+            # if yes, network devices can be checked, Do all non-bridged network devices show internet?
+            if (can_be_checked == "yes"):
+                all_network_devices_show_internet = input(
+                    "\nDo all non-bridged network devices show internet?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                if (all_network_devices_show_internet == "exit"):
+
+                    step_response = "exit"
+                    return
+
+                while (all_network_devices_show_internet != "yes" and all_network_devices_show_internet != "no"):
+                    print("\nInvalid response - 'yes' or 'no' was not entered.")
+
+                    all_network_devices_show_internet = input(
+                        "\nCan network devices be checked?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                    if (all_network_devices_show_internet == "exit"):
+
+                        step_response = "exit"
+                        return
+
+                # if yes, all non-bridged network devices show internet, add "All non-bridged network devices show internet." to ticket.
+                if (all_network_devices_show_internet == "yes"):
+                    step_response_sentence = "All non-bridged network devices show internet."
+
+                # if no, not all non-bridged network devices show internet, is there a main router?
+                if (all_network_devices_show_internet == "no"):
+
+                    is_there_a_main_router = input(
+                        "\nIs there a main router?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                    if (is_there_a_main_router == "exit"):
+
+                        step_response = "exit"
+                        return
+
+                    while (is_there_a_main_router != "yes" and is_there_a_main_router != "no"):
+                        print("\nInvalid response - 'yes' or 'no' was not entered.")
+
+                        is_there_a_main_router = input(
+                            "\nIs there a main router?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                        if (is_there_a_main_router == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                    # if yes, there is a main router, does the main router show internet?
+                    if (is_there_a_main_router == "yes"):
+
+                        main_router_shows_internet = input(
+                            "\nDoes the main router show internet?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                        if (main_router_shows_internet == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                        while (main_router_shows_internet != "yes" and main_router_shows_internet != "no"):
+                            print(
+                                "\nInvalid response - 'yes' or 'no' was not entered.")
+
+                            main_router_shows_internet = input(
+                                "\nDoes the main router show internet?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                            if (main_router_shows_internet == "exit"):
+
+                                step_response = "exit"
+                                return
+
+                        # if yes, main router shows internet, add "Main router shows internet." to ticket.
+                        if (main_router_shows_internet == "yes"):
+                            step_response_sentence = "Main router shows internet."
+
+                        # if no, main router does not show internet, add "Main router does not show internet." to ticket.
+                        if (main_router_shows_internet == "no"):
+                            step_response_sentence = "Main router does not show internet."
+
+                # if no, not all non-bridged network devices show internet, is there an indoor ONT? (FIBER)
+                if (all_network_devices_show_internet == "no" and self.service == "Fiber"):
+
+                    is_there_an_indoor_ont = input(
+                        "\nIs there an indoor ONT?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                    if (is_there_an_indoor_ont == "exit"):
+
+                        step_response = "exit"
+                        return
+
+                    while (is_there_an_indoor_ont != "yes" and is_there_an_indoor_ont != "no"):
+                        print("\nInvalid response - 'yes' or 'no' was not entered.")
+
+                        is_there_an_indoor_ont = input(
+                            "\nIs there an indoor ONT?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                        if (is_there_an_indoor_ont == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                    # if yes, there is an indoor ONT, does the indoor ONT show internet?
+                    if (is_there_an_indoor_ont == "yes"):
+
+                        indoor_ont_shows_internet = input(
+                            "\nDoes the indoor ONT show internet?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                        if (indoor_ont_shows_internet == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                        while (indoor_ont_shows_internet != "yes" and indoor_ont_shows_internet != "no"):
+                            print(
+                                "\nInvalid response - 'yes' or 'no' was not entered.")
+
+                            indoor_ont_shows_internet = input(
+                                "\nDoes the indoor ONT show internet?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                            if (indoor_ont_shows_internet == "exit"):
+
+                                step_response = "exit"
+                                return
+
+                        # if yes, indoor ONT shows internet, add "Indoor ONT shows internet." to ticket.
+                        if (indoor_ont_shows_internet == "yes"):
+                            if (step_response_sentence == ""):
+                                step_response_sentence = "Indoor ONT shows internet."
+                            else:
+                                step_response_sentence += "\nIndoor ONT shows internet."
+
+                        # if no, indoor ONT does not show internet, add "Indoor ONT does not show internet." to ticket.
+                        if (indoor_ont_shows_internet == "no"):
+                            if (step_response_sentence == ""):
+                                step_response_sentence = "Indoor ONT does not show internet."
+                            else:
+                                step_response_sentence += "\nIndoor ONT does not show internet."
+
+                # if no, not all non-bridged network devices show internet, is there a non-bridged modem? (CABLE and DSL) WORK ON BELOW
+                if (all_network_devices_show_internet == "no" and (self.service == "Cable" or self.service == "DSL")):
+
+                    is_there_a_modem = input(
+                        "\nIs there a non-bridged modem?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                    if (is_there_a_modem == "exit"):
+
+                        step_response = "exit"
+                        return
+
+                    while (is_there_a_modem != "yes" and is_there_a_modem != "no"):
+                        print("\nInvalid response - 'yes' or 'no' was not entered.")
+
+                        is_there_a_modem = input(
+                            "\nIs there a non-bridged modem?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                        if (is_there_a_modem == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                    # if yes, there is a modem, does the modem show internet?
+                    if (is_there_a_modem == "yes"):
+
+                        modem_shows_internet = input(
+                            "\nDoes the modem show internet?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                        if (modem_shows_internet == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                        while (modem_shows_internet != "yes" and modem_shows_internet != "no"):
+                            print(
+                                "\nInvalid response - 'yes' or 'no' was not entered.")
+
+                            modem_shows_internet = input(
+                                "\nDoes the modem show internet?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                            if (modem_shows_internet == "exit"):
+
+                                step_response = "exit"
+                                return
+
+                        # if yes, modem shows internet, add "Modem shows internet." to ticket.
+                        if (modem_shows_internet == "yes"):
+                            if (step_response_sentence == ""):
+                                step_response_sentence = "Modem shows internet."
+                            else:
+                                step_response_sentence += "\nModem shows internet."
+
+                        # if no, modem does not show internet, add "Modem does not show internet." to ticket.
+                        if (modem_shows_internet == "no"):
+                            if (step_response_sentence == ""):
+                                step_response_sentence = "Modem does not show internet."
+                            else:
+                                step_response_sentence += "\nModem does not show internet."
+
+                # if no, not all non-bridged network devices show internet, what other network devices don't show internet?
+                if (all_network_devices_show_internet == "no"):
+                    other_devices_showing_no_internet = input(
+                        "\nWhat other devices are showing no internet?\n").strip()
+                    if (step_response_sentence == ""):
+                        step_response_sentence = "Misc devices showing no internet: " + \
+                            other_devices_showing_no_internet
+                    else:
+                        step_response_sentence += "\nMisc devices showing no internet: " + \
+                            other_devices_showing_no_internet
+
+            # if no, network devices cannot be checked, "Network devices cannot be checked for internet."
+            elif (can_be_checked == "no"):
+                step_response_sentence = "Network devices cannot be checked for internet."
+
         def check_ont():
             nonlocal step_response
             nonlocal step_response_sentence
@@ -2047,6 +2287,9 @@ class Ticket():
 
         if (step == "Power cycle all network devices."):
             power_cycle()
+
+        if (step == "Check network devices for internet."):
+            check_network_devices_for_internet()
 
         if (step == "Check ONT."):
             check_ont()
