@@ -2207,6 +2207,180 @@ class Ticket():
             if (can_be_used == "no"):
                 step_response_sentence = "Can't run ping tests - No computer can be used."
 
+        def run_speed_tests():
+            nonlocal step_response
+            nonlocal step_response_sentence
+
+            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nNOTE:\nSpeeds are most accurate when bypassing the main router.\nIf main router can't be bypassed, wiring to a network device is second best.\nIf a device can't be wired at all, it's okay to use 5G WiFi or 2.4G if there's no 5G.\n\n")
+
+            # Can a computer be used?
+            running_test_on_which_device = input(
+                "Can a speed test be run on a computer or mobile device?\nEnter 'Computer', 'Mobile Device', or 'No' to respond: ").lower().strip()
+
+            if (running_test_on_which_device == "exit"):
+
+                step_response = "exit"
+                return
+
+            while (running_test_on_which_device != "computer" and running_test_on_which_device != "mobile device" and running_test_on_which_device != "no"):
+                print(
+                    "\nInvalid response - Neither 'Computer', 'Mobile Device', or 'No' were entered.")
+
+                running_test_on_which_device = input(
+                    "\nIs the speed test being run on a computer or mobile device?\nEnter 'Computer', 'Mobile Device', or 'No' to respond: ").lower().strip()
+
+                if (running_test_on_which_device == "exit"):
+
+                    step_response = "exit"
+                    return
+
+            # Find out how computer is connected
+            if (running_test_on_which_device == "computer"):
+                step_response_sentence = "Running speed tests on a computer."
+
+                # How is the computer connected to the internet?
+                how_computer_is_connected = input(
+                    "\nIs the computer bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
+
+                if (how_computer_is_connected == "exit"):
+
+                    step_response = "exit"
+                    return
+
+                while (how_computer_is_connected != "bypass" and how_computer_is_connected != "wire" and how_computer_is_connected != "wifi"):
+                    print(
+                        "\nInvalid response - Neither 'Bypass', 'Wire', or 'WiFi' were entered.")
+
+                    how_computer_is_connected = input(
+                        "\nIs the computer bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
+
+                    if (how_computer_is_connected == "exit"):
+
+                        step_response = "exit"
+                        return
+
+                if (how_computer_is_connected == "bypass"):
+                    step_response_sentence += "\nComputer is bypassing the main router."
+
+                elif (how_computer_is_connected == "wire"):
+                    step_response_sentence += "\nComputer is wiring to a network device."
+
+                elif (how_computer_is_connected == "wifi"):
+                    name_of_wifi_network = input(
+                        "\nWhat WiFi network is the computer connected to?\nEnter name of WiFi network to respond: ").strip()
+                    step_response_sentence += "\nConnected to SSID of: " + name_of_wifi_network
+
+                # Run speed tests here
+
+                print(
+                    "\n\nEnter 'Done' to exit prompt and save speed test results to ticket.\n")
+
+                while (True):
+
+                    website = input(
+                        "\nWhat website is the speed test being run from? ").strip()
+                    if (website.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (website.lower() == "done"):
+                        return
+                    step_response_sentence += "\n\nSpeed test: " + website
+
+                    download = input(
+                        "What's the download speed? ").strip()
+                    if (download.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (download.lower() == "done"):
+                        return
+                    step_response_sentence += "\nDownload: " + download
+
+                    upload = input(
+                        "What's the upload speed? ").strip()
+                    if (upload.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (upload.lower() == "done"):
+                        return
+                    step_response_sentence += "\nUpload: " + upload
+
+                    ping = input("What's the ping speed? ").strip()
+                    if (ping.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (ping.lower() == "done"):
+                        return
+                    step_response_sentence += "\nPing: " + ping
+
+                    jitter = input("What's the jitter speed? ").strip()
+                    if (jitter.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (jitter.lower() == "done"):
+                        return
+                    step_response_sentence += "\nJitter: " + jitter
+
+            if (running_test_on_which_device == "mobile device"):
+                step_response_sentence = "Running speed tests on a mobile device."
+
+                name_of_wifi_network = input(
+                    "\nWhat WiFi network is the mobile device connected to?\nEnter name of WiFi network to respond: ").strip()
+                step_response_sentence += "\nConnected to SSID of: " + name_of_wifi_network
+
+                # Run speed tests here
+
+                print(
+                    "\n\nEnter 'Done' to exit prompt and save speed test results to ticket.\n")
+
+                while (True):
+
+                    website = input(
+                        "\nWhat website is the speed test being run from? ").strip()
+                    if (website.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (website.lower() == "done"):
+                        return
+                    step_response_sentence += "\n\nSpeed test: " + website
+
+                    download = input(
+                        "What's the download speed? ").strip()
+                    if (download.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (download.lower() == "done"):
+                        return
+                    step_response_sentence += "\nDownload: " + download
+
+                    upload = input(
+                        "What's the upload speed? ").strip()
+                    if (upload.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (upload.lower() == "done"):
+                        return
+                    step_response_sentence += "\nUpload: " + upload
+
+                    ping = input("What's the ping speed? ").strip()
+                    if (ping.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (ping.lower() == "done"):
+                        return
+                    step_response_sentence += "\nPing: " + ping
+
+                    jitter = input("What's the jitter speed? ").strip()
+                    if (jitter.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (jitter.lower() == "done"):
+                        return
+                    step_response_sentence += "\nJitter: " + jitter
+
+            if (running_test_on_which_device == "no"):
+                step_response_sentence = "Can't run speed tests - No computer or mobile device can be used."
+
         def check_ont():
             nonlocal step_response
             nonlocal step_response_sentence
@@ -2718,6 +2892,9 @@ class Ticket():
 
         if (step == "Run ping tests on a computer."):
             run_ping_tests()
+
+        if (step == "Run speed tests on a device."):
+            run_speed_tests()
 
         # If exit is returned from any of the function calls, exit the loop without editing ticket content
         if (step_response == 'exit'):
