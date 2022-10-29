@@ -2084,6 +2084,128 @@ class Ticket():
                     step_response_sentence += "\nDefault Gateway: " + \
                         device_default_gateway
 
+        def run_ping_tests():
+            nonlocal step_response
+            nonlocal step_response_sentence
+
+            print("Enter 'exit' at any time to exit prompt.\n")
+
+            # Can a computer be used?
+            can_be_used = input(
+                "Can a computer be used?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+            if (can_be_used == "exit"):
+
+                step_response = "exit"
+                return
+
+            while (can_be_used != "yes" and can_be_used != "no"):
+                print("\nInvalid response - 'yes' or 'no' was not entered.")
+
+                can_be_used = input(
+                    "\nCan a computer be used?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                if (can_be_used == "exit"):
+
+                    step_response = "exit"
+                    return
+
+            # Find out how computer is connected
+            if (can_be_used == "yes"):
+                step_response_sentence = "Running ping tests on a computer."
+
+                # How is the computer connected to the internet?
+                how_computer_is_connected = input(
+                    "\nIs the computer bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
+
+                if (how_computer_is_connected == "exit"):
+
+                    step_response = "exit"
+                    return
+
+                while (how_computer_is_connected != "bypass" and how_computer_is_connected != "wire" and how_computer_is_connected != "wifi"):
+                    print(
+                        "\nInvalid response - Neither 'Bypass', 'Wire', or 'WiFi' were entered.")
+
+                    how_computer_is_connected = input(
+                        "\nIs the computer bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
+
+                    if (how_computer_is_connected == "exit"):
+
+                        step_response = "exit"
+                        return
+
+                if (how_computer_is_connected == "bypass"):
+                    step_response_sentence += "\nComputer is bypassing the main router."
+
+                elif (how_computer_is_connected == "wire"):
+                    step_response_sentence += "\nComputer is wiring to a network device."
+
+                elif (how_computer_is_connected == "wifi"):
+                    name_of_wifi_network = input(
+                        "\nWhat WiFi network is the computer connected to?\nEnter name of WiFi network to respond: ").strip()
+                    step_response_sentence += "\nConnected to SSID of: " + name_of_wifi_network
+
+                # Run ping tests here
+
+                print(
+                    "\n\nEnter 'Done' to exit prompt and save ping statistics to ticket.\n")
+
+                while (True):
+
+                    host = input("\nWhat host is being pinged? ").strip()
+                    if (host.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (host.lower() == "done"):
+                        return
+                    step_response_sentence += "\n\nPinging Host: " + host
+
+                    packets_sent = input(
+                        "How many packets are being sent? ").strip()
+                    if (packets_sent.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (packets_sent.lower() == "done"):
+                        return
+                    step_response_sentence += "\nSent: " + packets_sent
+
+                    packets_lost = input(
+                        "How many packets were lost? ").strip()
+                    if (packets_lost.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (packets_lost.lower() == "done"):
+                        return
+                    step_response_sentence += "\nLost: " + packets_lost
+
+                    min_value = input("What's the min ping speed? ").strip()
+                    if (min_value.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (min_value.lower() == "done"):
+                        return
+                    step_response_sentence += "\nMin: " + min_value
+
+                    max_value = input("What's the max ping speed? ").strip()
+                    if (max_value.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (max_value.lower() == "done"):
+                        return
+                    step_response_sentence += "\nMax: " + min_value
+
+                    avg_value = input("What's the avg ping speed? ").strip()
+                    if (avg_value.lower() == "exit"):
+                        step_response = "exit"
+                        return
+                    if (avg_value.lower() == "done"):
+                        return
+                    step_response_sentence += "\nAvg: " + avg_value
+
+            if (can_be_used == "no"):
+                step_response_sentence = "Can't run ping tests - No computer can be used."
+
         def check_ont():
             nonlocal step_response
             nonlocal step_response_sentence
@@ -2592,6 +2714,9 @@ class Ticket():
 
         if (step == "Check battery backup for power."):
             check_battery_backup_power()
+
+        if (step == "Run ping tests on a computer."):
+            run_ping_tests()
 
         # If exit is returned from any of the function calls, exit the loop without editing ticket content
         if (step_response == 'exit'):
