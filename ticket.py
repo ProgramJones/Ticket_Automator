@@ -96,17 +96,21 @@ class Ticket():
         self.speed_steps = [
             "Run speed tests on a device.",
             "Check each network device’s name, model, and lights.",
-            "Check cabling.", "Check cable conditions.",
+            "Check cabling.", "Check if cables are in the correct ports.",
+            "Check cable conditions.",
             "Power cycle all network devices.",
             "Check each network device’s name, model, and lights.",
+            "Check network devices for internet.", "Check a device for internet.",
             "Run speed tests on a device.", "Run ping tests on a computer."
         ]
         self.intermittent_connectivity_and_speed_steps = [
             "Run speed tests on a device.", "Run ping tests on a computer.",
             "Check each network device’s name, model, and lights.",
-            "Check cabling.", "Check cable conditions.",
+            "Check cabling.", "Check if cables are in the correct ports.",
+            "Check cable conditions.",
             "Power cycle all network devices.",
             "Check each network device’s name, model, and lights.",
+            "Check network devices for internet.", "Check a device for internet.",
             "Run speed tests on a device.", "Run ping tests on a computer."
         ]
 
