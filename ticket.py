@@ -125,6 +125,18 @@ class Ticket():
             "Check network devices for internet.", "Check a device for internet.",
             "Run speed tests on a device.", "Run ping tests on a computer."
         ]
+        self.fiber_intermittent_connectivity_and_speed_steps = [
+            "Check status of all services.", "Run speed tests on a device.", "Run ping tests on a computer.",
+            "Check each network device’s name, model, and lights.",
+            "Check cabling.", "Check if cables are in the correct ports.",
+            "Check cable conditions.",
+            "Power cycle all network devices.",
+            "Check ONT.",
+            "Check ONT's battery backup.", "Check battery backup for power.",
+            "Check each network device’s name, model, and lights.",
+            "Check network devices for internet.", "Check a device for internet.",
+            "Run speed tests on a device.", "Run ping tests on a computer."
+        ]
 
         self.internet_general_questions = [
             "How long has this issue been happening for?",
@@ -134,8 +146,7 @@ class Ticket():
             "When is the problem typically happening?",
             "Does the problem happen when more or only certain devices are online?",
             "Does power cycling the equipment temporarily resolve the problem?",
-            "How long does the problem typically last for?",
-            "Do the router lights look the same when the problem happens?"
+            "How long does the problem typically last for?"
         ]
         self.dsl_questions = [
             ""
@@ -498,7 +509,11 @@ class Ticket():
         elif self.category == "Speed":
             self.troubleshooting_steps.append(self.speed_steps)
 
-        # General Intermittent Connectivity/Speed Steps
+        # Intermittent Connectivity/Speed Steps
+
+        elif self.service == "Fiber" and self.category == "Intermittent Connectivity/Speed":
+            self.troubleshooting_steps.append(
+                self.fiber_intermittent_connectivity_and_speed_steps)
 
         elif self.service == "DSL" and self.category == "Intermittent Connectivity/Speed":
             self.troubleshooting_steps.append(
@@ -3326,10 +3341,82 @@ class Ticket():
             question_response_sentence = "Problem typically happens: " + when_problem_happens
 
         def does_problem_happen_when_more_devices_online():
-            pass
+            nonlocal question_response
+            nonlocal question_response_sentence
+
+            print("Enter 'exit' at any time to exit prompt.\n")
+
+            does_problem_happen_with_more_or_certain_devices = input(
+                "Does power cycling the equipment temporarily resolve the problem?\nEnter 'more', 'certain', or 'no' to respond: ").lower().strip()
+
+            if (does_problem_happen_with_more_or_certain_devices == "exit"):
+
+                question_response = "exit"
+                return
+
+            while (does_problem_happen_with_more_or_certain_devices != "more" and does_problem_happen_with_more_or_certain_devices != "certain" and does_problem_happen_with_more_or_certain_devices != "no"):
+                print(
+                    "\nInvalid response - Neither 'yes', 'no', or 'sometimes' were entered.")
+
+                does_problem_happen_with_more_or_certain_devices = input(
+                    "\nDoes power cycling the equipment temporarily resolve the problem?\nEnter 'more', 'certain', or 'no' to respond: ").lower().strip()
+
+                if (does_problem_happen_with_more_or_certain_devices == "exit"):
+
+                    question_response = "exit"
+                    return
+
+            if (does_problem_happen_with_more_or_certain_devices == "more"):
+                question_response_sentence = "Problem typically happens when more devices are online."
+
+            elif (does_problem_happen_with_more_or_certain_devices == "certain"):
+
+                certain_devices = input(
+                    "\nWhat devices are online when the problem happens?\n").strip()
+
+                if (certain_devices == "exit"):
+
+                    question_response = "exit"
+                    return
+                question_response_sentence = "Problem typically happens when these devices are online: " + certain_devices
+
+            elif (does_problem_happen_with_more_or_certain_devices == "no"):
+                question_response_sentence = "Problem doesn't typically happen when more or certain devices are online."
 
         def does_power_cycling_help():
-            pass
+            nonlocal question_response
+            nonlocal question_response_sentence
+
+            print("Enter 'exit' at any time to exit prompt.\n")
+
+            does_power_cycling_help = input(
+                "Does power cycling the equipment temporarily resolve the problem?\nEnter 'yes', 'no', or 'sometimes' to respond: ").lower().strip()
+
+            if (does_power_cycling_help == "exit"):
+
+                question_response = "exit"
+                return
+
+            while (does_power_cycling_help != "yes" and does_power_cycling_help != "no" and does_power_cycling_help != "sometimes"):
+                print(
+                    "\nInvalid response - Neither 'yes', 'no', or 'sometimes' were entered.")
+
+                does_power_cycling_help = input(
+                    "\nDoes power cycling the equipment temporarily resolve the problem?\nEnter 'yes', 'no', or 'sometimes' to respond: ").lower().strip()
+
+                if (does_power_cycling_help == "exit"):
+
+                    question_response = "exit"
+                    return
+
+            if (does_power_cycling_help == "yes"):
+                question_response_sentence = "Power cycling temporarily fixes the issue."
+
+            elif (does_power_cycling_help == "no"):
+                question_response_sentence = "Power cycling does not temporarily fix the issue."
+
+            elif (does_power_cycling_help == "sometimes"):
+                question_response_sentence = "Power cycling sometimes temporarily fixes the issue."
 
         def how_long_problem_lasts():
             nonlocal question_response
@@ -3346,9 +3433,6 @@ class Ticket():
                 return
 
             question_response_sentence = "Problem typically lasts for: " + how_long_problem_lasts
-
-        def do_router_lights_look_the_same():
-            pass
 
         # Below are for general internet questions
 
@@ -3379,9 +3463,6 @@ class Ticket():
 
         elif (question == "How long does the problem typically last for?"):
             how_long_problem_lasts()
-
-        elif (question == "Do the router lights look the same when the problem happens?"):
-            do_router_lights_look_the_same()
 
         # Executed anytime user enters 'exit' from within a function
         if (question_response == 'exit'):
