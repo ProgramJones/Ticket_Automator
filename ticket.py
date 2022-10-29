@@ -47,10 +47,10 @@ class Ticket():
             "Check each network device’s name, model, and lights.",
             "Check cabling.",
             "Check if cables are in the correct ports.",
-            "Check cable conditions.", "Power cycle all network devices.",
+            "Check cable conditions.", "Power cycle all network devices.", "Check ONT.",
+            "Check ONT's battery backup.", "Check battery backup for power.",
             "Check each network device’s name, model, and lights.",
-            "Check network devices for internet.", "Check a device for internet.", "Check ONT.",
-            "Check ONT's battery backup.", "Check battery backup for power.", "Run ping tests on a computer."
+            "Check network devices for internet.", "Check a device for internet.",  "Run ping tests on a computer."
         ]
         self.dsl_connectivity_steps = [
             "Check account status.",
@@ -104,6 +104,18 @@ class Ticket():
             "Run speed tests on a device.", "Run ping tests on a computer."
         ]
         self.intermittent_connectivity_and_speed_steps = [
+            "Check status of all services.", "Run speed tests on a device.", "Run ping tests on a computer.",
+            "Check each network device’s name, model, and lights.",
+            "Check cabling.", "Check if cables are in the correct ports.",
+            "Check cable conditions.",
+            "Power cycle all network devices.",
+            "Check each network device’s name, model, and lights.",
+            "Check network devices for internet.", "Check a device for internet.",
+            "Run speed tests on a device.", "Run ping tests on a computer."
+        ]
+        self.dsl_intermittent_connectivity_and_speed_steps = [
+            "Check status of all services.",
+            "Check landline phone for dial tone.",
             "Run speed tests on a device.", "Run ping tests on a computer.",
             "Check each network device’s name, model, and lights.",
             "Check cabling.", "Check if cables are in the correct ports.",
@@ -119,12 +131,11 @@ class Ticket():
             "Were there any equipment changes or outside disturbances when the issue first started happening?"
         ]
         self.intermittent_questions = [
-            "Is the issue only happening during a certain time frame? If so, during what time(s)?",
-            "Is the issue only happening when a certain device is online? If so, which device?",
-            "Is the issue only happening when a lot of devices are online?",
-            "How long is internet affected for?",
-            "Does the equipment typically have to be powercycled to temporarily resolve the issue?",
-            "Do lights on the router look the same when internet disconnects?"
+            "When is the problem typically happening?",
+            "Does the problem happen when more or only certain devices are online?",
+            "Does power cycling the equipment temporarily resolve the problem?",
+            "How long does the problem typically last for?"
+            "Do the router lights look the same when the problem happens?"
         ]
         self.dsl_questions = [
             ""
@@ -135,12 +146,12 @@ class Ticket():
         ]
 
         self.email_general_questions = [
-            "How long has this issue been happening for? "]
+            "How long has this issue been happening for?"]
         self.email_setup_questions = []
         self.email_configuration_questions = []
 
         self.tv_general_questions = [
-            "How long has this issue been happening for? "]
+            "How long has this issue been happening for?"]
 
     def setup_ticket(self):
         """
@@ -397,18 +408,12 @@ class Ticket():
 
         # If current service is DSL and category is Connectivity, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
         # If category is Intermittent Connectivity/Speed and self.are_devices_online is no, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
-        if (self.service == "DSL" and self.category == "Connectivity") or (
-                self.service == "DSL"
-                and self.category == "Intermittent Connectivity/Speed"
-                and self.are_devices_online == "no"):
+        if (self.service == "DSL" and self.category == "Connectivity"):
             self.troubleshooting_steps.append(self.dsl_connectivity_steps)
 
         # If current service is Fiber and category is Connectivity, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
         # If category is Intermittent Connectivity/Speed and self.are_devices_online is no, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
-        elif (self.service == "Fiber" and self.category == "Connectivity") or (
-                self.service == "Fiber"
-                and self.category == "Intermittent Connectivity/Speed"
-                and self.are_devices_online == "no"):
+        elif (self.service == "Fiber" and self.category == "Connectivity"):
 
             if (self.toggle_steps == "All Steps"):
                 self.troubleshooting_steps.append(
@@ -471,19 +476,13 @@ class Ticket():
 
         # If current service is Cable and category is Connectivity, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
         # If category is Intermittent Connectivity/Speed and self.are_devices_online is no, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
-        elif (self.service == "Cable" and self.category == "Connectivity") or (
-                self.service == "Cable"
-                and self.category == "Intermittent Connectivity/Speed"
-                and self.are_devices_online == "no"):
+        elif (self.service == "Cable" and self.category == "Connectivity"):
             self.troubleshooting_steps.append(self.cable_connectivity_steps)
 
         # If current service is Fixed Wireless and category is Connectivity, assign self.troubleshooting_steps to value of self.fixed_wireless_connectivity_steps
         # If category is Intermittent Connectivity/Speed and self.are_devices_online is no, assign self.troubleshooting_steps to value of self.fixed_wireless_connectivity_steps
         elif (self.service == "Fixed Wireless"
-              and self.category == "Connectivity") or (
-                  self.service == "Fixed Wireless"
-                  and self.category == "Intermittent Connectivity/Speed"
-                  and self.are_devices_online == "no"):
+              and self.category == "Connectivity"):
             self.troubleshooting_steps.append(
                 self.fixed_wireless_connectivity_steps)
 
@@ -501,8 +500,12 @@ class Ticket():
 
         # General Intermittent Connectivity/Speed Steps
 
+        elif self.service == "DSL" and self.category == "Intermittent Connectivity/Speed":
+            self.troubleshooting_steps.append(
+                self.dsl_intermittent_connectivity_and_speed_steps)
+
         # If category is Intermittent Connectivity/Speed and are_devices_online is yes, assign self.troubleshooting_steps to value of self.intermittent_connectivity_and_speed_steps
-        elif self.category == "Intermittent Connectivity/Speed" and self.are_devices_online == "yes":
+        elif self.category == "Intermittent Connectivity/Speed":
             self.troubleshooting_steps.append(
                 self.intermittent_connectivity_and_speed_steps)
 
@@ -3564,35 +3567,3 @@ class Ticket():
         self.print_ticket_steps_and_questions()
 
         self.wait_for_command()
-
-    # def set_are_devices_online(self):
-    #     """
-    #     Name:
-    #     set_are_devices_online
-
-    #     Parameters:
-    #     None
-
-    #     When code is run:
-    #     When setup_ticket method is called.
-
-    #     Purpose:
-    #     Re-assign self.are_devices_online variable to 'yes' or 'no' when category is intermittent connectivity/speed.
-    #     """
-
-    #     # If category is intermittent connectivity/speed and if method hasn't been run before, run the following code...
-    #     if (self.category == "Intermittent Connectivity/Speed") and (self.are_devices_online == None):
-
-    #         # Prompt the user for network status.
-    #         print("Is the internet online? \n")
-    #         self.are_devices_online = input(
-    #             "Enter yes or no to respond. ").lower().strip()
-
-    #         # While response is not 'yes' or 'no', prompt user for network status.
-    #         while (self.are_devices_online.lower() != "yes") and (self.are_devices_online.lower()
-    #                                                               != "no"):
-    #             print("Please enter a valid response.\n")
-    #             self.are_devices_online = input(
-    #                 "Enter yes or no to respond. ").lower().strip()
-
-    #         print("\n\n")
