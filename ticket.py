@@ -853,9 +853,10 @@ class Ticket():
 
         first_index = 0
         second_index = None
+        ticket_content_list = list(self.ticket_content.values())
 
         # While second_index is not an int and second_index is less than or greater than self.troubleshooting steps list, run the following code
-        while ((isinstance(second_index, int) != True) or (second_index < 1 or second_index > len(self.troubleshooting_steps[0]))):
+        while (True):
             second_index = input(
                 "\nSelect a step by entering the number next to it: ").strip()
 
@@ -873,6 +874,14 @@ class Ticket():
                 # Associate first_index and second_index with steps in self.troubleshooting_steps
                 step = self.troubleshooting_steps[first_index][second_index]
             except IndexError:
+                print(
+                    "Invalid response - number entered does not correlate with a step.")
+                continue
+            if (second_index >= len(ticket_content_list)):
+                print(
+                    "Invalid response - number entered does not correlate with a question.")
+                continue
+            if (second_index + 1 <= 0):
                 print(
                     "Invalid response - number entered does not correlate with a step.")
                 continue
@@ -2998,6 +3007,8 @@ class Ticket():
 
         system.clear_prompt_or_terminal()
 
+        ticket_content_list = list(self.ticket_content.values())
+
         print("\n")
 
         self.print_diagnostic_questions()
@@ -3010,7 +3021,7 @@ class Ticket():
         second_index = None
 
         # While second_index is not an int and second_index is less than or greater than self.troubleshooting steps list, run the following code
-        while ((isinstance(second_index, int) != True) or (second_index < 1 or second_index > len(self.diagnostic_questions[0]))):
+        while (True):
             second_index = input(
                 "\nSelect a question by entering the number next to it: ").strip()
 
@@ -3028,6 +3039,14 @@ class Ticket():
                 # Associate first_index and second_index with question in self.diagnostic_questions
                 question = self.diagnostic_questions[first_index][second_index]
             except IndexError:
+                print(
+                    "Invalid response - number entered does not correlate with a question.")
+                continue
+            if (second_index >= len(ticket_content_list)):
+                print(
+                    "Invalid response - number entered does not correlate with a question.")
+                continue
+            if (second_index + 1 <= 0):
                 print(
                     "Invalid response - number entered does not correlate with a question.")
                 continue
@@ -3324,6 +3343,8 @@ class Ticket():
 
         system.clear_prompt_or_terminal()
 
+        ticket_content_list = list(self.ticket_content.values())
+
         print("\n")
 
         # Output ticket with line numbers, so user knows which line to select
@@ -3358,14 +3379,31 @@ class Ticket():
 
         print("\n\n")
 
-        line_to_insert = input(
-            "Insert custom line before which line number: ").strip()
+        line_to_insert = None
 
-        if line_to_insert == "exit":
-            return
+        # Until no exceptions are found, see if number is a valid number
+        while (True):
+            line_to_insert = input(
+                "\nInsert custom line before which line number: ").strip()
 
-        # Convert whatever was typed in into an int. Subtract value by 1 since line numbers start at 0.
-        line_to_insert = int(line_to_insert) - 1
+            if (line_to_insert.lower() == "exit"):
+                self.print_ticket_steps_and_questions()
+                return
+            try:
+                # Convert whatever was typed in into an int. Subtract value by 1 since line numbers start at 0.
+                line_to_insert = int(line_to_insert) - 1
+            except ValueError:
+                print("Invalid response - a number was not entered.")
+                continue
+            if (line_to_insert >= len(ticket_content_list)):
+                print(
+                    "Invalid response - number entered does not correlate with a line.")
+                continue
+            if (line_to_insert + 1 <= 0):
+                print(
+                    "Invalid response - number entered does not correlate with a line.")
+                continue
+            break
 
         # Add custom_text into a specific spot of ticket_content that's based off line_to_insert
 
@@ -3409,23 +3447,45 @@ class Ticket():
         print("\n\n")
 
         # Prompt user to choose which line from ticket to remove.
-        index_to_remove = input(
-            "Enter 'exit' at any time to exit prompt.\nSelect which line number to remove: ").strip()
+        print("Enter 'exit' at any time to exit prompt.")
 
-        # Convert prompted line number from a string to an int and subtract by 1 to get the correct index.
-        index_to_remove = int(index_to_remove) - 1
+        index_to_remove = None
 
-        # Define the value from selected line to be removed
-        value_to_remove = ticket_content_list[index_to_remove]
+        # Until no exceptions are found, see if number is a valid number
+        while (True):
+            index_to_remove = input(
+                "\nSelect which line number to remove: ").strip()
+
+            if (index_to_remove.lower() == "exit"):
+                self.print_ticket_steps_and_questions()
+                return
+            try:
+                # Convert prompted line number from a string to an int and subtract by 1 to get the correct index.
+                index_to_remove = int(index_to_remove) - 1
+            except ValueError:
+                print("Invalid response - a number was not entered.")
+                continue
+            try:
+                # Define the value from selected line to be removed
+                value_to_remove = ticket_content_list[index_to_remove]
+            except IndexError:
+                print(
+                    "Invalid response - number entered does not correlate with a line.")
+                continue
+            if (index_to_remove + 1 <= 0):
+                print(
+                    "Invalid response - number entered does not correlate with a line.")
+                continue
+            break
 
         # Loop through all keys and values in ticket_content
         for key, value in self.ticket_content.items():
-            # if the current value is the same value from selected line number, assign current key to key_to_remove
+            # if the current value is the same value from selected line number, assign current key to index_to_remove
             if value == value_to_remove:
-                key_to_remove = key
+                index_to_remove = key
 
         # Delete ticket_content's key_to_remove key
-        del self.ticket_content[key_to_remove]
+        del self.ticket_content[index_to_remove]
 
         self.print_ticket_steps_and_questions()
 
