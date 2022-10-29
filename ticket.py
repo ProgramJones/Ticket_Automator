@@ -53,37 +53,45 @@ class Ticket():
             "Check ONT's battery backup.", "Check battery backup for power.", "Run ping tests on a computer."
         ]
         self.dsl_connectivity_steps = [
-            "Check if there’s a landline phone with dial tone.",
+            "Check account status.",
+            "Check landline phone for dial tone.",
+            "Check status of all services.",
             "Check each network device’s name, model, and lights.",
-            "Check a router for Wi-Fi.", "Check cabling.",
+            "Check cabling.",
             "Check if cables are in the correct ports.",
             "Check cable conditions.", "Power cycle all network devices.",
             "Check each network device’s name, model, and lights.",
-            "Check a device for internet.", "Run ping tests on a computer."
+            "Check network devices for internet.", "Check a device for internet.", "Run ping tests on a computer."
         ]
         self.cable_connectivity_steps = [
+            "Check account status.",
+            "Check status of all services.",
             "Check each network device’s name, model, and lights.",
-            "Check a router for Wi-Fi.", "Check cabling.",
+            "Check cabling.",
             "Check if cables are in the correct ports.",
             "Check cable conditions.", "Power cycle all network devices.",
             "Check each network device’s name, model, and lights.",
-            "Check a device for internet.", "Run ping tests on a computer."
+            "Check network devices for internet.", "Check a device for internet.", "Run ping tests on a computer."
         ]
         self.fixed_wireless_connectivity_steps = [
+            "Check account status.",
+            "Check status of all services.",
             "Check each network device’s name, model, and lights.",
-            "Check a router for Wi-Fi.", "Check cabling.",
+            "Check cabling.",
             "Check if cables are in the correct ports.",
             "Check cable conditions.", "Power cycle all network devices.",
             "Check each network device’s name, model, and lights.",
-            "Check a device for internet.", "Run ping tests on a computer."
+            "Check network devices for internet.", "Check a device for internet.", "Run ping tests on a computer."
         ]
         self.general_connectivity_steps = [
+            "Check account status.",
+            "Check status of all services.",
             "Check each network device’s name, model, and lights.",
-            "Check a router for Wi-Fi.", "Check cabling.",
+            "Check cabling.",
             "Check if cables are in the correct ports.",
             "Check cable conditions.", "Power cycle all network devices.",
             "Check each network device’s name, model, and lights.",
-            "Check a device for internet.", "Run ping tests on a computer."
+            "Check network devices for internet.", "Check a device for internet.", "Run ping tests on a computer."
         ]
         self.speed_steps = [
             "Run speed tests on a device.",
@@ -929,6 +937,62 @@ class Ticket():
                 # Call this method to add "Check status of all services." to troubleshooting steps
                 self.set_troubleshooting_steps()
                 step_response_sentence = "Cannot determine account status."
+
+        def check_landline_phone_for_dial_tone():
+
+            nonlocal step_response_sentence
+            nonlocal step_response
+
+            print("Enter 'exit' at any time to exit prompt.\n")
+
+            can_be_checked = input(
+                "Can a landline phone be checked for dial tone?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+            if (can_be_checked == "exit"):
+
+                step_response = "exit"
+                return
+
+            while (can_be_checked != "yes" and can_be_checked != "no"):
+                print("\nInvalid response - 'yes' or 'no' was not entered.")
+
+                can_be_checked = input(
+                    "\nCan a landline phone be checked for dial tone?\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                if (can_be_checked == "exit"):
+
+                    step_response = "exit"
+                    return
+
+            if (can_be_checked == "yes"):
+
+                has_dial_tone = input(
+                    "\nDoes the landline phone have dial tone?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+                if (has_dial_tone == "exit"):
+
+                    step_response = "exit"
+                    return
+
+                while (has_dial_tone != "yes" and has_dial_tone != "no"):
+                    print("\nInvalid response - 'yes' or 'no' was not entered.")
+
+                    has_dial_tone = input(
+                        "\nDoes the landline phone have dial tone?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+                    if (has_dial_tone == "exit"):
+
+                        step_response = "exit"
+                        return
+
+                if (has_dial_tone == "yes"):
+                    step_response_sentence = "Landline phone has dial tone."
+
+                elif (has_dial_tone == "no"):
+                    step_response_sentence = "Landline phone does not have dial tone."
+
+            elif (can_be_checked == "no"):
+                step_response_sentence = "No landline phone can be checked for dial tone."
 
         def check_status_of_all_services():
 
@@ -2841,24 +2905,11 @@ class Ticket():
         if (step == "Check account status."):
             check_account_status()
 
+        if (step == "Check landline phone for dial tone."):
+            check_landline_phone_for_dial_tone()
+
         if (step == "Check status of all services."):
             check_status_of_all_services()
-
-        if (step == "Check if there’s a landline phone with dial tone."):
-            step_response = input(
-                "Can a landline phone be checked?\nEnter 'yes' or 'no' to respond | Enter 'exit' to not add question: ").lower()
-            if step_response == "yes":
-                print("\n\n")
-                step_response = input(
-                    "Does the landline phone have dial tone?\nEnter 'yes' or 'no' to respond | Enter 'exit' to not add question: ").lower()
-                if step_response == "yes":
-                    step_response_sentence = "Landline phone has dial tone."
-                elif step_response == "no":
-                    step_response_sentence = "Landline phone does not have dial tone."
-            elif step_response == "no":
-                step_response_sentence = "No landline phone can be checked."
-            elif step_response == "exit":
-                return
 
         if (step == "Check each network device’s name, model, and lights."):
             check_each_network_device()
