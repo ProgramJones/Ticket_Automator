@@ -2089,6 +2089,7 @@ class Ticket():
             nonlocal step_response_sentence
 
             print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nNOTE:\nSpeeds are most accurate when bypassing the main router.\nIf main router can't be bypassed, wiring to a network device is second best.\nIf a device can't be wired at all, it's okay to use 5G WiFi or 2.4G if there's no 5G.\n\n")
 
             # Can a computer be used?
             can_be_used = input(
