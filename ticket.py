@@ -2971,9 +2971,20 @@ class Ticket():
 
         # Add step_response_sentence in dictionary into a specific spot of ticket_content that's based off keys in ticket_content
 
-        #   Insert step before 'user' key in ticket content.
-        insert_at_index = list(
-            self.ticket_content.keys()).index('user')
+        # Find last key in ticket_content
+        for index, key in enumerate(self.ticket_content.keys()):
+            # If current index in iteration is the last index in the list(ticket_content.keys()) list, assign last_key to value of key in current iteration
+            if index + 1 == len(self.ticket_content.keys()):
+                last_key = list(self.ticket_content.keys())[index]
+
+        # If 'user' is not found in ticket_content, insert step after last key in ticket content.
+        if (not "user" in list(self.ticket_content)):
+            insert_at_index = list(
+                self.ticket_content.keys()).index(last_key) + 1
+        # If 'user' is found in ticket_content, insert step before 'user' key in ticket content.
+        else:
+            insert_at_index = list(self.ticket_content.keys()).index('user')
+
         # Assign ticket_content_items list to the keys and values of ticket_content dictionary
         ticket_content_items = list(self.ticket_content.items())
         # Insert key and step_response_sentence value into ticket_content_items at index of insert_at_index
@@ -3311,9 +3322,20 @@ class Ticket():
 
         # Add question_response_sentence in dictionary into a specific spot of ticket_content that's based off keys in ticket_content
 
-        #   Insert question before 'user' key in ticket content.
-        insert_at_index = list(
-            self.ticket_content.keys()).index('user')
+        # Find last key in ticket_content
+        for index, key in enumerate(self.ticket_content.keys()):
+            # If current index in iteration is the last index in the list(ticket_content.keys()) list, assign last_key to value of key in current iteration
+            if index + 1 == len(self.ticket_content.keys()):
+                last_key = list(self.ticket_content.keys())[index]
+
+        # If 'user' is not found in ticket_content, insert question after last key in ticket content.
+        if (not "user" in list(self.ticket_content)):
+            insert_at_index = list(
+                self.ticket_content.keys()).index(last_key) + 1
+        # If 'user' is found in ticket_content, insert question before 'user' key in ticket content.
+        else:
+            insert_at_index = list(self.ticket_content.keys()).index('user')
+
         # Assign ticket_content_items list to the keys and values of ticket_content dictionary
         ticket_content_items = list(self.ticket_content.items())
         # Insert key and question_response_sentence value into ticket_content_items at index of insert_at_index
