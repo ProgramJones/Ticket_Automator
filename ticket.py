@@ -134,7 +134,7 @@ class Ticket():
             "When is the problem typically happening?",
             "Does the problem happen when more or only certain devices are online?",
             "Does power cycling the equipment temporarily resolve the problem?",
-            "How long does the problem typically last for?"
+            "How long does the problem typically last for?",
             "Do the router lights look the same when the problem happens?"
         ]
         self.dsl_questions = [
@@ -877,7 +877,7 @@ class Ticket():
                 print(
                     "Invalid response - number entered does not correlate with a step.")
                 continue
-            if (second_index >= len(ticket_content_list)):
+            if (second_index > len(self.troubleshooting_steps[0])):
                 print(
                     "Invalid response - number entered does not correlate with a question.")
                 continue
@@ -2921,46 +2921,46 @@ class Ticket():
         if (step == "Check account status."):
             check_account_status()
 
-        if (step == "Check landline phone for dial tone."):
+        elif (step == "Check landline phone for dial tone."):
             check_landline_phone_for_dial_tone()
 
-        if (step == "Check status of all services."):
+        elif (step == "Check status of all services."):
             check_status_of_all_services()
 
-        if (step == "Check each network device’s name, model, and lights."):
+        elif (step == "Check each network device’s name, model, and lights."):
             check_each_network_device()
 
-        if (step == "Check cabling."):
+        elif (step == "Check cabling."):
             check_cabling()
 
-        if (step == "Check if cables are in the correct ports."):
+        elif (step == "Check if cables are in the correct ports."):
             check_cable_ports()
 
-        if (step == "Check cable conditions."):
+        elif (step == "Check cable conditions."):
             check_cable_conditions()
 
-        if (step == "Power cycle all network devices."):
+        elif (step == "Power cycle all network devices."):
             power_cycle()
 
-        if (step == "Check network devices for internet."):
+        elif (step == "Check network devices for internet."):
             check_network_devices_for_internet()
 
-        if (step == "Check a device for internet."):
+        elif (step == "Check a device for internet."):
             check_devices()
 
-        if (step == "Check ONT."):
+        elif (step == "Check ONT."):
             check_ont()
 
-        if (step == "Check ONT’s battery backup."):
+        elif (step == "Check ONT’s battery backup."):
             check_battery_backup()
 
-        if (step == "Check battery backup for power."):
+        elif (step == "Check battery backup for power."):
             check_battery_backup_power()
 
-        if (step == "Run ping tests on a computer."):
+        elif (step == "Run ping tests on a computer."):
             run_ping_tests()
 
-        if (step == "Run speed tests on a device."):
+        elif (step == "Run speed tests on a device."):
             run_speed_tests()
 
         # If exit is returned from any of the function calls, exit the loop without editing ticket content
@@ -3053,7 +3053,7 @@ class Ticket():
                 print(
                     "Invalid response - number entered does not correlate with a question.")
                 continue
-            if (second_index >= len(ticket_content_list)):
+            if (second_index > len(self.diagnostic_questions[0])):
                 print(
                     "Invalid response - number entered does not correlate with a question.")
                 continue
@@ -3066,6 +3066,8 @@ class Ticket():
         print("\n\n")
 
         # Find and execute relevant prompts for chosen question
+
+        # Below are general internet question functions
 
         def happening_for():
 
@@ -3124,6 +3126,8 @@ class Ticket():
                     return
 
                 question_response_sentence = "Changes when the issue first started: " + were_recent_changes
+
+        # Below are WiFi question functions
 
         def closed_space():
 
@@ -3303,18 +3307,83 @@ class Ticket():
                         elif (issue_fixed == 'maybe'):
                             question_response_sentence += "\nCan't determine whether issue is still happening or not."
 
+        # Below are intermittent question functions
+
+        def when_does_problem_happen():
+            nonlocal question_response
+            nonlocal question_response_sentence
+
+            print("Enter 'exit' at any time to exit prompt.\n")
+
+            when_problem_happens = input(
+                "When is the problem typically happening? ").strip()
+
+            if (when_problem_happens.lower() == "exit"):
+
+                question_response = "exit"
+                return
+
+            question_response_sentence = "Problem typically happens: " + when_problem_happens
+
+        def does_problem_happen_when_more_devices_online():
+            pass
+
+        def does_power_cycling_help():
+            pass
+
+        def how_long_problem_lasts():
+            nonlocal question_response
+            nonlocal question_response_sentence
+
+            print("Enter 'exit' at any time to exit prompt.\n")
+
+            how_long_problem_lasts = input(
+                "How long does the problem last? ").strip()
+
+            if (how_long_problem_lasts.lower() == "exit"):
+
+                question_response = "exit"
+                return
+
+            question_response_sentence = "Problem typically lasts for: " + how_long_problem_lasts
+
+        def do_router_lights_look_the_same():
+            pass
+
+        # Below are for general internet questions
+
         if (question == "How long has this issue been happening for?"):
             happening_for()
 
-        if (question == "Were there any equipment changes or outside disturbances when the issue first started happening?"):
+        elif (question == "Were there any equipment changes or outside disturbances when the issue first started happening?"):
             recent_changes()
 
-        if (question == "Is the router in a closed space?"):
+        # Below are for WiFi questions
+
+        elif (question == "Is the router in a closed space?"):
             closed_space()
 
-        if (question == "Are there any sources of interference?"):
+        elif (question == "Are there any sources of interference?"):
             check_for_interference()
 
+        # Below are for intermittent questions
+
+        elif (question == "When is the problem typically happening?"):
+            when_does_problem_happen()
+
+        elif (question == "Does the problem happen when more or only certain devices are online?"):
+            does_problem_happen_when_more_devices_online()
+
+        elif (question == "Does power cycling the equipment temporarily resolve the problem?"):
+            does_power_cycling_help()
+
+        elif (question == "How long does the problem typically last for?"):
+            how_long_problem_lasts()
+
+        elif (question == "Do the router lights look the same when the problem happens?"):
+            do_router_lights_look_the_same()
+
+        # Executed anytime user enters 'exit' from within a function
         if (question_response == 'exit'):
 
             self.print_ticket_steps_and_questions()
