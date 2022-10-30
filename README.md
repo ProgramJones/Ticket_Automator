@@ -58,6 +58,10 @@ User navigates the program by choosing one of the following commands:
 2. Run this command in terminal: `pip3 install pyperclip`
 3. [More information on pyperclip.](https://pypi.org/project/pyperclip/)
 
+**Run Project's Code**
+1. Download the projects code through git or the [project's page](https://github.com/ProgramJones/Ticket_Automator) on github.
+2. Navigate to the project's directory in cmd/terminal and enter `python main.py`
+
 Note:
 Try the other operating system's command if your operating system's command isn't working.
 
