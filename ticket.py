@@ -466,27 +466,33 @@ class Ticket():
                     self.recommended_troubleshooting_steps[0].append(
                         "Check status of all services.")
 
-                elif (self.devices_online == True and len(self.recommended_troubleshooting_steps[0]) == 2):
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check a device for internet.")
+                elif (self.devices_online == True):
 
-                elif ((self.all_services_offline == True) and len(self.recommended_troubleshooting_steps[0]) == 2):
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check ONT.")
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check ONT's battery backup.")
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check battery backup for power.")
+                    if (len(self.recommended_troubleshooting_steps[0]) == 2):
+                        self.recommended_troubleshooting_steps[0].append(
+                            "Check a device for internet.")
 
-                elif ((self.some_services_offline == True or self.only_service_offline == True) and len(self.recommended_troubleshooting_steps[0]) == 2):
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check each network device’s name, model, and lights.")
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check cabling.")
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check if cables are in the correct ports.")
+                elif ((self.all_services_offline == True)):
 
-                    if ((self.correct_ports == "yes" or self.correct_ports == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 5):
+                    if (len(self.recommended_troubleshooting_steps[0]) == 2):
+                        self.recommended_troubleshooting_steps[0].append(
+                            "Check ONT.")
+                        self.recommended_troubleshooting_steps[0].append(
+                            "Check ONT's battery backup.")
+                        self.recommended_troubleshooting_steps[0].append(
+                            "Check battery backup for power.")
+
+                elif ((self.some_services_offline == True or self.only_service_offline == True)):
+
+                    if (len(self.recommended_troubleshooting_steps) == 2):
+                        self.recommended_troubleshooting_steps[0].append(
+                            "Check each network device’s name, model, and lights.")
+                        self.recommended_troubleshooting_steps[0].append(
+                            "Check cabling.")
+                        self.recommended_troubleshooting_steps[0].append(
+                            "Check if cables are in the correct ports.")
+
+                    elif ((self.correct_ports == "yes" or self.correct_ports == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 5):
                         self.recommended_troubleshooting_steps[0].append(
                             "Check cable conditions.")
 
@@ -1261,10 +1267,13 @@ class Ticket():
                         ", ".join(offline_services_list)
 
                     if (number_of_offline_services == number_of_services):
+                        if (self.service == "Fiber"):
+                            self.ont_status = "offline"
                         # if self.servivce == "fiber": Add the "Check ONT's Battery Backup" and "Check ONT" steps from set_troubleshooting_steps()
                         # if self.service == "dsl": Add "Check landline phone for dial tone" steps from set_troubleshooting_steps()
                         self.ticket_status = "Ticket Status: Problem not resolved yet.\nMultiple and all services are offline."
                         self.all_services_offline = True
+
                         self.set_troubleshooting_steps()
 
                     elif (number_of_offline_services < number_of_services):
@@ -1312,6 +1321,7 @@ class Ticket():
                                 "\n\nONT is online, but there's no internet - Issue may be the router or some other device.")
                             self.ticket_status = "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device."
                             self.some_services_offline = True
+                            self.ont_status = "online"
                             self.set_troubleshooting_steps()
                         else:
                             self.ticket_status = "Ticket Status: Problem not resolved yet.\nOther services are working fine."
