@@ -25,13 +25,31 @@ class Ticket():
         self.custom_issue = None
         self.services = None
         self.category = None
-        self.are_devices_online = None
         self.toggle_steps = "Recommended Steps"
         self.ticket_content = {}
-        self.ticket_status = "Ticket Status: Problem not resolved yet."
         self.recommended_troubleshooting_steps = []
         self.troubleshooting_steps = []
         self.diagnostic_questions = []
+
+        # self.ticket_status will update and hint user depending on responses to prompts. Steps are also sometimes recommended based off the ticket_status.
+        #
+        # Below examples:
+        # self.ticket_status = "Ticket Status: Problem not resolved yet.\n" (More specific message based on latest update from a step)
+        # self.ticket_status = "Ticket Status: Problem resolved.\n" + (More specific message based on what troubleshooting step resolved issue)
+        # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nEscalating problem to a higher level is required to solve the problem."
+        # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nReferring to a local technician or the product manufacturer is required to solve the problem." (For device issues)
+        #
+        self.ticket_status = "Ticket Status: Problem not resolved yet."
+
+        # Steps are based off at least these variables
+        self.are_devices_online = None
+        self.ont_status = None  # Possible values: "online", "offline", or "n/a"
+        self.main_router_status = None  # Possible values: "online", "offline", or "n/a"
+        self.indoor_ont_status = None  # Possible values: "online", "offline", or "n/a"
+        self.modem_status = None  # Possible values: "online", "offline", or "n/a"
+        self.power_cycled = None  # Possible values: "yes", "no", or "n/a"
+        self.correct_ports = None  # Possible values: "yes", "no", or "n/a"
+        self.cable_conditions = None  # Possible values: "yes", "no", or "n/a"
 
         self.internet_services = ["Fiber", "DSL", "Cable", "Fixed Wireless"]
         self.services = [self.internet_services, ["Email"], ["TV"], ["N/A"]]
@@ -462,26 +480,10 @@ class Ticket():
                         "Check cabling.")
                     self.recommended_troubleshooting_steps[0].append(
                         "Check if cables are in the correct ports.")
+
+                elif ((self.correct_ports == "yes" or self.correct_ports == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 5):
                     self.recommended_troubleshooting_steps[0].append(
                         "Check cable conditions.")
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Power cycle all network devices.")
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check each network device’s name, model, and lights.")
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check network devices for internet.")
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check a device for internet.")
-
-                    # Temporary: The steps below should not be hardcoded here if steps are based off decisions
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Run ping tests on a computer.")
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check ONT.")
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check ONT’s battery backup.")
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check battery backup for power.")
 
                 self.troubleshooting_steps = self.recommended_troubleshooting_steps
 
@@ -678,7 +680,11 @@ class Ticket():
         Print troubleshooting steps from the ticket's troubleshooting_steps list, self.troubleshooting_steps.
         """
 
-        print("Troubleshooting Steps:")
+        if (self.toggle_steps == "All Steps"):
+            print(
+                "All Troubleshooting Steps:")
+        elif (self.toggle_steps == "Recommended Steps"):
+            print("Recommended Troubleshooting Steps:")
 
         # if service is Email and category is Setup, print "No steps defined yet."
         # if service is Email and category is Configuration, print "No steps defined yet."
@@ -906,6 +912,19 @@ class Ticket():
 
         # Find and execute relevant prompts for chosen step
 
+        # self.ticket_status will update depending on responses to prompts. Steps are recommended based off the ticket_status.
+        #
+        # Below examples:
+        # self.ticket_status = "Ticket Status: Problem not resolved yet.\n" (More specific message based on latest update from a step)
+        # self.ticket_status = "Ticket Status: Problem resolved.\n" + (More specific message based on what troubleshooting step resolved issue)
+        # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nEscalating problem to a higher level is required to solve the problem."
+        # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nReferring to a local technician or the product manufacturer is required to solve the problem." (For device issues)
+        #
+
+        # Decision Tree - check_account_status
+        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nAccount is active, but internet is offline.
+        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nCannot determine account status."
+        # self.ticket_status = "Ticket Status: Problem resolved.\nAccount is disabled. Advised to pay service provider over phone or on website."
         def check_account_status():
 
             nonlocal step_response
@@ -955,7 +974,7 @@ class Ticket():
                         return
 
                 if (account_status == "disabled"):
-                    self.ticket_status = "Ticket Status: Problem resolved in this ticket.\nAccount is disabled. Advised to pay service provider over phone or on website."
+                    self.ticket_status = "Ticket Status: Problem resolved.\nAccount is disabled. Advised to pay service provider over phone or on website."
                     step_response_sentence = "Account is disabled. Advised to pay service provider over phone or on website."
                 elif (account_status == "enabled"):
                     self.ticket_status = "Ticket Status: Problem not resolved yet.\nAccount is enabled, but internet is offline."
@@ -1025,6 +1044,28 @@ class Ticket():
             elif (can_be_checked == "no"):
                 step_response_sentence = "No landline phone can be checked for dial tone."
 
+        # Decision Tree - check_status_of_all_services
+        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nOnly some devices have internet."
+        # - Shows Steps: "Check a device for internet."
+        # - Condition: Only some devices have internet
+
+        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nMultiple and all services are offline."
+        # - Shows Steps: "Check ONT", "Check ONT's battery backup", "Check battery backup for power."
+        # - Condition: Multiple and all services used are offline
+
+        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device"
+        # - Show Steps: "Check each network device’s name, model, and lights.", "Check cabling.", "Check if cables are in the correct ports."
+        # - Condition: Fiber - Multiple servicves used, but only this service, self.service, is offline
+        # Note: Results from "Check if cables are in the correct ports." may add "Check cable conditions." which may add "Power cycle all network devices.",
+        # "Check each network device’s name, model, and lights.", and "Check network devices for internet."
+
+        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nOther services are working fine."
+        # Show Steps: Same as above
+        # - Condition: Multiple servicves used, but only this service, self.service, is offline
+
+        # self.ticket_status = "Ticket Status: Problem not resolved yet.\n" + self.service + ", the only service is offline."
+        # Show Steps: Same as above
+        # - Condition: Only one service used and it's offline.
         def check_status_of_all_services():
 
             if (step == "Check status of all services."):
@@ -1406,6 +1447,12 @@ class Ticket():
 
                     step_response_sentence += cabling.rstrip()
 
+        # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be switched to the correct ports."
+        # - Show Steps: None
+        # - Condition: Cabling can't be moved to correct ports
+        # self.correct_ports "yes", or "n/a" and length is ...
+        # - Show Steps: "Check cable conditions."
+        # - Condition: Cabling can be moved to correct ports, cabling can't be checked, cabling aready in correct ports
         def check_cable_ports():
             nonlocal step_response
             nonlocal step_response_sentence
@@ -1433,7 +1480,7 @@ class Ticket():
 
             if (can_be_checked == "no"):
                 step_response_sentence = "Cable ports cannot be checked."
-                return
+                self.correct_ports = "n/a"
 
             elif (can_be_checked == "yes"):
 
@@ -1453,6 +1500,7 @@ class Ticket():
 
                 if (correct_ports == "yes"):
                     step_response_sentence = "Cables are in the correct ports."
+                    self.correct_ports = "yes"
 
                 elif (correct_ports == "no"):
                     step_response_sentence = "Cables are not in the correct ports."
@@ -1473,10 +1521,13 @@ class Ticket():
 
                     if (can_be_corrected == "yes"):
                         step_response_sentence += "\nCables moved to the correct ports.\n\n"
+                        self.correct_ports = "yes"
                         check_cabling("yes", "yes")
                     elif (can_be_corrected == "no"):
                         step_response_sentence += "\nCables can't be moved to the correct ports."
-                        self.ticket_status = "Ticket Status: Problem can't be resolved until cables are in the correct ports."
+                        self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be switched to the correct ports."
+
+            self.set_troubleshooting_steps()
 
         def check_cable_conditions():
             nonlocal step_response
