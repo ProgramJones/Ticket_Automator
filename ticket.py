@@ -466,13 +466,15 @@ class Ticket():
                     self.recommended_troubleshooting_steps[0].append(
                         "Check status of all services.")
 
+                # Branching from the 'check_status_of_all_services' function
                 elif (self.devices_online == True):
 
                     if (len(self.recommended_troubleshooting_steps[0]) == 2):
                         self.recommended_troubleshooting_steps[0].append(
                             "Check a device for internet.")
 
-                elif ((self.all_services_offline == True)):
+                # Branching from the 'check_status_of_all_services' function
+                elif (self.all_services_offline == True):
 
                     if (len(self.recommended_troubleshooting_steps[0]) == 2):
                         self.recommended_troubleshooting_steps[0].append(
@@ -482,6 +484,7 @@ class Ticket():
                         self.recommended_troubleshooting_steps[0].append(
                             "Check battery backup for power.")
 
+                # Branching from the 'check_status_of_all_services' function
                 elif ((self.some_services_offline == True or self.only_service_offline == True)):
 
                     if (len(self.recommended_troubleshooting_steps[0]) == 2):
@@ -499,6 +502,33 @@ class Ticket():
                     elif ((self.good_cable_conditions == "yes" or self.good_cable_conditions == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 6):
                         self.recommended_troubleshooting_steps[0].append(
                             "Power cycle all network devices.")
+
+                    # Branching from the 'power_cycle' function
+                    elif ((self.only_service_offline == True) and (self.power_cycled == "no")):
+
+                        if (len(self.recommended_troubleshooting_steps[0]) == 7):
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Check ONT.")
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Check ONT's battery backup.")
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Check battery backup for power.")
+
+                    # Branching from the 'power_cycle' function
+                    elif (self.power_cycled == "yes"):
+
+                        if (len(self.recommended_troubleshooting_steps[0]) == 7):
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Check each network device’s name, model, and lights.")
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Check network devices for internet.")
+
+                    # Branching from the 'power_cycle' function
+                    elif (self.power_cycled == "no"):
+
+                        if (len(self.recommended_troubleshooting_steps[0]) == 7):
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Check network devices for internet.")
 
                 self.troubleshooting_steps = self.recommended_troubleshooting_steps
 
@@ -1709,10 +1739,17 @@ class Ticket():
 
             # self.ticket_status = "Ticket Status: Problem not resolved yet.\nPower cycled network devices but haven't verified service works."
             #
-            # self.power_cycled == "yes", or "no"
-            # - Show Steps: "Power cycle all network devices."
-            # - Condition: Power cycled all network devices, Power cycled network devices, Couldn't power cycle
-            # and "no" and ont_online?
+            # self.power_cycled == "yes"
+            # - Show Steps: "Check each network device’s name, model, and lights.", "Check network devices for internet."
+            # - Condition: Power cycled all network devices, Power cycled some network devices
+            #
+            # self.power_cycled == "no" and self.only_service_offline == True
+            # - Show Steps: "Check ONT", "Check ONT's battery backup", "Check battery backup for power."
+            # - Condition: Couldn't power cycle and the only service is offline
+            #
+            # self.power_cycled == "no"
+            # - Show Steps: "Check network devices for internet."
+            # - Condition: Couldn't power cycle
 
             nonlocal step_response
             nonlocal step_response_sentence
