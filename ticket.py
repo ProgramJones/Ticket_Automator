@@ -41,9 +41,16 @@ class Ticket():
         #
         self.ticket_status = "Ticket Status: Problem not resolved yet."
 
-        # Steps are based off at least these variables
+        # Variable assigned in "Check account status." - Possibly assign step of "Check status of all services." from result of this variable
         self.account_status = None  # Possible values: "online", "offline", or "n/a"
+
+        # Variables assigned in "Check status of all services." - All additional steps branch off from these variables
         self.devices_online = None  # Possible values: True or False
+        self.all_services_offline = None  # Possible values: True or False | Boolean
+        self.some_services_offline = None  # Possible values: True or False | Boolean
+        self.only_service_offline = None  # Possible values: True or False | Boolean
+
+        # Steps are based off at least these general variables
         self.ont_status = None  # Possible values: "online", "offline", or "n/a"
         self.main_router_status = None  # Possible values: "online", "offline", or "n/a"
         self.indoor_ont_status = None  # Possible values: "online", "offline", or "n/a"
@@ -463,7 +470,7 @@ class Ticket():
                     self.recommended_troubleshooting_steps[0].append(
                         "Check a device for internet.")
 
-                elif (self.ticket_status == "Ticket Status: Problem not resolved yet.\nMultiple and all services are offline." and len(self.recommended_troubleshooting_steps[0]) == 2):
+                elif ((self.all_services_offline == True) and len(self.recommended_troubleshooting_steps[0]) == 2):
                     self.recommended_troubleshooting_steps[0].append(
                         "Check ONT.")
                     self.recommended_troubleshooting_steps[0].append(
@@ -471,9 +478,7 @@ class Ticket():
                     self.recommended_troubleshooting_steps[0].append(
                         "Check battery backup for power.")
 
-                elif ((self.ticket_status == "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device.")
-                        or (self.ticket_status == "Ticket Status: Problem not resolved yet.\nOther services are working fine.")
-                        or (self.ticket_status == "Ticket Status: Problem not resolved yet.\n" + self.service + ", the only service is offline.") and len(self.recommended_troubleshooting_steps[0]) == 2):
+                elif ((self.some_services_offline == True or self.only_service_offline == True) and len(self.recommended_troubleshooting_steps[0]) == 2):
                     self.recommended_troubleshooting_steps[0].append(
                         "Check each network device’s name, model, and lights.")
                     self.recommended_troubleshooting_steps[0].append(
@@ -481,13 +486,13 @@ class Ticket():
                     self.recommended_troubleshooting_steps[0].append(
                         "Check if cables are in the correct ports.")
 
-                elif ((self.correct_ports == "yes" or self.correct_ports == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 5):
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Check cable conditions.")
+                    if ((self.correct_ports == "yes" or self.correct_ports == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 5):
+                        self.recommended_troubleshooting_steps[0].append(
+                            "Check cable conditions.")
 
-                elif ((self.good_cable_conditions == "yes" or self.good_cable_conditions == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 6):
-                    self.recommended_troubleshooting_steps[0].append(
-                        "Power cycle all network devices.")
+                    elif ((self.good_cable_conditions == "yes" or self.good_cable_conditions == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 6):
+                        self.recommended_troubleshooting_steps[0].append(
+                            "Power cycle all network devices.")
 
                 self.troubleshooting_steps = self.recommended_troubleshooting_steps
 
@@ -915,25 +920,25 @@ class Ticket():
         print("\n\n")
 
         # Find and execute relevant prompts for chosen step
-
-        # self.ticket_status will update depending on responses to prompts.
+        #
+        # self.ticket_status will update depending on responses to the below prompts.
         #
         # Below examples:
         # self.ticket_status = "Ticket Status: Problem not resolved yet.\n" (More specific message based on latest update from a step)
         # self.ticket_status = "Ticket Status: Problem resolved.\n" + (More specific message based on what troubleshooting step resolved issue)
         # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nEscalating problem to a higher level is required to solve the problem."
         # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nReferring to a local technician or the product manufacturer is required to solve the problem." (For device issues)
-        #
 
-        # self.account_status == "online" or self.account_status == "n/a"
-        # - Shows Steps: Check status of all services.
-        # - Condition: Account is enabled, Cannot determine account status
-        #
-        # Decision Tree - check_account_status
-        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nAccount is active, but internet is offline.
-        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nCannot determine account status."
-        # self.ticket_status = "Ticket Status: Problem resolved.\nAccount is disabled. Advised to pay service provider over phone or on website."
         def check_account_status():
+
+            # self.account_status == "online" or self.account_status == "n/a"
+            # - Shows Steps: Check status of all services.
+            # - Condition: Account is enabled, Cannot determine account status
+            #
+            # Decision Tree - check_account_status
+            # self.ticket_status = "Ticket Status: Problem not resolved yet.\nAccount is active, but internet is offline.
+            # self.ticket_status = "Ticket Status: Problem not resolved yet.\nCannot determine account status."
+            # self.ticket_status = "Ticket Status: Problem resolved.\nAccount is disabled. Advised to pay service provider over phone or on website."
 
             nonlocal step_response
             nonlocal step_response_sentence
@@ -1054,36 +1059,30 @@ class Ticket():
             elif (can_be_checked == "no"):
                 step_response_sentence = "No landline phone can be checked for dial tone."
 
-        # Simplify when to add steps from this method. Possibly 4 branches in add step can form from these four variables.
-        # devices_online | True or False | Boolean | Created!
-        # all_services_offline | True or False | Boolean
-        # some_services_offline | True or False | Boolean
-        # only_service_offline | True or False | Boolean
-
-        # Decision Tree - check_status_of_all_services
-        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nOnly some devices have internet."
-        # - Shows Steps: "Check a device for internet."
-        # - Condition: Only some devices have internet
-
-        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nMultiple and all services are offline."
-        # - Shows Steps: "Check ONT", "Check ONT's battery backup", "Check battery backup for power."
-        # - Condition: Multiple and all services used are offline
-
-        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device"
-        # - Show Steps: "Check each network device’s name, model, and lights.", "Check cabling.", "Check if cables are in the correct ports."
-        # - Condition: Fiber - Multiple servicves used, but only this service, self.service, is offline
-        # Note: Results from "Check if cables are in the correct ports." may add "Check cable conditions." which may add "Power cycle all network devices.",
-        # "Check each network device’s name, model, and lights.", and "Check network devices for internet."
-
-        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nOther services are working fine."
-        # Show Steps: Same as above
-        # - Condition: Multiple servicves used, but only this service, self.service, is offline
-
-        # self.ticket_status = "Ticket Status: Problem not resolved yet.\n" + self.service + ", the only service is offline."
-        # Show Steps: Same as above
-        # - Condition: Only one service used and it's offline.
         def check_status_of_all_services():
 
+            # Decision Tree - check_status_of_all_services
+            # self.ticket_status = "Ticket Status: Problem not resolved yet.\nOnly some devices have internet."
+            # - Shows Steps: "Check a device for internet."
+            # - Condition: Only some devices have internet
+
+            # self.ticket_status = "Ticket Status: Problem not resolved yet.\nMultiple and all services are offline."
+            # - Shows Steps: "Check ONT", "Check ONT's battery backup", "Check battery backup for power."
+            # - Condition: Multiple and all services used are offline
+
+            # self.ticket_status = "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device"
+            # - Show Steps: "Check each network device’s name, model, and lights.", "Check cabling.", "Check if cables are in the correct ports."
+            # - Condition: Fiber - Multiple servicves used, but only this service, self.service, is offline
+            # Note: Results from "Check if cables are in the correct ports." may add "Check cable conditions." which may add "Power cycle all network devices.",
+            # "Check each network device’s name, model, and lights.", and "Check network devices for internet."
+
+            # self.ticket_status = "Ticket Status: Problem not resolved yet.\nOther services are working fine."
+            # Show Steps: Same as above
+            # - Condition: Multiple servicves used, but only this service, self.service, is offline
+
+            # self.ticket_status = "Ticket Status: Problem not resolved yet.\n" + self.service + ", the only service is offline."
+            # Show Steps: Same as above
+            # - Condition: Only one service used and it's offline.
             if (step == "Check status of all services."):
 
                 devices_online = ""
@@ -1265,6 +1264,7 @@ class Ticket():
                         # if self.servivce == "fiber": Add the "Check ONT's Battery Backup" and "Check ONT" steps from set_troubleshooting_steps()
                         # if self.service == "dsl": Add "Check landline phone for dial tone" steps from set_troubleshooting_steps()
                         self.ticket_status = "Ticket Status: Problem not resolved yet.\nMultiple and all services are offline."
+                        self.all_services_offline = True
                         self.set_troubleshooting_steps()
 
                     elif (number_of_offline_services < number_of_services):
@@ -1311,15 +1311,18 @@ class Ticket():
                             step_response_sentence += (
                                 "\n\nONT is online, but there's no internet - Issue may be the router or some other device.")
                             self.ticket_status = "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device."
+                            self.some_services_offline = True
                             self.set_troubleshooting_steps()
                         else:
                             self.ticket_status = "Ticket Status: Problem not resolved yet.\nOther services are working fine."
+                            self.some_services_offline = True
                             self.set_troubleshooting_steps()
 
                 # If only one service is provided by the service provider.
                 elif (number_of_services == 1):
                     self.ticket_status = "Ticket Status: Problem not resolved yet.\n" + \
                         self.service + ", the only service is offline."
+                    self.only_service_offline = True
                     self.set_troubleshooting_steps()
 
         def check_each_network_device():
@@ -1469,13 +1472,14 @@ class Ticket():
 
                     step_response_sentence += cabling.rstrip()
 
-        # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be switched to the correct ports."
-        # - Show Steps: None
-        # - Condition: Cabling can't be moved to correct ports
-        # self.correct_ports == "yes", or "n/a" and length is 5
-        # - Show Steps: "Check cable conditions."
-        # - Condition: Cabling can be moved to correct ports, cabling can't be checked, cabling aready in correct ports
         def check_cable_ports():
+
+            # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be switched to the correct ports."
+            # - Show Steps: None
+            # - Condition: Cabling can't be moved to correct ports
+            # self.correct_ports == "yes", or "n/a"
+            # - Show Steps: "Check cable conditions."
+            # - Condition: Cabling can be moved to correct ports, cabling can't be checked, cabling aready in correct ports
             nonlocal step_response
             nonlocal step_response_sentence
 
@@ -1551,14 +1555,15 @@ class Ticket():
 
             self.set_troubleshooting_steps()
 
-        # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be fixed or replaced."
-        # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be replaced."
-        # - Show Steps: None
-        # - Condition: Cabling can't be replaced (damaged cables), Cabling can't be fixed or replaced (loose cables)
-        # self.good_cable_conditions == "yes", or "n/a" and length is 6
-        # - Show Steps: "Power cycle all network devices."
-        # - Condition: Cables fixed or replaced, cabling can't be checked, cables aready secure with no damage
         def check_cable_conditions():
+
+            # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be fixed or replaced."
+            # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be replaced."
+            # - Show Steps: None
+            # - Condition: Cabling can't be replaced (damaged cables), Cabling can't be fixed or replaced (loose cables)
+            # self.good_cable_conditions == "yes", or "n/a"
+            # - Show Steps: "Power cycle all network devices."
+            # - Condition: Cables fixed or replaced, cabling can't be checked, cables aready secure with no damage
             nonlocal step_response
             nonlocal step_response_sentence
 
@@ -1690,13 +1695,14 @@ class Ticket():
 
             self.set_troubleshooting_steps()
 
-        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nPower cycled network devices but haven't verified service works."
-        #
-        # self.power_cycled == "yes", or "no" and length is 7
-        # - Show Steps: "Power cycle all network devices."
-        # - Condition: Power cycled all network devices, Power cycled network devices, Couldn't power cycle
-        # and "no" and ont_online?
         def power_cycle():
+
+            # self.ticket_status = "Ticket Status: Problem not resolved yet.\nPower cycled network devices but haven't verified service works."
+            #
+            # self.power_cycled == "yes", or "no"
+            # - Show Steps: "Power cycle all network devices."
+            # - Condition: Power cycled all network devices, Power cycled network devices, Couldn't power cycle
+            # and "no" and ont_online?
 
             nonlocal step_response
             nonlocal step_response_sentence
