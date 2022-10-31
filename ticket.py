@@ -484,7 +484,7 @@ class Ticket():
 
                 elif ((self.some_services_offline == True or self.only_service_offline == True)):
 
-                    if (len(self.recommended_troubleshooting_steps) == 2):
+                    if (len(self.recommended_troubleshooting_steps[0]) == 2):
                         self.recommended_troubleshooting_steps[0].append(
                             "Check each network device’s name, model, and lights.")
                         self.recommended_troubleshooting_steps[0].append(
