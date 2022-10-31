@@ -42,7 +42,8 @@ class Ticket():
         self.ticket_status = "Ticket Status: Problem not resolved yet."
 
         # Steps are based off at least these variables
-        self.devices_online = None
+        self.account_status = None  # Possible values: "online", "offline", or "n/a"
+        self.devices_online = None  # Possible values: True or False
         self.ont_status = None  # Possible values: "online", "offline", or "n/a"
         self.main_router_status = None  # Possible values: "online", "offline", or "n/a"
         self.indoor_ont_status = None  # Possible values: "online", "offline", or "n/a"
@@ -454,12 +455,11 @@ class Ticket():
                     self.recommended_troubleshooting_steps.append(
                         ["Check account status."])
 
-                elif ((self.ticket_status == "Ticket Status: Problem not resolved yet.\nAccount is active, but internet is offline."
-                        or self.ticket_status == "Ticket Status: Problem not resolved yet.\nCannot determine account status.") and len(self.recommended_troubleshooting_steps[0]) == 1):
+                elif ((self.account_status == "online" or self.account_status == "n/a") and (len(self.recommended_troubleshooting_steps[0]) == 1)):
                     self.recommended_troubleshooting_steps[0].append(
                         "Check status of all services.")
 
-                elif (self.devices_online == True):
+                elif (self.devices_online == True and len(self.recommended_troubleshooting_steps[0]) == 2):
                     self.recommended_troubleshooting_steps[0].append(
                         "Check a device for internet.")
 
@@ -916,7 +916,7 @@ class Ticket():
 
         # Find and execute relevant prompts for chosen step
 
-        # self.ticket_status will update depending on responses to prompts. Steps are recommended based off the ticket_status.
+        # self.ticket_status will update depending on responses to prompts.
         #
         # Below examples:
         # self.ticket_status = "Ticket Status: Problem not resolved yet.\n" (More specific message based on latest update from a step)
@@ -925,6 +925,10 @@ class Ticket():
         # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nReferring to a local technician or the product manufacturer is required to solve the problem." (For device issues)
         #
 
+        # self.account_status == "online" or self.account_status == "n/a"
+        # - Shows Steps: Check status of all services.
+        # - Condition: Account is enabled, Cannot determine account status
+        #
         # Decision Tree - check_account_status
         # self.ticket_status = "Ticket Status: Problem not resolved yet.\nAccount is active, but internet is offline.
         # self.ticket_status = "Ticket Status: Problem not resolved yet.\nCannot determine account status."
@@ -982,12 +986,14 @@ class Ticket():
                     step_response_sentence = "Account is disabled. Advised to pay service provider over phone or on website."
                 elif (account_status == "enabled"):
                     self.ticket_status = "Ticket Status: Problem not resolved yet.\nAccount is enabled, but internet is offline."
+                    self.account_status = "online"
                     # Call this method to add "Check status of all services." to troubleshooting steps
                     self.set_troubleshooting_steps()
                     step_response_sentence = "Account is enabled."
 
             if (can_determine_account_status == 'no'):
                 self.ticket_status = "Ticket Status: Problem not resolved yet.\nCannot determine account status."
+                self.account_status = "n/a"
                 # Call this method to add "Check status of all services." to troubleshooting steps
                 self.set_troubleshooting_steps()
                 step_response_sentence = "Cannot determine account status."
