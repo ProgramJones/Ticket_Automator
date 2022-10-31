@@ -485,7 +485,7 @@ class Ticket():
                     self.recommended_troubleshooting_steps[0].append(
                         "Check cable conditions.")
 
-                elif ((self.correct_ports == "yes" or self.correct_ports == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 6):
+                elif ((self.good_cable_conditions == "yes" or self.good_cable_conditions == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 6):
                     self.recommended_troubleshooting_steps[0].append(
                         "Power cycle all network devices.")
 
