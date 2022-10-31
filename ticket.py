@@ -42,14 +42,14 @@ class Ticket():
         self.ticket_status = "Ticket Status: Problem not resolved yet."
 
         # Steps are based off at least these variables
-        self.are_devices_online = None
+        self.devices_online = None
         self.ont_status = None  # Possible values: "online", "offline", or "n/a"
         self.main_router_status = None  # Possible values: "online", "offline", or "n/a"
         self.indoor_ont_status = None  # Possible values: "online", "offline", or "n/a"
         self.modem_status = None  # Possible values: "online", "offline", or "n/a"
         self.power_cycled = None  # Possible values: "yes", "no", or "n/a"
         self.correct_ports = None  # Possible values: "yes", "no", or "n/a"
-        self.cable_conditions = None  # Possible values: "yes", "no", or "n/a"
+        self.good_cable_conditions = None  # Possible values: "yes", "no", or "n/a"
 
         self.internet_services = ["Fiber", "DSL", "Cable", "Fixed Wireless"]
         self.services = [self.internet_services, ["Email"], ["TV"], ["N/A"]]
@@ -436,12 +436,12 @@ class Ticket():
         # Connectivity Steps
 
         # If current service is DSL and category is Connectivity, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
-        # If category is Intermittent Connectivity/Speed and self.are_devices_online is no, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
+        # If category is Intermittent Connectivity/Speed and self.devices_online is no, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
         if (self.service == "DSL" and self.category == "Connectivity"):
             self.troubleshooting_steps.append(self.dsl_connectivity_steps)
 
         # If current service is Fiber and category is Connectivity, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
-        # If category is Intermittent Connectivity/Speed and self.are_devices_online is no, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
+        # If category is Intermittent Connectivity/Speed and self.devices_online is no, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
         elif (self.service == "Fiber" and self.category == "Connectivity"):
 
             if (self.toggle_steps == "All Steps"):
@@ -459,7 +459,7 @@ class Ticket():
                     self.recommended_troubleshooting_steps[0].append(
                         "Check status of all services.")
 
-                elif (self.ticket_status == "Ticket Status: Problem not resolved yet.\nOnly some devices have internet." and len(self.recommended_troubleshooting_steps[0]) == 2):
+                elif (self.devices_online == True):
                     self.recommended_troubleshooting_steps[0].append(
                         "Check a device for internet.")
 
@@ -485,15 +485,19 @@ class Ticket():
                     self.recommended_troubleshooting_steps[0].append(
                         "Check cable conditions.")
 
+                elif ((self.correct_ports == "yes" or self.correct_ports == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 6):
+                    self.recommended_troubleshooting_steps[0].append(
+                        "Power cycle all network devices.")
+
                 self.troubleshooting_steps = self.recommended_troubleshooting_steps
 
         # If current service is Cable and category is Connectivity, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
-        # If category is Intermittent Connectivity/Speed and self.are_devices_online is no, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
+        # If category is Intermittent Connectivity/Speed and self.devices_online is no, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
         elif (self.service == "Cable" and self.category == "Connectivity"):
             self.troubleshooting_steps.append(self.cable_connectivity_steps)
 
         # If current service is Fixed Wireless and category is Connectivity, assign self.troubleshooting_steps to value of self.fixed_wireless_connectivity_steps
-        # If category is Intermittent Connectivity/Speed and self.are_devices_online is no, assign self.troubleshooting_steps to value of self.fixed_wireless_connectivity_steps
+        # If category is Intermittent Connectivity/Speed and self.devices_online is no, assign self.troubleshooting_steps to value of self.fixed_wireless_connectivity_steps
         elif (self.service == "Fixed Wireless"
               and self.category == "Connectivity"):
             self.troubleshooting_steps.append(
@@ -538,7 +542,7 @@ class Ticket():
         When setup_ticket method is called.
 
         Purpose:
-        Assign the value of self.diagnostic_questions based off the current service, category, and self.are_devices_online status.
+        Assign the value of self.diagnostic_questions based off the current service, category, and self.devices_online status.
         """
 
         current_questions = []
@@ -1044,6 +1048,12 @@ class Ticket():
             elif (can_be_checked == "no"):
                 step_response_sentence = "No landline phone can be checked for dial tone."
 
+        # Simplify when to add steps from this method. Possibly 4 branches in add step can form from these four variables.
+        # devices_online | True or False | Boolean | Created!
+        # all_services_offline | True or False | Boolean
+        # some_services_offline | True or False | Boolean
+        # only_service_offline | True or False | Boolean
+
         # Decision Tree - check_status_of_all_services
         # self.ticket_status = "Ticket Status: Problem not resolved yet.\nOnly some devices have internet."
         # - Shows Steps: "Check a device for internet."
@@ -1091,34 +1101,37 @@ class Ticket():
                 # Prompt for network status of all devices, if service is an internet service and category is connectivity or intermittent connectivity/speed.
 
                 if (self.service in self.internet_services and (self.category == "Connectivity" or self.category == "Intermittent Connectivity/Speed")):
-                    self.are_devices_online = input(
+                    self.devices_online = input(
                         "Do any devices have internet? Enter 'yes' or 'no': ").lower().strip()
 
-                    if (self.are_devices_online == "exit"):
+                    if (self.devices_online == "exit"):
                         step_response = "exit"
                         return
 
                     # While are_devices_online is not 'yes' and are_devices_online is not 'no', prompt for network status of all devices.
-                    while (self.are_devices_online != "yes" and self.are_devices_online != "no"):
-                        print("\nInvalid response - 'yes' or 'no' was not entered.")
+                    while (self.devices_online != "yes" and self.devices_online != "no"):
+                        print(
+                            "\nInvalid response - 'yes' or 'no' was not entered.")
 
-                        self.are_devices_online = input(
+                        self.devices_online = input(
                             "\nDo any devices have internet? Enter 'yes' or 'no': ").lower().strip()
 
-                        if (self.are_devices_online == "exit"):
+                        if (self.devices_online == "exit"):
 
                             step_response = "exit"
                             return
 
                     # if some devices are online, mention this in step_response_sentence, find out which devices are online, and then set troubleshooting steps.
-                    if (self.are_devices_online == 'yes'):
+                    if (self.devices_online == "yes"):
+                        self.devices_online = True
+
                         step_response_sentence += "At least one device is online."
 
                         # Prompt for which devices are online.
                         devices_online = input(
                             "\nWhat devices are online? Enter a comma seperated list of devices: ").lower().strip()
 
-                        if (self.are_devices_online == "exit"):
+                        if (self.devices_online == "exit"):
 
                             step_response = "exit"
                             return
@@ -1139,7 +1152,10 @@ class Ticket():
                         return
 
                     # if no devices are online, mention this in step_response_sentence.
-                    if (self.are_devices_online == 'no'):
+                    if (self.devices_online == "no"):
+
+                        self.devices_online = False
+
                         step_response_sentence += "No devices are online."
 
                         print("\n\n")
@@ -1450,7 +1466,7 @@ class Ticket():
         # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be switched to the correct ports."
         # - Show Steps: None
         # - Condition: Cabling can't be moved to correct ports
-        # self.correct_ports "yes", or "n/a" and length is ...
+        # self.correct_ports == "yes", or "n/a" and length is 5
         # - Show Steps: "Check cable conditions."
         # - Condition: Cabling can be moved to correct ports, cabling can't be checked, cabling aready in correct ports
         def check_cable_ports():
@@ -1529,6 +1545,13 @@ class Ticket():
 
             self.set_troubleshooting_steps()
 
+        # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be fixed or replaced."
+        # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be replaced."
+        # - Show Steps: None
+        # - Condition: Cabling can't be replaced (damaged cables), Cabling can't be fixed or replaced (loose cables)
+        # self.good_cable_conditions == "yes", or "n/a" and length is 6
+        # - Show Steps: "Power cycle all network devices."
+        # - Condition: Cables fixed or replaced, cabling can't be checked, cables aready secure with no damage
         def check_cable_conditions():
             nonlocal step_response
             nonlocal step_response_sentence
@@ -1556,6 +1579,7 @@ class Ticket():
 
             if (can_be_checked == "no"):
                 step_response_sentence = "Cable conditions cannot be checked."
+                self.good_cable_conditions = "n/a"
 
             elif (can_be_checked == "yes"):
 
@@ -1581,6 +1605,7 @@ class Ticket():
 
                 if (cables_not_loose_or_damaged == "yes"):
                     step_response_sentence = "All cables secure with no visible damage."
+                    self.good_cable_conditions = "yes"
                     return
 
                 elif (cables_not_loose_or_damaged == "damaged"):
@@ -1611,11 +1636,14 @@ class Ticket():
 
                     if (can_be_replaced == "no"):
                         step_response_sentence += "\nCable cannot be replaced."
+                        self.good_cable_conditions = "no"
+                        self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be replaced."
                         return
 
                     elif (can_be_replaced == "yes"):
                         step_response_sentence += "\nJust replaced cable."
                         cables_not_loose_or_damaged = "yes"
+                        self.good_cable_conditions = "yes"
 
                 elif (cables_not_loose_or_damaged == "loose"):
                     loose_cable = input(
@@ -1645,12 +1673,23 @@ class Ticket():
 
                     if (can_be_fixed == "no"):
                         step_response_sentence += "\nCable cannot be pushed in or replaced."
+                        self.good_cable_conditions = "no"
+                        self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be fixed or replaced."
                         return
 
                     if (can_be_fixed == "yes"):
                         step_response_sentence += "\nJust fixed cabling."
                         cables_not_loose_or_damaged = "yes"
+                        self.good_cable_conditions = "yes"
 
+            self.set_troubleshooting_steps()
+
+        # self.ticket_status = "Ticket Status: Problem not resolved yet.\nPower cycled network devices but haven't verified service works."
+        #
+        # self.power_cycled == "yes", or "no" and length is 7
+        # - Show Steps: "Power cycle all network devices."
+        # - Condition: Power cycled all network devices, Power cycled network devices, Couldn't power cycle
+        # and "no" and ont_online?
         def power_cycle():
 
             nonlocal step_response
@@ -1679,6 +1718,8 @@ class Ticket():
 
             if (can_be_power_cycled == "yes"):
                 step_response_sentence = "All network devices power cycled for 30 seconds off."
+                self.power_cycled = "yes"
+                self.ticket_status = "Ticket Status: Problem not resolved yet.\nPower cycled all network devices but haven't verified service works."
 
             if (can_be_power_cycled == "no"):
 
@@ -1698,9 +1739,14 @@ class Ticket():
 
                 if (number_of_network_devices == len(could_not_power_cycle_list)):
                     step_response_sentence = "Was not able to power cycle any network device."
+                    self.power_cycled = "no"
                 else:
                     step_response_sentence = "Was able to power cycle every device except the: " + \
                         ", ".join(could_not_power_cycle_list)
+                    self.power_cycled = "yes"
+                    self.ticket_status = "Ticket Status: Problem not resolved yet.\nPower cycled network devices but haven't verified service works."
+
+            self.set_troubleshooting_steps()
 
         def check_network_devices_for_internet():
 
