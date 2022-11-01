@@ -4,12 +4,12 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-
 import os
 import re
 import time
 import itertools
 import random
+from tkinter import N
 import pyperclip
 import system
 import main_menu
@@ -30,6 +30,9 @@ class Ticket():
         self.recommended_troubleshooting_steps = []
         self.troubleshooting_steps = []
         self.diagnostic_questions = []
+
+        # Contains all the network devices from check_each_network_device | check_network_devices_for_internet logic can be based off this variable
+        self.network_devices = {}
 
         # self.ticket_status will update and hint user depending on responses to prompts. Steps are also sometimes recommended based off the ticket_status.
         #
@@ -55,7 +58,7 @@ class Ticket():
         self.main_router_status = None  # Possible values: "online", "offline", or "n/a"
         self.indoor_ont_status = None  # Possible values: "online", "offline", or "n/a"
         self.modem_status = None  # Possible values: "online", "offline", or "n/a"
-        self.power_cycled = None  # Possible values: "yes", "no", or "n/a"
+        self.power_cycled = None  # Possible values: "yes", "no"
         self.correct_ports = None  # Possible values: "yes", "no", or "n/a"
         self.good_cable_conditions = None  # Possible values: "yes", "no", or "n/a"
 
@@ -504,9 +507,12 @@ class Ticket():
                             "Power cycle all network devices.")
 
                     # Branching from the 'power_cycle' function
+                    #
+                    # ONT status unknown | No equipment could be power cycled
                     elif ((self.only_service_offline == True) and (self.power_cycled == "no")):
 
                         if (len(self.recommended_troubleshooting_steps[0]) == 7):
+                            # Might be better to see if we can bypass, and only check the ONT if we can't bypass
                             self.recommended_troubleshooting_steps[0].append(
                                 "Check ONT.")
                             self.recommended_troubleshooting_steps[0].append(
@@ -515,6 +521,8 @@ class Ticket():
                                 "Check battery backup for power.")
 
                     # Branching from the 'power_cycle' function
+                    #
+                    # ONT is online | Equipment power cycled
                     elif (self.power_cycled == "yes"):
 
                         if (len(self.recommended_troubleshooting_steps[0]) == 7):
@@ -524,6 +532,8 @@ class Ticket():
                                 "Check network devices for internet.")
 
                     # Branching from the 'power_cycle' function
+                    #
+                    # ONT is online | No equipment could be powercycled
                     elif (self.power_cycled == "no"):
 
                         if (len(self.recommended_troubleshooting_steps[0]) == 7):
@@ -892,6 +902,11 @@ class Ticket():
         step_response = ""
         step = ""
 
+        first_index = 0
+        second_index = None
+
+        # ticket_content_list = list(self.ticket_content.values())
+
         # def while_not_a_or_b_or_exit(a, b, variable, question):
 
         #     nonlocal step_response
@@ -909,17 +924,11 @@ class Ticket():
 
         system.clear_prompt_or_terminal()
 
-        print("\n")
+        print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
         self.print_troubleshooting_steps()
 
-        print("\n\n")
-
-        print("Enter 'exit' at any time to exit prompt.\n")
-
-        first_index = 0
-        second_index = None
-        ticket_content_list = list(self.ticket_content.values())
+        print("")
 
         # While second_index is not an int and second_index is less than or greater than self.troubleshooting steps list, run the following code
         while (True):
@@ -979,7 +988,7 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             can_determine_account_status = input(
                 "Can the account status be determined? Enter 'yes' or 'no': ").lower().strip()
@@ -1044,7 +1053,7 @@ class Ticket():
             nonlocal step_response_sentence
             nonlocal step_response
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             can_be_checked = input(
                 "Can a landline phone be checked for dial tone?\nEnter “yes” or “no” to respond: ").lower().strip()
@@ -1137,7 +1146,7 @@ class Ticket():
                 nonlocal step_response_sentence
                 nonlocal step_response
 
-                print("Enter 'exit' at any time to exit prompt.\n")
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
                 # Prompt for network status of all devices, if service is an internet service and category is connectivity or intermittent connectivity/speed.
 
@@ -1370,49 +1379,101 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            def add_device(device=None):
+                nonlocal step_response
+                nonlocal step_response_sentence
 
-            can_be_checked = input(
-                "Can network devices be checked? Enter “yes” or “no” to respond: ").lower().strip()
+                # fiber_internet_devices = [
+                #     "Main Router", "Additional Router", "Extender", "Switch", "Indoor ONT"]
 
-            if (can_be_checked == "exit"):
+                # general_internet_devices = [
+                #     "Main Router", "Additional Router", "Extender", "Switch", "Modem"]
 
-                step_response = "exit"
-                return
+                system.clear_prompt_or_terminal()
 
-            while (can_be_checked != "yes" and can_be_checked != "no"):
-                print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                can_be_checked = input(
-                    "\nCan network devices be checked? Enter “yes” or “no” to respond: ").lower().strip()
-
-                if (can_be_checked == "exit"):
-
-                    step_response = "exit"
-                    return
-
-            if (can_be_checked == "no"):
-
-                step_response_sentence = "No network devices can be checked."
-                return
-
-            elif (can_be_checked == "yes"):
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
                 print(
-                    "\n\nNetwork device information will be displayed in the following example format:\n")
+                    "Network device information will be displayed in the following example format:\n")
                 print("Brand Name - Model Number\nPower: Green - Solid\nInternet: Green - Flashing\n2.4GHz: Green - Flashing\n5GHz: Green - Flashing" +
                       "\nEthernet 1: Off\nEthernet 2: Green - Flashing\nEthernet 3: Off\nEthernet 4: Green - Solid\nUSB: Off\nWPS: Green - Solid")
 
-                print(
-                    "\n\nWhat device is being checked? Enter in format of 'Brand Name – Model Number': ")
+                if (device == None):
+                    print(
+                        "\n\nWhat device is being checked? Enter in format of 'Brand Name – Model Number': ")
 
-                device_brand_and_model = input(
-                    "").strip()
+                    device_brand_and_model = input(
+                        "").strip()
 
-                if (device_brand_and_model.lower() == "exit"):
+                    if (device_brand_and_model.lower() == "exit"):
 
-                    step_response = "exit"
-                    return
+                        step_response = "exit"
+                        return
+
+                    print(
+                        "\n\nWhich of the following device types best decribes this device: ")
+
+                    if (self.service == "Fiber"):
+                        print(
+                            "\n\nMain Router\nAdditional Router\nExtender\nSwitch\nIndoor ONT\n\n")
+
+                        device_type = input(
+                            "Enter one of the above device types: ").strip()
+
+                        if (device_type.lower() == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                        while (device_type.lower() != "main router" and device_type.lower() != "additional router" and device_type.lower() != "extender"
+                               and device_type.lower() != "switch" and device_type.lower() != "indoor ont"):
+                            print(
+                                "Invalid response - A valid device type was not entered.")
+
+                            device_type = input(
+                                "\nEnter one of the above device types: ").strip()
+
+                            if (device_type.lower() == "exit"):
+
+                                step_response = "exit"
+                                return
+
+                        if (device_type.lower() == "indoor ont"):
+                            device_type = "Indoor ONT"
+                        else:
+                            device_type = device_type.title()
+
+                    elif ((self.service in self.internet_services) and (self.service != "Fiber")):
+                        print(
+                            "\n\nMain Router\nAdditional Router\nExtender\nSwitch\nModem\n\n")
+
+                        device_type = input(
+                            "Enter one of the above device types: ").strip()
+
+                        if (device_type.lower() == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                        while (device_type.lower() != "main router" and device_type.lower() != "additional router" and device_type.lower() != "extender"
+                               and device_type.lower() != "switch" and device_type.lower() != "modem"):
+                            print(
+                                "Invalid response - A valid device type was not entered.")
+
+                            device_type = input(
+                                "\nEnter one of the above device types: ").strip()
+
+                            if (device_type.lower() == "exit"):
+
+                                step_response = "exit"
+                                return
+
+                        device_type = device_type.title()
+
+                    self.network_devices.update(
+                        {device_brand_and_model: device_type})
+                else:
+                    device_brand_and_model = device
 
                 print("\n\nEnter “done” when all lights are documented.")
 
@@ -1448,12 +1509,159 @@ class Ticket():
                     step_response_sentence = device_brand_and_model + \
                         "\n" + device_lights.rstrip()
 
+                return step_response_sentence
+
+            def select_key(update_or_delete):
+
+                nonlocal step_response
+                nonlocal step_response_sentence
+
+                # Until no exceptions are found, see if number is a valid number
+                while (True):
+
+                    if (update_or_delete == "update"):
+                        selected_number = input(
+                            "\nEnter the number next to a device to add a new light readout for the device: ").strip()
+                    elif (update_or_delete == "delete"):
+                        selected_number = input(
+                            "\nEnter the number next to a device to delete the device: ").strip()
+
+                    if (selected_number.lower() == "exit"):
+                        step_response = "exit"
+                        return
+
+                    try:
+                        # Convert prompted line number from a string to an int and subtract by 1 to get the correct index.
+                        selected_number = int(selected_number)
+                    except ValueError:
+                        print("Invalid response - a number was not entered.")
+                        continue
+
+                    # Define the value from selected line to be removed
+                    selected_key = None
+
+                    for index, (brand_and_model, type_of_device) in enumerate(self.network_devices.items()):
+                        if (index + 1 == selected_number):
+                            selected_key = brand_and_model
+
+                    if selected_key == None:
+                        print(
+                            "Invalid response - number entered does not correlate with a line.")
+                        continue
+
+                    break
+
+                print(selected_key)
+                return selected_key
+
+            print("\nEnter 'exit' at any time to exit prompt.\n")
+
+            can_be_checked = input(
+                "Can network devices be checked? Enter “yes” or “no” to respond: ").lower().strip()
+
+            if (can_be_checked == "exit"):
+
+                step_response = "exit"
+                return
+
+            while (can_be_checked != "yes" and can_be_checked != "no"):
+                print("\nInvalid response - 'yes' or 'no' was not entered.")
+
+                can_be_checked = input(
+                    "\nCan network devices be checked? Enter “yes” or “no” to respond: ").lower().strip()
+
+                if (can_be_checked == "exit"):
+
+                    step_response = "exit"
+                    return
+
+            if (can_be_checked == "no"):
+
+                step_response_sentence = "No network devices can be checked."
+                return
+
+            elif (can_be_checked == "yes"):
+
+                if (len(self.network_devices) == 0):
+
+                    step_response_sentence = add_device()
+
+                    if (step_response == "exit"):
+                        return
+
+                else:
+
+                    system.clear_prompt_or_terminal()
+
+                    print("\nEnter 'exit' at any time to exit prompt.\n")
+
+                    print("\nThe following devices were saved:")
+
+                    # Print the self.network_devices dictionary with printed indexes before each item (Ex. 1. Brand - Model | Type of device)
+                    for index, (brand_and_model, type_of_device) in enumerate(self.network_devices.items()):
+                        print(str(index + 1) + ". " + brand_and_model +
+                              " | " + type_of_device)
+
+                    print("\n\nAvailable commands:")
+                    print(
+                        "Update - Choose a saved device and document a new light readout for it.")
+                    print("Add - Save a new device and document it's lights.")
+                    print("Delete - Delete a saved device.")
+
+                    device_list_choice = input(
+                        "\n\nEnter one of the above commands: ").lower().strip()
+
+                    if (device_list_choice == "exit"):
+
+                        step_response = "exit"
+                        return
+
+                    while (device_list_choice != "update" and device_list_choice != "add" and device_list_choice != "delete"):
+                        print(
+                            "Invalid response - Neither 'update', 'add', or 'delete' were entered.")
+
+                        device_list_choice = input(
+                            "\nEnter one of the above commands: ").lower().strip()
+
+                        if (device_list_choice == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                    if (device_list_choice == "update"):
+                        device_lights_to_update = select_key(
+                            update_or_delete="update")
+
+                        if (step_response == "exit"):
+                            return
+
+                        step_response_sentence = add_device(
+                            device_lights_to_update)
+
+                        if (step_response == "exit"):
+                            return
+
+                    elif (device_list_choice == "add"):
+                        step_response_sentence = add_device()
+
+                        if (step_response == "exit"):
+                            return
+
+                    elif (device_list_choice == "delete"):
+                        device_to_remove = select_key(
+                            update_or_delete="delete")
+
+                        if (step_response == "exit"):
+                            return
+
+                        del self.network_devices[device_to_remove]
+
         def check_cabling(can_be_checked="yes", checking_again="no"):
             nonlocal step_response
             nonlocal step_response_sentence
 
             if (checking_again == "no"):
-                print("Enter 'exit' at any time to exit prompt.\n")
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
                 can_be_checked = input(
                     "Can cabling be checked? Enter “yes” or “no” to respond: ").lower().strip()
@@ -1523,7 +1731,7 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             can_be_checked = input(
                 "Can cable ports be checked? Enter “yes” or “no” to respond: ").lower().strip()
@@ -1607,7 +1815,7 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             can_be_checked = input(
                 "Can cable conditions be checked? Enter “yes” or “no” to respond: ").lower().strip()
@@ -1754,7 +1962,7 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             can_be_power_cycled = input(
                 "Can all network devices be power cycled? Enter “yes” or “no” to respond: ").lower().strip()
@@ -1809,10 +2017,15 @@ class Ticket():
 
         def check_network_devices_for_internet():
 
+            # self.ticket_status = "Ticket Status: Problem not resolved yet.\nIndoor ONT has internet but the main router does not - Bypass the main router."
+            # self.power_cycled == "yes"
+            # - Show Steps: "Check each network device’s name, model, and lights.", "Check network devices for internet."
+            # - Condition: Power cycled all network devices, Power cycled some network devices
+
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             # Can network devices be checked?
             can_be_checked = input(
@@ -1834,8 +2047,12 @@ class Ticket():
                     step_response = "exit"
                     return
 
+            # if no, network devices cannot be checked, "Network devices cannot be checked for internet."
+            if (can_be_checked == "no"):
+                step_response_sentence = "Network devices cannot be checked for internet."
+
             # if yes, network devices can be checked, Do all non-bridged network devices show internet?
-            if (can_be_checked == "yes"):
+            elif (can_be_checked == "yes"):
                 all_network_devices_show_internet = input(
                     "\nDo all non-bridged network devices show internet?\nEnter 'yes' or 'no' to respond: ").lower().strip()
 
@@ -2041,15 +2258,11 @@ class Ticket():
                         step_response_sentence += "\nMisc devices showing no internet: " + \
                             other_devices_showing_no_internet
 
-            # if no, network devices cannot be checked, "Network devices cannot be checked for internet."
-            elif (can_be_checked == "no"):
-                step_response_sentence = "Network devices cannot be checked for internet."
-
         def check_devices():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             # What device is being checked for internet? Enter 'Phone', 'Computer', or 'Other' to respond.
             check_which_device = input(
@@ -2339,7 +2552,7 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
             print("\nNOTE:\nSpeeds are most accurate when bypassing the main router.\nIf main router can't be bypassed, wiring to a network device is second best.\nIf a device can't be wired at all, it's okay to use 5G WiFi or 2.4G if there's no 5G.\n\n")
 
             # Can a computer be used?
@@ -2462,7 +2675,7 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
             print("\nNOTE:\nSpeeds are most accurate when bypassing the main router.\nIf main router can't be bypassed, wiring to a network device is second best.\nIf a device can't be wired at all, it's okay to use 5G WiFi or 2.4G if there's no 5G.\n\n")
 
             # Can a computer be used?
@@ -2636,7 +2849,7 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             can_be_checked = input(
                 "Can the ONT be checked? Enter “yes” or “no” to respond: ").lower().strip()
@@ -2699,7 +2912,7 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             can_be_checked = input(
                 "Can the ONT's battery backup be checked? Enter “yes” or “no” to respond: ").lower().strip()
@@ -2763,7 +2976,7 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             # Initial check of battery backup for power.
 
@@ -3090,48 +3303,63 @@ class Ticket():
                         step_response_sentence += "\nBattery backup can't be wired to a working outlet."
 
         if (step == "Check account status."):
+            system.clear_prompt_or_terminal()
             check_account_status()
 
         elif (step == "Check landline phone for dial tone."):
+            system.clear_prompt_or_terminal()
             check_landline_phone_for_dial_tone()
 
         elif (step == "Check status of all services."):
+            system.clear_prompt_or_terminal()
             check_status_of_all_services()
 
         elif (step == "Check each network device’s name, model, and lights."):
+            system.clear_prompt_or_terminal()
             check_each_network_device()
 
         elif (step == "Check cabling."):
+            system.clear_prompt_or_terminal()
             check_cabling()
 
         elif (step == "Check if cables are in the correct ports."):
+            system.clear_prompt_or_terminal()
             check_cable_ports()
 
         elif (step == "Check cable conditions."):
+            system.clear_prompt_or_terminal()
             check_cable_conditions()
 
         elif (step == "Power cycle all network devices."):
+            system.clear_prompt_or_terminal()
             power_cycle()
 
         elif (step == "Check network devices for internet."):
+            system.clear_prompt_or_terminal()
             check_network_devices_for_internet()
 
         elif (step == "Check a device for internet."):
+            system.clear_prompt_or_terminal()
             check_devices()
 
         elif (step == "Check ONT."):
+            system.clear_prompt_or_terminal()
             check_ont()
 
         elif (step == "Check ONT’s battery backup."):
+            system.clear_prompt_or_terminal()
             check_battery_backup()
 
         elif (step == "Check battery backup for power."):
+            system.clear_prompt_or_terminal()
             check_battery_backup_power()
 
         elif (step == "Run ping tests on a computer."):
+            system.clear_prompt_or_terminal()
             run_ping_tests()
 
         elif (step == "Run speed tests on a device."):
+            system.clear_prompt_or_terminal()
             run_speed_tests()
 
         # If exit is returned from any of the function calls, exit the loop without editing ticket content
@@ -3187,17 +3415,15 @@ class Ticket():
         question_response = ""
         question = ""
 
+        # ticket_content_list = list(self.ticket_content.values())
+
         system.clear_prompt_or_terminal()
 
-        ticket_content_list = list(self.ticket_content.values())
-
-        print("\n")
+        print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
         self.print_diagnostic_questions()
 
-        print("\n\n")
-
-        print("Enter 'exit' at any time to exit prompt.\n")
+        print("")
 
         first_index = 0
         second_index = None
@@ -3245,7 +3471,9 @@ class Ticket():
             nonlocal question_response
             nonlocal question_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            system.clear_prompt_or_terminal()
+
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             happening_for_how_long = input(
                 "How long has the issue been happening since? Enter in example format of '3 weeks ago': ").strip()
@@ -3262,7 +3490,9 @@ class Ticket():
             nonlocal question_response
             nonlocal question_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            system.clear_prompt_or_terminal()
+
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             if_recent_changes = input(
                 "Were there any equipment changes or outside disturbances like weather or maintenance when the issue first started happening?\nEnter 'yes' or 'no' to respond: ").strip()
@@ -3305,7 +3535,9 @@ class Ticket():
             nonlocal question_response
             nonlocal question_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            system.clear_prompt_or_terminal()
+
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             print("Is the router in any of the following closed spaces for example:\n\n")
 
@@ -3351,9 +3583,11 @@ class Ticket():
             nonlocal question_response
             nonlocal question_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            system.clear_prompt_or_terminal()
 
-            print("Are there any sources of interference like:\n\n")
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+            print("Are there any sources of interference like:\n")
 
             print(
                 "Radios\nExtenders\nConcrete walls\nMetal ceilings\n\n")
@@ -3484,7 +3718,9 @@ class Ticket():
             nonlocal question_response
             nonlocal question_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            system.clear_prompt_or_terminal()
+
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             when_problem_happens = input(
                 "When is the problem typically happening? ").strip()
@@ -3500,7 +3736,9 @@ class Ticket():
             nonlocal question_response
             nonlocal question_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            system.clear_prompt_or_terminal()
+
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             does_problem_happen_with_more_or_certain_devices = input(
                 "Does power cycling the equipment temporarily resolve the problem?\nEnter 'more', 'certain', or 'no' to respond: ").lower().strip()
@@ -3543,7 +3781,9 @@ class Ticket():
             nonlocal question_response
             nonlocal question_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            system.clear_prompt_or_terminal()
+
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             does_power_cycling_help = input(
                 "Does power cycling the equipment temporarily resolve the problem?\nEnter 'yes', 'no', or 'sometimes' to respond: ").lower().strip()
@@ -3578,7 +3818,9 @@ class Ticket():
             nonlocal question_response
             nonlocal question_response_sentence
 
-            print("Enter 'exit' at any time to exit prompt.\n")
+            system.clear_prompt_or_terminal()
+
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
             how_long_problem_lasts = input(
                 "How long does the problem last? ").strip()
@@ -3671,17 +3913,15 @@ class Ticket():
 
         system.clear_prompt_or_terminal()
 
-        ticket_content_list = list(self.ticket_content.values())
+        print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
-        print("\n")
+        ticket_content_list = list(self.ticket_content.values())
 
         # Output ticket with line numbers, so user knows which line to select
         print("Ticket:\n")
         print(self.print_ticket_with_line_numbers())
 
-        print("\n\n")
-
-        print("Add Line - Add one or more custom lines to the ticket.\nEnter 'exit' at any time to exit prompt.\n")
+        print("")
 
         # Prompt user for a custom line of text, and save that text into 'custom_line'
 
@@ -3692,6 +3932,7 @@ class Ticket():
         custom_line = input("").strip()
 
         if (custom_line.lower() == "exit"):
+            self.print_ticket_steps_and_questions()
             return
 
         while ("done" not in custom_line.lower().strip()):
@@ -3705,7 +3946,7 @@ class Ticket():
             custom_line = custom_line.rstrip(
                 custom_line[-4:]).rstrip()
 
-        print("\n\n")
+        print("")
 
         line_to_insert = None
 
@@ -3766,16 +4007,16 @@ class Ticket():
 
         system.clear_prompt_or_terminal()
 
-        print("\n")
+        print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
         # Output ticket with line numbers, so user knows which line to select
         print("Ticket:\n")
         print(self.print_ticket_with_line_numbers())
 
-        print("\n\n")
+        print("")
 
         # Prompt user to choose which line from ticket to remove.
-        print("Enter 'exit' at any time to exit prompt.")
+        print("\nEnter 'exit' at any time to exit prompt.\n")
 
         index_to_remove = None
 
