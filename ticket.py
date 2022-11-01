@@ -9,7 +9,6 @@ import re
 import time
 import itertools
 import random
-from tkinter import N
 import pyperclip
 import system
 import main_menu
@@ -30,6 +29,7 @@ class Ticket():
         self.recommended_troubleshooting_steps = []
         self.troubleshooting_steps = []
         self.diagnostic_questions = []
+        self.can_check_network_device_lights = "no"
 
         # Contains all the network devices from check_each_network_device | check_network_devices_for_internet logic can be based off this variable
         self.network_devices = {}
@@ -1556,31 +1556,33 @@ class Ticket():
 
             print("\nEnter 'exit' at any time to exit prompt.\n")
 
-            can_be_checked = input(
-                "Can network devices be checked? Enter “yes” or “no” to respond: ").lower().strip()
+            if (self.can_check_network_device_lights == "no"):
 
-            if (can_be_checked == "exit"):
+                self.can_check_network_device_lights = input(
+                    "Can network devices be checked? Enter “yes” or “no” to respond: ").lower().strip()
 
-                step_response = "exit"
-                return
-
-            while (can_be_checked != "yes" and can_be_checked != "no"):
-                print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                can_be_checked = input(
-                    "\nCan network devices be checked? Enter “yes” or “no” to respond: ").lower().strip()
-
-                if (can_be_checked == "exit"):
+                if (self.can_check_network_device_lights == "exit"):
 
                     step_response = "exit"
                     return
 
-            if (can_be_checked == "no"):
+                while (self.can_check_network_device_lights != "yes" and self.can_check_network_device_lights != "no"):
+                    print("\nInvalid response - 'yes' or 'no' was not entered.")
 
-                step_response_sentence = "No network devices can be checked."
-                return
+                    self.can_check_network_device_lights = input(
+                        "\nCan network devices be checked? Enter “yes” or “no” to respond: ").lower().strip()
 
-            elif (can_be_checked == "yes"):
+                    if (self.can_check_network_device_lights == "exit"):
+
+                        step_response = "exit"
+                        return
+
+                if (self.can_check_network_device_lights == "no"):
+
+                    step_response_sentence = "No network devices can be checked."
+                    return
+
+            if (self.can_check_network_device_lights == "yes"):
 
                 if (len(self.network_devices) == 0):
 
@@ -2027,34 +2029,38 @@ class Ticket():
 
             print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
-            # Can network devices be checked?
-            can_be_checked = input(
-                "Can network devices be checked?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+            if (self.can_check_network_device_lights == "no"):
 
-            if (can_be_checked == "exit"):
+                # Can network devices be checked?
+                self.can_check_network_device_lights = input(
+                    "Can network devices be checked?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+                print()
 
-                step_response = "exit"
-                return
-
-            while (can_be_checked != "yes" and can_be_checked != "no"):
-                print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                can_be_checked = input(
-                    "\nCan network devices be checked?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                if (can_be_checked == "exit"):
+                if (self.can_check_network_device_lights == "exit"):
 
                     step_response = "exit"
                     return
 
-            # if no, network devices cannot be checked, "Network devices cannot be checked for internet."
-            if (can_be_checked == "no"):
-                step_response_sentence = "Network devices cannot be checked for internet."
+                while (self.can_check_network_device_lights != "yes" and self.can_check_network_device_lights != "no"):
+                    print("Invalid response - 'yes' or 'no' was not entered.\n")
+
+                    self.can_check_network_device_lights = input(
+                        "Can network devices be checked?\nEnter “yes” or “no” to respond: ").lower().strip()
+                    print()
+
+                    if (self.can_check_network_device_lights == "exit"):
+
+                        step_response = "exit"
+                        return
+
+                # if no, network devices cannot be checked, "Network devices cannot be checked for internet."
+                if (self.can_check_network_device_lights == "no"):
+                    step_response_sentence = "Network devices cannot be checked for internet."
 
             # if yes, network devices can be checked, Do all non-bridged network devices show internet?
-            elif (can_be_checked == "yes"):
+            if (self.can_check_network_device_lights == "yes"):
                 all_network_devices_show_internet = input(
-                    "\nDo all non-bridged network devices show internet?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+                    "Do all non-bridged network devices show internet?\nEnter 'yes' or 'no' to respond: ").lower().strip()
 
                 if (all_network_devices_show_internet == "exit"):
 
