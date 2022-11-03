@@ -31,7 +31,7 @@ class Ticket():
         self.diagnostic_questions = []
         self.can_check_network_device_lights = "no"
 
-        # Contains all the network devices from check_each_network_device | check_network_devices_for_internet logic can be based off this variable
+        # Contains all the network devices from check_each_network_device | check_network_devices_for_internet logic can be based off this attribute
         self.network_devices = {}
 
         # self.ticket_status will update and hint user depending on responses to prompts. Steps are also sometimes recommended based off the ticket_status.
@@ -44,23 +44,36 @@ class Ticket():
         #
         self.ticket_status = "Ticket Status: Problem not resolved yet."
 
-        # Variable assigned in "Check account status." - Possibly assign step of "Check status of all services." from result of this variable
+        # Variable assigned in "Check account status." - Possibly assign step of "Check status of all services." from result of this attribute
         self.account_status = None  # Possible values: "online", "offline", or "n/a"
 
-        # Variables assigned in "Check status of all services." - All additional steps branch off from these variables
+        # Variables assigned in "Check status of all services." - All additional steps branch off from these attributes
         self.devices_online = None  # Possible values: True or False
         self.all_services_offline = None  # Possible values: True or False | Boolean
         self.some_services_offline = None  # Possible values: True or False | Boolean
         self.only_service_offline = None  # Possible values: True or False | Boolean
 
-        # Steps are based off at least these general variables
+        # Steps are based off at least these general attributes
         self.ont_status = None  # Possible values: "online", "offline", or "n/a"
-        self.main_router_status = None  # Possible values: "online", "offline", or "n/a"
-        self.indoor_ont_status = None  # Possible values: "online", "offline", or "n/a"
-        self.modem_status = None  # Possible values: "online", "offline", or "n/a"
         self.power_cycled = None  # Possible values: "yes", "no"
         self.correct_ports = None  # Possible values: "yes", "no", or "n/a"
         self.good_cable_conditions = None  # Possible values: "yes", "no", or "n/a"
+
+        # Starting from the check_network_devices_for_internet method, steps are also based off these attributes
+        # Atrributes are assigned in this format: {"status": online_offline_or_na, "provided_by": device_provided_by}
+        # Possible status values: "online", "offline", "n/a" | Possible provided_by values: "service provider", "third party"
+        self.indoor_ont = None
+        self.ont_router = None
+        self.modem = None
+        self.modem_router = None
+        self.main_router = None
+
+        # Starting from the check_network_devices_for_internet method, steps are also based off these more complicated lists of lists of dictionaries
+        # Items are appended in this format: [{"device": brand_and_model, "device_type": device_type}, {"status": online_offline_or_na, "provided_by": device_provided_by}]
+        # Possible status values: "online", "offline", "n/a" | Possible provided_by values: "service provider", "third party"
+        self.additional_routers = []
+        self.extenders = []
+        self.switches = []
 
         self.internet_services = ["Fiber", "DSL", "Cable", "Fixed Wireless"]
         self.services = [self.internet_services, ["Email"], ["TV"], ["N/A"]]
@@ -2059,13 +2072,16 @@ class Ticket():
                 if (self.can_check_network_device_lights == "no"):
                     step_response_sentence = "Network devices cannot be checked for internet."
 
-            # if yes, network devices can be checked, Do all non-bridged network devices show internet?
+            # Ask if all of the saved network devices have internet
             if (self.can_check_network_device_lights == "yes"):
 
                 print(
-                    "Do all of the following non-bridged network devices show internet:")
+                    "Do all of the following network devices show internet:\n")
 
-                # Objectives: Print the content of self.network_devices
+                # Print the content of self.network_devices
+                for brand_and_model, type_of_device in self.network_devices.items():
+                    print(brand_and_model +
+                          " | " + type_of_device)
 
                 all_network_devices_show_internet = input(
                     "\n\nEnter 'yes' or 'no' to respond: ").lower().strip()
@@ -2076,27 +2092,155 @@ class Ticket():
                     return
 
                 while (all_network_devices_show_internet != "yes" and all_network_devices_show_internet != "no"):
-                    print("\nInvalid response - 'yes' or 'no' was not entered.")
+                    print("Invalid response - 'yes' or 'no' was not entered.")
 
                     all_network_devices_show_internet = input(
-                        "\n\nEnter 'yes' or 'no' to respond: ").lower().strip()
+                        "\nEnter 'yes' or 'no' to respond: ").lower().strip()
 
                     if (all_network_devices_show_internet == "exit"):
 
                         step_response = "exit"
                         return
 
-                # if yes, all non-bridged network devices show internet, add "All non-bridged network devices show internet." to ticket.
+                # if yes, all network devices show internet, add "All network devices show internet." to ticket.
                 if (all_network_devices_show_internet == "yes"):
-                    step_response_sentence = "All non-bridged network devices show internet."
+                    step_response_sentence = "All network devices show internet."
 
-                # if no, not all non-bridged network devices show internet, is there a main router?
+                # if no, not all network devices show internet, what device don't have internet?
                 if (all_network_devices_show_internet == "no"):
 
-                    # Objective: Iterate over entire self.network_devices dictionary
-                    # Objective: For each device, do something based off the value/device type
+                    def what_status_and_who_provided(brand_and_model, device_type):
 
-                    pass
+                        nonlocal step_response
+
+                        online_offline_or_na = input(
+                            "\nIs the " + brand_and_model + " status online, offline, or not available?\nEnter 'online', 'offline', or 'n/a': ").lower().strip()
+
+                        if (online_offline_or_na == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                        while (online_offline_or_na != "online" and online_offline_or_na != "offline" and online_offline_or_na != "n/a"):
+                            print(
+                                "\nInvalid response - Neither 'online', 'offline', or 'n/a' were entered.")
+
+                            online_offline_or_na = input(
+                                "\nIs the " + brand_and_model + " status online, offline, or not available?\nEnter 'online', 'offline', or 'n/a': ").lower().strip()
+
+                            if (online_offline_or_na == "exit"):
+
+                                step_response = "exit"
+                                return
+
+                        if (online_offline_or_na == "online"):
+                            return None
+
+                        elif (online_offline_or_na == "offline" or online_offline_or_na == "n/a"):
+
+                            device_provided_by = input(
+                                "\nWas the " + brand_and_model + " provided by a service provider or third party?\nEnter 'service provider' or 'third party': ").lower().strip()
+
+                            if (device_provided_by == "exit"):
+
+                                step_response = "exit"
+                                return
+
+                            while (device_provided_by != "service provider" and device_provided_by != "third party"):
+                                print(
+                                    "\nInvalid response - 'service provider' or 'provided by' was not entered.")
+
+                                device_provided_by = input(
+                                    "\nWas the " + brand_and_model + " provided by a service provider or third party?\nEnter 'service provider' or 'third party': ").lower().strip()
+
+                                if (device_provided_by == "exit"):
+
+                                    step_response = "exit"
+                                    return
+
+                            if (device_type == "Main Router" or device_type == "Indoor ONT" or device_type == "ONT/Router" or device_type == "Modem" or device_type == "Modem/Router"):
+                                return {"status": online_offline_or_na, "provided_by": device_provided_by}
+
+                            elif (device_type == "Additional Router" or device_type == "Extender" or device_type == "Switch"):
+                                return [{"device": brand_and_model, "device_type": device_type}, {"status": online_offline_or_na, "provided_by": device_provided_by}]
+
+                    # Set these attributes to empty lists, in case this method is called multiple times
+                    self.additional_routers = []
+                    self.extenders = []
+                    self.switches = []
+
+                    for brand_and_model, type_of_device in self.network_devices.items():
+
+                        # what_status_and_who_provide - Working with these possible return values:
+                        #
+                        # if (device_type == "Main Router" or device_type == "Indoor ONT" or device_type == "ONT/Router" or device_type == "Modem" or device_type == "Modem/Router"):
+                        #       return {"status": online_or_offline, "provided_by": device_provided_by}
+                        #
+                        # elif (device_type == "Additional Router" or device_type == "Extender" or device_type == "Switch"):
+                        #       return [{"device": brand_and_model}, {"status": device_type, "provided_by": device_provided_by}]
+
+                        device = what_status_and_who_provided(
+                            brand_and_model, type_of_device)
+
+                        if (step_response == "exit"):
+                            return
+
+                        # Let's test all these values
+                        if (type_of_device == "Main Router"):
+
+                            if (device == None):
+                                pass
+                            else:
+                                self.main_router = device
+
+                        elif (type_of_device == "Indoor ONT"):
+
+                            if (device == None):
+                                pass
+                            else:
+                                self.indoor_ont = device
+
+                        elif (type_of_device == "ONT/Router"):
+
+                            if (device == None):
+                                pass
+                            else:
+                                self.ont_router = device
+
+                        elif (type_of_device == "Modem"):
+
+                            if (device == None):
+                                pass
+                            else:
+                                self.modem = device
+
+                        elif (type_of_device == "Modem/Router"):
+
+                            if (device == None):
+                                pass
+                            else:
+                                self.modem_router = device
+
+                        elif (type_of_device == "Additional Router"):
+
+                            if (device == None):
+                                pass
+                            else:
+                                self.additional_routers.append(device)
+
+                        elif (type_of_device == "Extender"):
+
+                            if (device == None):
+                                pass
+                            else:
+                                self.extenders.append(device)
+
+                        elif (type_of_device == "Switch"):
+
+                            if (device == None):
+                                pass
+                            else:
+                                self.switches.append(device)
 
         def check_devices():
             nonlocal step_response
