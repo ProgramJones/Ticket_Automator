@@ -1981,8 +1981,14 @@ class Ticket():
 
             print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
+            print("Were all the following devices power cycled:\n")
+
+            # Print the self.network_devices dictionary with printed indexes before each item (Ex. 1. Brand - Model | Type of device)
+            for brand_and_model, type_of_device in self.network_devices.items():
+                print(brand_and_model + " | " + type_of_device)
+
             can_be_power_cycled = input(
-                "Can all network devices be power cycled? Enter “yes” or “no” to respond: ").lower().strip()
+                "\n\nEnter “yes” or “no” to respond: ").lower().strip()
 
             if (can_be_power_cycled == "exit"):
 
@@ -1993,7 +1999,7 @@ class Ticket():
                 print("Invalid response - 'yes' or 'no' was not entered.")
 
                 can_be_power_cycled = input(
-                    "\nCan all network devices be power cycled? Enter “yes” or “no” to respond: ").lower().strip()
+                    "\nEnter “yes” or “no” to respond: ").lower().strip()
 
                 if (can_be_power_cycled == "exit"):
 
@@ -2007,10 +2013,7 @@ class Ticket():
 
             if (can_be_power_cycled == "no"):
 
-                number_of_network_devices = input(
-                    "\nEnter number of network devices: ").lower().strip()
-
-                number_of_network_devices = int(number_of_network_devices)
+                number_of_network_devices = len(self.network_devices)
 
                 could_not_power_cycle = input(
                     "\nEnter a comma seperated list of devices that couldn't be power cycled: ").lower().strip()
