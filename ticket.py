@@ -582,6 +582,9 @@ class Ticket():
                               ):
                             self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nEscalating problem to a higher level is required to get the main router online."
 
+                        # if main router is online
+                        # if main router is offline and can be bypassed
+
                 self.troubleshooting_steps = self.recommended_troubleshooting_steps
 
         # If current service is Cable and category is Connectivity, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
@@ -2277,9 +2280,6 @@ class Ticket():
 
                             self.switches.append(device)
 
-                    # Can an offline device_type by bypassed?
-                    # (Set "can_bypass" value to: "yes" or "no")
-
                     # If the ONT is online but the main router isn't, see if main router can be bypassed
                     if (self.main_router["status"] == "offline" and (self.ont_status == "online" or self.ont_status == "n/a")):
 
@@ -2289,10 +2289,15 @@ class Ticket():
                         if (can_we_bypass_function_result == "exit"):
                             return
 
+                        if (self.ont_status == "online"):
+                            step_response_sentence = "ONT is online but main router is offline."
+                        elif (self.ont_status == "n/a"):
+                            step_response_sentence = "ONT status unknown and main router is offline."
+
                         self.main_router["can_bypass"] = can_we_bypass_function_result
 
                     # If the modem is online but the main router isn't, see if main router can be bypassed
-                    elif (self.main_router["status"] == "offline" and self.modem["status"] == "online"):
+                    elif (self.main_router["status"] == "offline" and (self.modem["status"] == "online" or self.modem["status"] == "n/a")):
 
                         can_we_bypass_function_result = can_we_bypass_function(
                             self.main_router["device"], self.main_router["device_type"])
@@ -2300,11 +2305,19 @@ class Ticket():
                         if (can_we_bypass_function_result == "exit"):
                             return
 
+                        if (self.modem["status"] == "online"):
+                            step_response_sentence = "Modem is online but main router is offline."
+                        elif (self.modem["status"] == "n/a"):
+                            step_response_sentence = "Modem status unknown and main router is offline."
+
                         self.main_router["can_bypass"] = can_we_bypass_function_result
 
                     # Condition for offline extender - if extender offline and main router online | extender
 
                     # Condition for offline additional router - if additional router offline and main router online | additional router
+
+                    elif (self.main_router["status"] == "online"):
+                        step_response_sentence = "The main router is online."
 
             self.set_troubleshooting_steps()
 
