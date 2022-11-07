@@ -553,13 +553,13 @@ class Ticket():
                         elif (len(self.recommended_troubleshooting_steps[0]) == 9 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "third party" and
                               self.main_router["can_bypass"] == "no"
                               ):
-                            self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nReferring to a local technician or the product manufacturer is required to get the main router online."
+                            self.ticket_status = "Ticket Status: Problem should be referred to a third party.\nThe main router is offline and can't be bypassed."
 
                         # END of branch - Main router offline | service provider
                         elif (len(self.recommended_troubleshooting_steps[0]) == 9 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "service provider" and
                               self.main_router["can_bypass"] == "no"
                               ):
-                            self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nEscalating problem to a higher level is required to get the main router online."
+                            self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe main router is offline and can't be bypassed."
 
                     # Branching from the 'power_cycle' function
                     #
@@ -574,15 +574,20 @@ class Ticket():
                         elif (len(self.recommended_troubleshooting_steps[0]) == 8 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "third party" and
                               self.main_router["can_bypass"] == "no"
                               ):
-                            self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nReferring to a local technician or the product manufacturer is required to get the main router online."
+                            self.ticket_status = "Ticket Status: Problem should be referred to a third party.\nThe main router is offline and can't be bypassed."
 
                         # END of branch - Main router offline | service provider
                         elif (len(self.recommended_troubleshooting_steps[0]) == 8 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "service provider" and
                               self.main_router["can_bypass"] == "no"
                               ):
-                            self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nEscalating problem to a higher level is required to get the main router online."
+                            self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe main router is offline and can't be bypassed."
 
                         # if main router is online
+
+                        # if main router is online and additional router is offline
+
+                        # if main router is online and extender is offline
+
                         # if main router is offline and can be bypassed
 
                 self.troubleshooting_steps = self.recommended_troubleshooting_steps
@@ -2295,6 +2300,14 @@ class Ticket():
                             step_response_sentence = "ONT status unknown and main router is offline."
 
                         self.main_router["can_bypass"] = can_we_bypass_function_result
+
+                        # Below code doesn't run or is innacurate if user skips steps:
+                        #
+                        # if (self.main_router["can_bypass"] == "no" and self.main_router["provided_by"] == "third party" and (self.power_cycled == "yes" or self.power_cycled == "no")):
+                        #     self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nReferring to a local technician or the product manufacturer is required to get the main router online."
+                        #
+                        # if (self.main_router["can_bypass"] == "no" and self.main_router["provided_by"] == "service provider" and (self.power_cycled == "yes" or self.power_cycled == "no")):
+                        #     self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nEscalating problem to a higher level is required to get the main router online."
 
                     # If the modem is online but the main router isn't, see if main router can be bypassed
                     elif (self.main_router["status"] == "offline" and (self.modem["status"] == "online" or self.modem["status"] == "n/a")):
