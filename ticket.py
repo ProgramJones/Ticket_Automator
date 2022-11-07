@@ -60,17 +60,22 @@ class Ticket():
         self.good_cable_conditions = None  # Possible values: "yes", "no", or "n/a"
 
         # Starting from the check_network_devices_for_internet method, steps are also based off these attributes
-        # Atrributes are assigned in this format: {"status": online_offline_or_na, "provided_by": device_provided_by}
-        # Possible status values: "online", "offline", "n/a" | Possible provided_by values: "service provider", "third party"
-        self.indoor_ont = None
-        self.ont_router = None
-        self.modem = None
-        self.modem_router = None
-        self.main_router = None
+        # Atrributes are assigned in this format: {"device": brand_and_model, "device_type": device_type, "status": online_offline_or_na, "provided_by": device_provided_by, "can_bypass": ""}
+        # Possible status values: "online", "offline", "n/a" | Possible provided_by values: "service provider", "third party" | Possible can_we_bypass values: "yes" or "no"
+        self.indoor_ont = {"device": "", "device_type": "",
+                           "status": "", "provided_by": "", "can_bypass": ""}
+        self.ont_router = {"device": "", "device_type": "",
+                           "status": "", "provided_by": "", "can_bypass": ""}
+        self.modem = {"device": "", "device_type": "",
+                      "status": "", "provided_by": "", "can_bypass": ""}
+        self.modem_router = {"device": "", "device_type": "",
+                             "status": "", "provided_by": "", "can_bypass": ""}
+        self.main_router = {"device": "", "device_type": "",
+                            "status": "", "provided_by": "", "can_bypass": ""}
 
-        # Starting from the check_network_devices_for_internet method, steps are also based off these more complicated lists of lists of dictionaries
-        # Items are appended in this format: [{"device": brand_and_model, "device_type": device_type}, {"status": online_offline_or_na, "provided_by": device_provided_by}]
-        # Possible status values: "online", "offline", "n/a" | Possible provided_by values: "service provider", "third party"
+        # Starting from the check_network_devices_for_internet method, steps are also based off these lists of dictionaries
+        # Items are appended in this format: {"device": brand_and_model, "device_type": device_type, "status": online_offline_or_na, "provided_by": device_provided_by, "can_bypass": can_we_bypass}
+        # Possible status values: "online", "offline", "n/a" | Possible provided_by values: "service provider", "third party" | Possible can_we_bypass values: "yes" or "no"
         self.additional_routers = []
         self.extenders = []
         self.switches = []
@@ -544,6 +549,18 @@ class Ticket():
                             self.recommended_troubleshooting_steps[0].append(
                                 "Check network devices for internet.")
 
+                        # END of branch - Main router offline | Third party
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 9 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "third party" and
+                              self.main_router["can_bypass"] == "no"
+                              ):
+                            self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nReferring to a local technician or the product manufacturer is required to get the main router online."
+
+                        # END of branch - Main router offline | service provider
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 9 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "service provider" and
+                              self.main_router["can_bypass"] == "no"
+                              ):
+                            self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nEscalating problem to a higher level is required to get the main router online."
+
                     # Branching from the 'power_cycle' function
                     #
                     # ONT is online | No equipment could be powercycled
@@ -552,6 +569,18 @@ class Ticket():
                         if (len(self.recommended_troubleshooting_steps[0]) == 7):
                             self.recommended_troubleshooting_steps[0].append(
                                 "Check network devices for internet.")
+
+                        # END of branch - Main router offline | Third party
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 8 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "third party" and
+                              self.main_router["can_bypass"] == "no"
+                              ):
+                            self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nReferring to a local technician or the product manufacturer is required to get the main router online."
+
+                        # END of branch - Main router offline | service provider
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 8 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "service provider" and
+                              self.main_router["can_bypass"] == "no"
+                              ):
+                            self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nEscalating problem to a higher level is required to get the main router online."
 
                 self.troubleshooting_steps = self.recommended_troubleshooting_steps
 
@@ -1384,7 +1413,12 @@ class Ticket():
                 elif (number_of_services == 1):
                     self.ticket_status = "Ticket Status: Problem not resolved yet.\n" + \
                         self.service + ", the only service is offline."
+
+                    if (self.service == "Fiber"):
+                        self.ont_status = "n/a"
+
                     self.only_service_offline = True
+
                     self.set_troubleshooting_steps()
 
         def check_each_network_device():
@@ -2112,6 +2146,7 @@ class Ticket():
                 # if no, not all network devices show internet, what device don't have internet?
                 if (all_network_devices_show_internet == "no"):
 
+                    # Function to see if a device is online or offline and whether the device was provided by the service provider or a third party.
                     def what_status_and_who_provided(brand_and_model, device_type):
 
                         nonlocal step_response
@@ -2137,7 +2172,7 @@ class Ticket():
                                 return
 
                         if (online_offline_or_na == "online"):
-                            return None
+                            return {"device": brand_and_model, "device_type": device_type, "status": online_offline_or_na, "provided_by": "", "can_bypass": ""}
 
                         elif (online_offline_or_na == "offline" or online_offline_or_na == "n/a"):
 
@@ -2161,26 +2196,48 @@ class Ticket():
                                     step_response = "exit"
                                     return
 
-                            if (device_type == "Main Router" or device_type == "Indoor ONT" or device_type == "ONT/Router" or device_type == "Modem" or device_type == "Modem/Router"):
-                                return {"status": online_offline_or_na, "provided_by": device_provided_by}
+                            if (device_type == "Main Router" or device_type == "Indoor ONT" or device_type == "ONT/Router" or device_type == "Modem" or device_type == "Modem/Router") or (device_type == "Additional Router" or device_type == "Extender" or device_type == "Switch"):
+                                return {"device": brand_and_model, "device_type": device_type, "status": online_offline_or_na, "provided_by": device_provided_by, "can_bypass": ""}
 
-                            elif (device_type == "Additional Router" or device_type == "Extender" or device_type == "Switch"):
-                                return [{"device": brand_and_model, "device_type": device_type}, {"status": online_offline_or_na, "provided_by": device_provided_by}]
+                    def can_we_bypass_function(brand_and_model, device_type):
+
+                        nonlocal step_response
+                        nonlocal step_response_sentence
+
+                        can_we_bypass = input("\nCan the " + brand_and_model + " " + device_type +
+                                              " be bypassed?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+                        if (can_we_bypass == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                        while (can_we_bypass != "yes" and can_we_bypass != "no"):
+                            print(
+                                "\nInvalid response - 'yes' or 'no' was not entered.")
+
+                            can_we_bypass = input(
+                                "\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+                            if (can_we_bypass == "exit"):
+
+                                step_response = "exit"
+                                return
+
+                        return can_we_bypass
 
                     # Set these attributes to empty lists, in case this method is called multiple times
                     self.additional_routers = []
                     self.extenders = []
                     self.switches = []
 
+                    # Call what_status_and_who_provided function for each network device and assign relevant network device attributes to function's return value.
                     for brand_and_model, type_of_device in self.network_devices.items():
 
-                        # what_status_and_who_provide - Working with these possible return values:
+                        # what_status_and_who_provided - Working with these possible return values:
                         #
-                        # if (device_type == "Main Router" or device_type == "Indoor ONT" or device_type == "ONT/Router" or device_type == "Modem" or device_type == "Modem/Router"):
-                        #       return {"status": online_or_offline, "provided_by": device_provided_by}
-                        #
-                        # elif (device_type == "Additional Router" or device_type == "Extender" or device_type == "Switch"):
-                        #       return [{"device": brand_and_model}, {"status": device_type, "provided_by": device_provided_by}]
+                        # if (device_type == "Main Router" or device_type == "Indoor ONT" or device_type == "ONT/Router" or device_type == "Modem" or device_type == "Modem/Router") or (device_type == "Additional Router" or device_type == "Extender" or device_type == "Switch"):
+                        #     return {"device": brand_and_model, "device_type": device_type, "status": online_offline_or_na, "provided_by": device_provided_by, "can_bypass": ""}
 
                         device = what_status_and_who_provided(
                             brand_and_model, type_of_device)
@@ -2188,62 +2245,68 @@ class Ticket():
                         if (step_response == "exit"):
                             return
 
-                        # Let's test all these values
                         if (type_of_device == "Main Router"):
 
-                            if (device == None):
-                                pass
-                            else:
-                                self.main_router = device
+                            self.main_router = device
 
                         elif (type_of_device == "Indoor ONT"):
 
-                            if (device == None):
-                                pass
-                            else:
-                                self.indoor_ont = device
+                            self.indoor_ont = device
 
                         elif (type_of_device == "ONT/Router"):
 
-                            if (device == None):
-                                pass
-                            else:
-                                self.ont_router = device
+                            self.ont_router = device
 
                         elif (type_of_device == "Modem"):
 
-                            if (device == None):
-                                pass
-                            else:
-                                self.modem = device
+                            self.modem = device
 
                         elif (type_of_device == "Modem/Router"):
 
-                            if (device == None):
-                                pass
-                            else:
-                                self.modem_router = device
+                            self.modem_router = device
 
                         elif (type_of_device == "Additional Router"):
 
-                            if (device == None):
-                                pass
-                            else:
-                                self.additional_routers.append(device)
+                            self.additional_routers.append(device)
 
                         elif (type_of_device == "Extender"):
 
-                            if (device == None):
-                                pass
-                            else:
-                                self.extenders.append(device)
+                            self.extenders.append(device)
 
                         elif (type_of_device == "Switch"):
 
-                            if (device == None):
-                                pass
-                            else:
-                                self.switches.append(device)
+                            self.switches.append(device)
+
+                    # Can an offline device_type by bypassed?
+                    # (Set "can_bypass" value to: "yes" or "no")
+
+                    # If the ONT is online but the main router isn't, see if main router can be bypassed
+                    if (self.main_router["status"] == "offline" and (self.ont_status == "online" or self.ont_status == "n/a")):
+
+                        can_we_bypass_function_result = can_we_bypass_function(
+                            self.main_router["device"], self.main_router["device_type"])
+
+                        if (can_we_bypass_function_result == "exit"):
+                            return
+
+                        self.main_router["can_bypass"] = can_we_bypass_function_result
+
+                    # If the modem is online but the main router isn't, see if main router can be bypassed
+                    elif (self.main_router["status"] == "offline" and self.modem["status"] == "online"):
+
+                        can_we_bypass_function_result = can_we_bypass_function(
+                            self.main_router["device"], self.main_router["device_type"])
+
+                        if (can_we_bypass_function_result == "exit"):
+                            return
+
+                        self.main_router["can_bypass"] = can_we_bypass_function_result
+
+                    # Condition for offline extender - if extender offline and main router online | extender
+
+                    # Condition for offline additional router - if additional router offline and main router online | additional router
+
+            self.set_troubleshooting_steps()
 
         def check_devices():
             nonlocal step_response
