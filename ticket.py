@@ -561,6 +561,16 @@ class Ticket():
                               ):
                             self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe main router is offline and can't be bypassed."
 
+                        # if main router is online and additional router is offline
+
+                        # if main router is online and extender is offline
+
+                        # if main router is offline and can be bypassed
+                        # if main router is online
+                        if (len(self.recommended_troubleshooting_steps[0]) == 9 and (self.main_router["status"] == "online" or (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"))):
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Check a device for internet.")
+
                     # Branching from the 'power_cycle' function
                     #
                     # ONT is online | No equipment could be powercycled
@@ -582,13 +592,15 @@ class Ticket():
                               ):
                             self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe main router is offline and can't be bypassed."
 
-                        # if main router is online
-
                         # if main router is online and additional router is offline
 
                         # if main router is online and extender is offline
 
                         # if main router is offline and can be bypassed
+                        # if main router is online
+                        if (len(self.recommended_troubleshooting_steps[0]) == 8 and (self.main_router["status"] == "online" or (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"))):
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Check a device for internet.")
 
                 self.troubleshooting_steps = self.recommended_troubleshooting_steps
 
