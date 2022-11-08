@@ -2409,27 +2409,25 @@ class Ticket():
                         # Change prompt depending on if checking for IPv4 or DG
                         if (type_of_address == "IPv4"):
                             address = input(
-                                "\nWhat's the device's " + type_of_address + " address? ").strip()
+                                "\nWhat's the device's " + type_of_address + " address?\nEnter IPv4 address (or 'n/a' if can't find address): ").strip()
                         elif (type_of_address == "default gateway"):
                             address = input(
-                                "\nWhat's the " + type_of_address + " IPv4 address? ").strip()
+                                "\nWhat's the " + type_of_address + " IPv4 address?\nEnter IPv4 address (or 'n/a' if can't find address): ").strip()
 
-                        if (address == "exit"):
+                        if (address.lower() == "exit"):
                             step_response = "exit"
                             return
+                        elif (address.lower() == "n/a"):
+                            return address.lower()
 
                         try:
                             ipaddress.IPv4Address(address)
                         except ValueError:
-                            print(address +
+                            print("\n" + address +
                                   " is not a valid IPv4 address.")
                             continue
 
                         break
-
-                    if (address.startswith("169.254.")):
-                        # Check if address is an APIPA address
-                        pass
 
                     return address
 
@@ -2524,6 +2522,15 @@ class Ticket():
                         ipv4_address
                     step_response_sentence += "\nDefault Gateway: " + \
                         default_gateway
+
+                    # renew IP address when user enters an APIPA address
+                    # related?
+                    # power cycle device when self.devices_online == True
+
+                    # If the device has an IP address from the router, advise to run ping tests
+                    if (not (ipv4_address.startswith("169.254.")) and not (default_gateway.startswith("169.254."))):
+                        # self.valid_ip_with_no_internet = True
+                        pass
 
             print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
