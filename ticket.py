@@ -2397,6 +2397,21 @@ class Ticket():
                 nonlocal step_response
                 nonlocal step_response_sentence
 
+                # Function to prompt for IPv4 or default gateway address
+                def prompt_for_address(type_of_address):
+
+                    nonlocal step_response
+                    nonlocal step_response_sentence
+
+                    address = input(
+                        "\nWhat's the " + type_of_address + " address? ").strip()
+
+                    if (address == "exit"):
+                        step_response = "exit"
+                        return
+
+                    return address
+
                 # Display the device being checked
                 if (device == "other"):
                     name_of_device = input(
@@ -2406,7 +2421,7 @@ class Ticket():
                     if (device == "tv"):
                         name_of_device = device.upper()
                     else:
-                        name_of_device = device.title()
+                        name_of_device = device
                     step_response_sentence = "Checking for internet on a " + name_of_device
 
                 how_device_is_connected = ""
@@ -2475,10 +2490,13 @@ class Ticket():
                 # What's the default gateway address?
                 # Does power cycling the device provide internet?
                 elif (is_internet_working == "no"):
-                    ipv4_address = input(
-                        "\nWhat's the IPv4 address? ").strip()
-                    default_gateway = input(
-                        "What's the default gateway address? ").strip()
+
+                    # Prompt for IPv4 and default gateway address
+                    ipv4_address = prompt_for_address("IPv4")
+                    default_gateway = prompt_for_address("default gateway")
+
+                    if (step_response == "exit"):
+                        return
 
                     step_response_sentence += "\nNo internet."
                     step_response_sentence += "\nIPv4 address: " + \
