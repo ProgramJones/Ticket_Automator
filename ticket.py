@@ -9,6 +9,7 @@ import re
 import time
 import itertools
 import random
+import ipaddress
 import pyperclip
 import system
 import main_menu
@@ -2403,12 +2404,26 @@ class Ticket():
                     nonlocal step_response
                     nonlocal step_response_sentence
 
-                    address = input(
-                        "\nWhat's the " + type_of_address + " address? ").strip()
+                    while (True):
+                        address = input(
+                            "\nWhat's the device's " + type_of_address + " address? ").strip()
 
-                    if (address == "exit"):
-                        step_response = "exit"
-                        return
+                        if (address == "exit"):
+                            step_response = "exit"
+                            return
+
+                        try:
+                            ipaddress.IPv4Address(address)
+                        except ValueError:
+                            print("\n" + address +
+                                  " is not a valid IPv4 address.")
+                            continue
+
+                        break
+
+                    if (address.startswith("169.254.")):
+                        # Check if address is an APIPA address
+                        pass
 
                     return address
 
