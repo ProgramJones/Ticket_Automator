@@ -2387,7 +2387,7 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            def check_computer_tv_mobile_or_other_device(device):
+            def check_computer_tv_mobile_or_other_device(device, bypassing_main_router=False):
                 # Device can be:
                 # mobile device
                 # computer
@@ -2412,7 +2412,7 @@ class Ticket():
                 how_device_is_connected = ""
 
                 # if not checking for internet on a mobile device, determine how the device is connected to the internet?
-                if (device != "mobile device"):
+                if (device != "mobile device" or bypassing_main_router == False):
                     how_device_is_connected = input(
                         "\nIs the device bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
 
@@ -2433,7 +2433,7 @@ class Ticket():
                             step_response = "exit"
                             return
 
-                if (how_device_is_connected == "bypass"):
+                if (how_device_is_connected == "bypass" or bypassing_main_router == True):
                     step_response_sentence += "\nBypassed the main router."
 
                 elif (how_device_is_connected == "wire"):
@@ -2488,16 +2488,15 @@ class Ticket():
 
             print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
-            # # if only some devices are online
-            # if (self.devices_online == True and self.devices_offline == True):
-            #     # Somewhere here, set self.devices_offline to False
-            #     pass
+            # if only some devices are online
+            if (self.devices_online == True and self.devices_offline == True):
+                # Somewhere here, set self.devices_offline to False
+                pass
 
-            # # if main router offline, ONT/modem status online or n/a, and main router can be bypassed, check wired device for internet.
-            # elif (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"):
-
-            #     # check_computer_tv_or_other_device("computer")
-            #     pass
+            # if main router offline, ONT/modem status online or n/a, and main router can be bypassed, check wired device for internet.
+            elif (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"):
+                check_computer_tv_mobile_or_other_device(
+                    "computer", bypassing_main_router=True)
 
             # # Not sure if this gets all other cases
             # if user isn't sure whether main router can be bypassed, if no devices are offline, or isn't sure if devices are offline:
@@ -2505,9 +2504,8 @@ class Ticket():
             # elif (self.devices_online == True and (self.devices_offline == False or self.devices_offline == None))
 
             # In any other case, check for internet on a phone, computer, TV or other device.
-            # else:
-            if True:
-
+            else:
+                # if True
                 # Ask if checking for internet on a phone, computer, TV or other device.
                 check_which_device = input(
                     "\nWhat device is being checked for internet?\nEnter 'Mobile Device', 'Computer', 'TV', or 'Other' to respond: ").lower().strip()
