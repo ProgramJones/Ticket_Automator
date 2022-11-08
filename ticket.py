@@ -2405,8 +2405,14 @@ class Ticket():
                     nonlocal step_response_sentence
 
                     while (True):
-                        address = input(
-                            "\nWhat's the device's " + type_of_address + " address? ").strip()
+
+                        # Change prompt depending on if checking for IPv4 or DG
+                        if (type_of_address == "IPv4"):
+                            address = input(
+                                "\nWhat's the device's " + type_of_address + " address? ").strip()
+                        elif (type_of_address == "default gateway"):
+                            address = input(
+                                "\nWhat's the " + type_of_address + " IPv4 address? ").strip()
 
                         if (address == "exit"):
                             step_response = "exit"
@@ -2415,7 +2421,7 @@ class Ticket():
                         try:
                             ipaddress.IPv4Address(address)
                         except ValueError:
-                            print("\n" + address +
+                            print(address +
                                   " is not a valid IPv4 address.")
                             continue
 
