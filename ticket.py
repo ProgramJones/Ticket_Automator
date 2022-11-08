@@ -49,6 +49,7 @@ class Ticket():
 
         # Variables assigned in "Check status of all services." - All additional steps branch off from these attributes
         self.devices_online = None  # Possible values: True or False
+        self.devices_offline = None
         self.all_services_offline = None  # Possible values: True or False | Boolean
         self.some_services_offline = None  # Possible values: True or False | Boolean
         self.only_service_offline = None  # Possible values: True or False | Boolean
@@ -465,12 +466,10 @@ class Ticket():
         # Connectivity Steps
 
         # If current service is DSL and category is Connectivity, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
-        # If category is Intermittent Connectivity/Speed and self.devices_online is no, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
         if (self.service == "DSL" and self.category == "Connectivity"):
             self.troubleshooting_steps.append(self.dsl_connectivity_steps)
 
         # If current service is Fiber and category is Connectivity, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
-        # If category is Intermittent Connectivity/Speed and self.devices_online is no, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
         elif (self.service == "Fiber" and self.category == "Connectivity"):
 
             if (self.toggle_steps == "All Steps"):
@@ -488,7 +487,7 @@ class Ticket():
                         "Check status of all services.")
 
                 # Branching from the 'check_status_of_all_services' function
-                elif (self.devices_online == True):
+                elif (self.devices_online == True and self.devices_offline == True):
 
                     if (len(self.recommended_troubleshooting_steps[0]) == 2):
                         self.recommended_troubleshooting_steps[0].append(
@@ -605,12 +604,10 @@ class Ticket():
                 self.troubleshooting_steps = self.recommended_troubleshooting_steps
 
         # If current service is Cable and category is Connectivity, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
-        # If category is Intermittent Connectivity/Speed and self.devices_online is no, assign self.troubleshooting_steps to value of self.cable_connectivity_steps
         elif (self.service == "Cable" and self.category == "Connectivity"):
             self.troubleshooting_steps.append(self.cable_connectivity_steps)
 
         # If current service is Fixed Wireless and category is Connectivity, assign self.troubleshooting_steps to value of self.fixed_wireless_connectivity_steps
-        # If category is Intermittent Connectivity/Speed and self.devices_online is no, assign self.troubleshooting_steps to value of self.fixed_wireless_connectivity_steps
         elif (self.service == "Fixed Wireless"
               and self.category == "Connectivity"):
             self.troubleshooting_steps.append(
@@ -1248,14 +1245,44 @@ class Ticket():
                             step_response = "exit"
                             return
 
-                        # Create a list of devices_online from sentence entered by user, with a new entry in list after every entered comma
+                        # Create a list of devices online from sentence entered by user, with a new entry in list after every entered comma
                         devices_online_list = devices_online.split(",")
                         # Strip any whitespace before and after every service in list
                         devices_online_list = [device_online.strip(
                         ) for device_online in devices_online_list]
 
-                        step_response_sentence += "\n\nDevices online: " + \
+                        step_response_sentence += "\nDevices online: " + \
                             ", ".join(devices_online_list)
+
+                        self.devices_offline = input(
+                            "\nDo any devices NOT have internet? Enter 'yes' or 'no': ").lower().strip()
+
+                        if (self.devices_offline == "exit"):
+                            step_response = "exit"
+                            return
+
+                        # While are_devices_offline is not 'yes' and are_devices_online is not 'no', prompt for network status of all devices.
+                        while (self.devices_offline != "yes" and self.devices_offline != "no"):
+                            print(
+                                "Invalid response - 'yes' or 'no' was not entered.")
+
+                            self.devices_offline = input(
+                                "\nEnter 'yes' or 'no': ").lower().strip()
+
+                            if (self.devices_offline == "exit"):
+
+                                step_response = "exit"
+                                return
+
+                        if (self.devices_offline == "yes"):
+                            self.devices_offline = True
+                            step_response_sentence += "\n\nAt least one other device is offline."
+
+                        if (self.devices_offline == "no"):
+                            # # Option to switch to a different category, since internet is online
+                            # self.devices_offline = False
+                            # step_response_sentence += "\n\nNo device is offline."
+                            pass
 
                         # Will add step to 'Check a device for internet.'
                         self.ticket_status = "Ticket Status: Problem not resolved yet.\nOnly some devices have internet."
@@ -1267,6 +1294,7 @@ class Ticket():
                     if (self.devices_online == "no"):
 
                         self.devices_online = False
+                        self.devices_offline = True
 
                         step_response_sentence += "No devices are online."
 
@@ -1734,6 +1762,7 @@ class Ticket():
             if (checking_again == "no"):
                 print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
+                # See if cabling can be checked
                 can_be_checked = input(
                     "Can cabling be checked? Enter “yes” or “no” to respond: ").lower().strip()
 
@@ -1753,10 +1782,12 @@ class Ticket():
                         step_response = "exit"
                         return
 
+            # if cabling cannot be checked, mention that and do nothing else
             if ((can_be_checked == "no")):
                 step_response_sentence = "Cabling cannot be checked."
                 return
 
+            # if cabling can be checked, mention that and ask probing questions
             elif ((can_be_checked == "yes") or (checking_again == "yes")):
 
                 print(
@@ -1804,6 +1835,7 @@ class Ticket():
 
             print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
+            # See if cable ports can be checked
             can_be_checked = input(
                 "Can cable ports be checked? Enter “yes” or “no” to respond: ").lower().strip()
 
@@ -1823,10 +1855,12 @@ class Ticket():
                     step_response = "exit"
                     return
 
+            # if cable ports cannot be checked, mention that and do nothing else
             if (can_be_checked == "no"):
                 step_response_sentence = "Cable ports cannot be checked."
                 self.correct_ports = "n/a"
 
+            # if cable ports can be checked, mention that and ask probing questions
             elif (can_be_checked == "yes"):
 
                 correct_ports = input(
@@ -1888,6 +1922,7 @@ class Ticket():
 
             print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
+            # See if cable ports can be checked
             can_be_checked = input(
                 "Can cable conditions be checked? Enter “yes” or “no” to respond: ").lower().strip()
 
@@ -1907,10 +1942,12 @@ class Ticket():
                     step_response = "exit"
                     return
 
+            # if cable conditions cannot be checked, mention that and do nothing else
             if (can_be_checked == "no"):
                 step_response_sentence = "Cable conditions cannot be checked."
                 self.good_cable_conditions = "n/a"
 
+            # if cable conditions can be checked, mention that and ask probing questions
             elif (can_be_checked == "yes"):
 
                 cables_not_loose_or_damaged = input(
@@ -2350,236 +2387,32 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("\nEnter 'exit' at any time to exit prompt.\n\n")
-
-            # What device is being checked for internet? Enter 'Phone', 'Computer', or 'Other' to respond.
-            check_which_device = input(
-                "\nWhat device is being checked for internet?\nEnter 'Mobile Device', 'Computer', 'TV', or 'Other' to respond: ").lower().strip()
-
-            if (check_which_device == "exit"):
-
-                step_response = "exit"
-                return
-
-            while (check_which_device != "mobile device" and check_which_device != "computer" and check_which_device != "tv" and check_which_device != "other"):
-                print(
-                    "Invalid response - Neither 'Mobile Device', 'Computer', 'TV', 'Other' were entered.")
-
-                check_which_device = input(
-                    "\nWhat device is being checked for internet?\nEnter 'Mobile Device', 'Computer', 'TV', or 'Other' to respond: ").lower().strip()
-
-                if (check_which_device == "exit"):
-
-                    step_response = "exit"
-                    return
-
-            # Checking for internet on a mobile device.
-            if (check_which_device == "mobile device"):
-                step_response_sentence = "Checking for internet on a mobile device."
-
-                name_of_wifi_network = input(
-                    "\nWhat WiFi network is the mobile device connected to?\nEnter name of WiFi network to respond: ").strip()
-                step_response_sentence += "\nConnected to SSID of: " + name_of_wifi_network
-
-                is_internet_working = input(
-                    "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
-
-                if (is_internet_working == "exit"):
-
-                    step_response = "exit"
-                    return
-
-                while (is_internet_working != "yes" and is_internet_working != "no"):
-                    print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                    is_internet_working = input(
-                        "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
-
-                    if (is_internet_working == "exit"):
-
-                        step_response = "exit"
-                        return
-
-                # if yes, internet is working, add "Internet is working on a mobile device." to ticket.
-                if (is_internet_working == "yes"):
-
-                    step_response_sentence += "\nInternet is working on a mobile device."
-
-                # if no, internet is not working, what's the IPv4 address?
-                elif (is_internet_working == "no"):
-                    mobile_device_ip_address = input(
-                        "\nWhat's the mobile device's IPv4 address? ").strip()
-
-                    step_response_sentence += "\nNo internet on mobile device."
-                    step_response_sentence += "\nIPv4 address: " + \
-                        mobile_device_ip_address
-
-            # Checking for internet on a computer.
-            elif (check_which_device == "computer"):
-                step_response_sentence = "Checking for internet on a computer"
-
-                # How is the computer connected to the internet?
-                how_computer_is_connected = input(
-                    "\nIs the computer bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
-
-                if (how_computer_is_connected == "exit"):
-
-                    step_response = "exit"
-                    return
-
-                while (how_computer_is_connected != "bypass" and how_computer_is_connected != "wire" and how_computer_is_connected != "wifi"):
-                    print(
-                        "\nInvalid response - Neither 'Bypass', 'Wire', or 'WiFi' were entered.")
-
-                    how_computer_is_connected = input(
-                        "\nIs the computer bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
-
-                    if (how_computer_is_connected == "exit"):
-
-                        step_response = "exit"
-                        return
-
-                if (how_computer_is_connected == "bypass"):
-                    step_response_sentence += "\nComputer is bypassing the main router."
-
-                elif (how_computer_is_connected == "wire"):
-                    step_response_sentence += "\nComputer is wiring to a network device."
-
-                elif (how_computer_is_connected == "wifi"):
-                    name_of_wifi_network = input(
-                        "\nWhat WiFi network is the computer connected to?\nEnter name of WiFi network to respond: ").strip()
-                    step_response_sentence += "\nConnected to SSID of: " + name_of_wifi_network
-
-                is_internet_working = input(
-                    "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
-
-                if (is_internet_working == "exit"):
-
-                    step_response = "exit"
-                    return
-
-                while (is_internet_working != "yes" and is_internet_working != "no"):
-                    print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                    is_internet_working = input(
-                        "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
-
-                    if (is_internet_working == "exit"):
-
-                        step_response = "exit"
-                        return
-
-                # if yes, internet is working, add "Internet is working on a computer." to ticket.
-                if (is_internet_working == "yes"):
-
-                    step_response_sentence += "\nInternet is working on a computer."
-
-                # if no, internet is not working, what's the IPv4 address?
-                elif (is_internet_working == "no"):
-                    computer_ip_address = input(
-                        "\nWhat's the computer's IPv4 address? ").strip()
-                    computer_default_gateway = input(
-                        "What's the computer's default gateway address? ").strip()
-
-                    step_response_sentence += "\nNo internet on computer."
-                    step_response_sentence += "\nIPv4 address: " + \
-                        computer_ip_address
-                    step_response_sentence += "\nDefault Gateway: " + \
-                        computer_default_gateway
-
-            # Checking for internet on a TV.
-            elif (check_which_device == "tv"):
-                step_response_sentence = "Checking for internet on a TV"
-
-                # How is the tv connected to the internet?
-                how_tv_is_connected = input(
-                    "\nIs the TV bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
-
-                if (how_tv_is_connected == "exit"):
-
-                    step_response = "exit"
-                    return
-
-                while (how_tv_is_connected != "bypass" and how_tv_is_connected != "wire" and how_tv_is_connected != "wifi"):
-                    print(
-                        "\nInvalid response - Neither 'Bypass', 'Wire', or 'WiFi' were entered.")
-
-                    how_tv_is_connected = input(
-                        "\nIs the TV bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
-
-                    if (how_tv_is_connected == "exit"):
-
-                        step_response = "exit"
-                        return
-
-                if (how_tv_is_connected == "bypass"):
-                    step_response_sentence += "\nTV is bypassing the main router."
-
-                elif (how_tv_is_connected == "wire"):
-                    step_response_sentence += "\nTV is wiring to a network device."
-
-                elif (how_tv_is_connected == "wifi"):
-                    name_of_wifi_network = input(
-                        "\nWhat WiFi network is the TV connected to?\nEnter name of WiFi network to respond: ").strip()
-                    step_response_sentence += "\nConnected to SSID of: " + name_of_wifi_network
-
-                is_internet_working = input(
-                    "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
-
-                if (is_internet_working == "exit"):
-
-                    step_response = "exit"
-                    return
-
-                while (is_internet_working != "yes" and is_internet_working != "no"):
-                    print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                    is_internet_working = input(
-                        "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
-
-                    if (is_internet_working == "exit"):
-
-                        step_response = "exit"
-                        return
-
-                # if yes, internet is working, add "Internet is working on a computer." to ticket.
-                if (is_internet_working == "yes"):
-
-                    step_response_sentence += "\nInternet is working on a TV."
-
-                # if no, internet is not working, what's the IPv4 address?
-                elif (is_internet_working == "no"):
-                    tv_ip_address = input(
-                        "\nWhat's the TV's IPv4 address? ").strip()
-                    tv_default_gateway = input(
-                        "What's the TV's default gateway address? ").strip()
-
-                    step_response_sentence += "\nNo internet on TV."
-                    step_response_sentence += "\nIPv4 address: " + \
-                        tv_ip_address
-                    step_response_sentence += "\nDefault Gateway: " + \
-                        tv_default_gateway
-
-            # Checking for internet on some other device.
-            elif (check_which_device == "other"):
-
-                name_of_other_device = input(
-                    "\nWhat's the name of the device?\nEnter the device name to respond: ")
-                step_response_sentence = "Checking for internet on: " + name_of_other_device
-
-                # How is the device connected to the internet?
-                how_device_is_connected = input(
-                    "\nIs the device bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
-
-                if (how_device_is_connected == "exit"):
-
-                    step_response = "exit"
-                    return
-
-                while (how_device_is_connected != "bypass" and how_device_is_connected != "wire" and how_device_is_connected != "wifi"):
-                    print(
-                        "\nInvalid response - Neither 'Bypass', 'Wire', or 'WiFi' were entered.")
-
+            def check_computer_tv_mobile_or_other_device(device):
+                # Device can be:
+                # mobile device
+                # computer
+                # tv
+                # other
+
+                nonlocal step_response
+                nonlocal step_response_sentence
+
+                # Display the device being checked
+                if (device == "other"):
+                    name_of_device = input(
+                        "\nWhat's the name of the device?\nEnter the device name to respond: ")
+                    step_response_sentence = "Checking for internet on: " + name_of_device
+                else:
+                    if (device == "tv"):
+                        name_of_device = device.upper()
+                    else:
+                        name_of_device = device.title()
+                    step_response_sentence = "Checking for internet on a " + name_of_device
+
+                how_device_is_connected = ""
+
+                # if not checking for internet on a mobile device, determine how the device is connected to the internet?
+                if (device != "mobile device"):
                     how_device_is_connected = input(
                         "\nIs the device bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
 
@@ -2588,17 +2421,31 @@ class Ticket():
                         step_response = "exit"
                         return
 
+                    while (how_device_is_connected != "bypass" and how_device_is_connected != "wire" and how_device_is_connected != "wifi"):
+                        print(
+                            "\nInvalid response - Neither 'Bypass', 'Wire', or 'WiFi' were entered.")
+
+                        how_device_is_connected = input(
+                            "\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
+
+                        if (how_device_is_connected == "exit"):
+
+                            step_response = "exit"
+                            return
+
                 if (how_device_is_connected == "bypass"):
-                    step_response_sentence += "\nDevice is bypassing the main router."
+                    step_response_sentence += "\nBypassed the main router."
 
                 elif (how_device_is_connected == "wire"):
-                    step_response_sentence += "\nDevice is wiring to a network device."
+                    step_response_sentence += "\nWired to a network device."
 
-                elif (how_device_is_connected == "wifi"):
+                # if device connects over WiFi, determine what WiFi network the device is connected to
+                elif (how_device_is_connected == "wifi" or device == "mobile device"):
                     name_of_wifi_network = input(
                         "\nWhat WiFi network is the device connected to?\nEnter name of WiFi network to respond: ").strip()
                     step_response_sentence += "\nConnected to SSID of: " + name_of_wifi_network
 
+                # Check if internet is working
                 is_internet_working = input(
                     "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
 
@@ -2618,23 +2465,101 @@ class Ticket():
                         step_response = "exit"
                         return
 
-                # if yes, internet is working, add "Internet is working on the device." to ticket.
+                # if yes, internet is working, add "Internet is working." to ticket.
                 if (is_internet_working == "yes"):
 
-                    step_response_sentence += "\nInternet is working on a device."
+                    step_response_sentence += "\nInternet is working."
 
-                # if no, internet is not working, what's the IPv4 address?
+                # if no, internet is not working, ask more probing questions:
+                # What's the IPv4 Address?
+                # What's the default gateway address?
+                # Does power cycling the device provide internet?
                 elif (is_internet_working == "no"):
-                    device_ip_address = input(
-                        "\nWhat's the device's IPv4 address? ").strip()
-                    device_default_gateway = input(
-                        "What's the device's default gateway address? ").strip()
+                    ipv4_address = input(
+                        "\nWhat's the IPv4 address? ").strip()
+                    default_gateway = input(
+                        "What's the default gateway address? ").strip()
 
-                    step_response_sentence += "\nNo internet on device."
+                    step_response_sentence += "\nNo internet."
                     step_response_sentence += "\nIPv4 address: " + \
-                        device_ip_address
+                        ipv4_address
                     step_response_sentence += "\nDefault Gateway: " + \
-                        device_default_gateway
+                        default_gateway
+
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+            # # if only some devices are online
+            # if (self.devices_online == True and self.devices_offline == True):
+            #     # Somewhere here, set self.devices_offline to False
+            #     pass
+
+            # # if main router offline, ONT/modem status online or n/a, and main router can be bypassed, check wired device for internet.
+            # elif (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"):
+
+            #     # check_computer_tv_or_other_device("computer")
+            #     pass
+
+            # # Not sure if this gets all other cases
+            # if user isn't sure whether main router can be bypassed, if no devices are offline, or isn't sure if devices are offline:
+            # Check for internet on a phone, computer, TV or other device.
+            # elif (self.devices_online == True and (self.devices_offline == False or self.devices_offline == None))
+
+            # In any other case, check for internet on a phone, computer, TV or other device.
+            # else:
+            if True:
+
+                # Ask if checking for internet on a phone, computer, TV or other device.
+                check_which_device = input(
+                    "\nWhat device is being checked for internet?\nEnter 'Mobile Device', 'Computer', 'TV', or 'Other' to respond: ").lower().strip()
+
+                if (check_which_device == "exit"):
+
+                    step_response = "exit"
+                    return
+
+                while (check_which_device != "mobile device" and check_which_device != "computer" and check_which_device != "tv" and check_which_device != "other"):
+                    print(
+                        "Invalid response - Neither 'Mobile Device', 'Computer', 'TV', 'Other' were entered.")
+
+                    check_which_device = input(
+                        "\nWhat device is being checked for internet?\nEnter 'Mobile Device', 'Computer', 'TV', or 'Other' to respond: ").lower().strip()
+
+                    if (check_which_device == "exit"):
+
+                        step_response = "exit"
+                        return
+
+                # Checking for internet on a mobile device.
+                if (check_which_device == "mobile device"):
+                    check_computer_tv_mobile_or_other_device(
+                        check_which_device)
+
+                    if (step_response == "exit"):
+                        return
+
+                # Checking for internet on a computer.
+                elif (check_which_device == "computer"):
+                    check_computer_tv_mobile_or_other_device(
+                        check_which_device)
+
+                    if (step_response == "exit"):
+                        return
+
+                # Checking for internet on a TV.
+                elif (check_which_device == "tv"):
+                    check_computer_tv_mobile_or_other_device(
+                        check_which_device)
+
+                    if (step_response == "exit"):
+                        return
+
+                # Checking for internet on some other device.
+                elif (check_which_device == "other"):
+                    check_computer_tv_mobile_or_other_device(
+                        check_which_device)
+
+                    if (step_response == "exit"):
+                        return
 
         def run_ping_tests():
             nonlocal step_response
@@ -2663,7 +2588,7 @@ class Ticket():
                     step_response = "exit"
                     return
 
-            # Find out how computer is connected
+            # if a computer can be used, run ping tests on it
             if (can_be_used == "yes"):
                 step_response_sentence = "Running ping tests on a computer."
 
@@ -2756,6 +2681,7 @@ class Ticket():
                         return
                     step_response_sentence += "\nAvg: " + avg_value
 
+            # if a computer cannot be used, mention that and do nothing else
             if (can_be_used == "no"):
                 step_response_sentence = "Can't run ping tests - No computer can be used."
 
@@ -2763,32 +2689,11 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("\nEnter 'exit' at any time to exit prompt.\n\n")
-            print("\nNOTE:\nSpeeds are most accurate when bypassing the main router.\nIf main router can't be bypassed, wiring to a network device is second best.\nIf a device can't be wired at all, it's okay to use 5G WiFi or 2.4G if there's no 5G.\n\n")
+            def run_speed_test_on_computer():
 
-            # Can a computer be used?
-            running_test_on_which_device = input(
-                "Can a speed test be run on a computer or mobile device?\nEnter 'Computer', 'Mobile Device', or 'No' to respond: ").lower().strip()
+                nonlocal step_response
+                nonlocal step_response_sentence
 
-            if (running_test_on_which_device == "exit"):
-
-                step_response = "exit"
-                return
-
-            while (running_test_on_which_device != "computer" and running_test_on_which_device != "mobile device" and running_test_on_which_device != "no"):
-                print(
-                    "\nInvalid response - Neither 'Computer', 'Mobile Device', or 'No' were entered.")
-
-                running_test_on_which_device = input(
-                    "\nIs the speed test being run on a computer or mobile device?\nEnter 'Computer', 'Mobile Device', or 'No' to respond: ").lower().strip()
-
-                if (running_test_on_which_device == "exit"):
-
-                    step_response = "exit"
-                    return
-
-            # Find out how computer is connected
-            if (running_test_on_which_device == "computer"):
                 step_response_sentence = "Running speed tests on a computer."
 
                 # How is the computer connected to the internet?
@@ -2873,7 +2778,11 @@ class Ticket():
                         return
                     step_response_sentence += "\nJitter: " + jitter
 
-            if (running_test_on_which_device == "mobile device"):
+            def run_speed_test_on_mobile_device():
+
+                nonlocal step_response
+                nonlocal step_response_sentence
+
                 step_response_sentence = "Running speed tests on a mobile device."
 
                 name_of_wifi_network = input(
@@ -2933,6 +2842,44 @@ class Ticket():
             if (running_test_on_which_device == "no"):
                 step_response_sentence = "Can't run speed tests - No computer or mobile device can be used."
 
+            print("\nEnter 'exit' at any time to exit prompt.\n\n")
+            print("\nNOTE:\nSpeeds are most accurate when bypassing the main router.\nIf main router can't be bypassed, wiring to a network device is second best.\nIf a device can't be wired at all, it's okay to use 5G WiFi or 2.4G if there's no 5G.\n\n")
+
+            # Can a computer be used?
+            running_test_on_which_device = input(
+                "Can a speed test be run on a computer or mobile device?\nEnter 'Computer', 'Mobile Device', or 'No' to respond: ").lower().strip()
+
+            if (running_test_on_which_device == "exit"):
+
+                step_response = "exit"
+                return
+
+            while (running_test_on_which_device != "computer" and running_test_on_which_device != "mobile device" and running_test_on_which_device != "no"):
+                print(
+                    "\nInvalid response - Neither 'Computer', 'Mobile Device', or 'No' were entered.")
+
+                running_test_on_which_device = input(
+                    "\nIs the speed test being run on a computer or mobile device?\nEnter 'Computer', 'Mobile Device', or 'No' to respond: ").lower().strip()
+
+                if (running_test_on_which_device == "exit"):
+
+                    step_response = "exit"
+                    return
+
+            # If user is running a speed test on a computer
+            if (running_test_on_which_device == "computer"):
+                run_speed_test_on_computer()
+
+                if (step_response == "exit"):
+                    return
+
+            # If user is running a speed test on a mobile device
+            if (running_test_on_which_device == "mobile device"):
+                run_speed_test_on_mobile_device()
+
+                if (step_response == "exit"):
+                    return
+
         def check_ont():
             nonlocal step_response
             nonlocal step_response_sentence
@@ -2958,9 +2905,11 @@ class Ticket():
                     step_response = "exit"
                     return
 
+            # if the ONT cannot be checked, mention that and do nothing else
             if (can_be_checked == "no"):
                 step_response_sentence = "ONT cannot be checked."
 
+            # if ONT can be checked, check the ONT lights
             elif (can_be_checked == "yes"):
                 print(
                     "\n\nONT information will be displayed in the following example format:\n")
@@ -3021,9 +2970,11 @@ class Ticket():
                     step_response = "exit"
                     return
 
+            # if the battery backup cannot be checked, mention that and do nothing else
             if (can_be_checked == "no"):
                 step_response_sentence = "ONT's battery backup cannot be checked."
 
+            # if battery backup can be checked, check the battery backup lights
             elif (can_be_checked == "yes"):
 
                 print(
@@ -3066,8 +3017,7 @@ class Ticket():
 
             print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
-            # Initial check of battery backup for power.
-
+            # Check if battery backup has power
             battery_backup_has_power = input(
                 "Does the battery backup have power? Enter “yes” or “no” to respond: ").lower().strip()
 
@@ -3087,14 +3037,12 @@ class Ticket():
                     step_response = "exit"
                     return
 
-            # If yes, battery backup has power, add "Battery backup has power." to ticket.
-
+            # If yes, battery backup has power, mention that and do nothing else
             if (battery_backup_has_power == "yes"):
                 step_response_sentence = "Battery backup has power."
                 self.ticket_status = "Problem not resolved yet.\nBattery backup has power, but internet hasn't worked yet."
 
-            # If no, battery backup has no power, add "Battery backup has no power." to ticket.
-
+            # If no, battery backup has no power, mention that and ask probing questions
             elif (battery_backup_has_power == "no"):
                 step_response_sentence = "Battery backup has no power."
 
