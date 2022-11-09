@@ -82,6 +82,11 @@ class Ticket():
         self.extenders = []
         self.switches = []
 
+        # Variable for whether device being checked is getting a non-self-assigned IP
+        # Used when checking devices
+        # Possible values: True or False
+        self.device_has_valid_ip_but_no_internet = None
+
         self.internet_services = ["Fiber", "DSL", "Cable", "Fixed Wireless"]
         self.services = [self.internet_services, ["Email"], ["TV"], ["N/A"]]
 
@@ -2398,11 +2403,22 @@ class Ticket():
                 nonlocal step_response
                 nonlocal step_response_sentence
 
+                # Variable for whether current device is online
+                # device_online = None
+
+                # Variable for whether device being checked is getting a non-self-assigned IP
+                # Set to none when checking a device since this value should be reset when checking a new device
+                self.device_has_valid_ip_but_no_internet = None
+
                 # Function to prompt for IPv4 or default gateway address
                 def prompt_for_address(type_of_address):
 
                     nonlocal step_response
                     nonlocal step_response_sentence
+
+                    if (type_of_address == "default gateway"):
+                        print(
+                            "\nNOTE: The default gateway is called 'router' on Mac.")
 
                     while (True):
 
@@ -2410,7 +2426,7 @@ class Ticket():
                         if (type_of_address == "IPv4"):
                             address = input(
                                 "\nWhat's the device's " + type_of_address + " address?\nEnter IPv4 address (or 'n/a' if can't find address): ").strip()
-                        elif (type_of_address == "default gateway"):
+                        elif (type_of_address == "default gateway" or type_of_address == "router"):
                             address = input(
                                 "\nWhat's the " + type_of_address + " IPv4 address?\nEnter IPv4 address (or 'n/a' if can't find address): ").strip()
 
@@ -2431,17 +2447,45 @@ class Ticket():
 
                     return address
 
+                # if device is a computer, verify what type of computer is being checked
+                type_of_computer = ""
+
+                if (device == "computer"):
+
+                    type_of_computer = input(
+                        "\nWhat kind of computer is being checked?\nEnter “Windows”, “Mac”, or “Linux” to respond: ").lower().strip()
+
+                    if (type_of_computer == "exit"):
+
+                        step_response = "exit"
+                        return
+
+                    while (type_of_computer != "windows" and type_of_computer != "mac" and type_of_computer != "linux"):
+                        print(
+                            "\nInvalid response - Neither 'Windows', 'Mac', or 'Linux' were entered.")
+
+                        type_of_computer = input(
+                            "\nEnter “Windows”, “Mac”, or “Linux” to respond: ").lower().strip()
+
+                        if (type_of_computer == "exit"):
+
+                            step_response = "exit"
+                            return
+
                 # Display the device being checked
+
                 if (device == "other"):
                     name_of_device = input(
                         "\nWhat's the name of the device?\nEnter the device name to respond: ")
-                    step_response_sentence = "Checking for internet on: " + name_of_device
+                    step_response_sentence = "Checking for internet on: " + name_of_device + " >\n"
                 else:
                     if (device == "tv"):
                         name_of_device = device.upper()
+                    elif (device == "computer"):
+                        name_of_device = type_of_computer + " " + device
                     else:
                         name_of_device = device
-                    step_response_sentence = "Checking for internet on a " + name_of_device
+                    step_response_sentence = "Checking for internet on a " + name_of_device + " >\n"
 
                 how_device_is_connected = ""
 
@@ -2467,17 +2511,10 @@ class Ticket():
                             step_response = "exit"
                             return
 
-                if (how_device_is_connected == "bypass" or bypassing_main_router == True):
-                    step_response_sentence += "\nBypassed the main router."
-
-                elif (how_device_is_connected == "wire"):
-                    step_response_sentence += "\nWired to a network device."
-
                 # if device connects over WiFi, determine what WiFi network the device is connected to
-                elif (how_device_is_connected == "wifi" or device == "mobile device"):
+                if (how_device_is_connected == "wifi" or device == "mobile device"):
                     name_of_wifi_network = input(
                         "\nWhat WiFi network is the device connected to?\nEnter name of WiFi network to respond: ").strip()
-                    step_response_sentence += "\nConnected to SSID of: " + name_of_wifi_network
 
                 # Check if internet is working
                 is_internet_working = input(
@@ -2502,45 +2539,165 @@ class Ticket():
                 # if yes, internet is working, add "Internet is working." to ticket.
                 if (is_internet_working == "yes"):
 
-                    step_response_sentence += "\nInternet is working."
+                    if (how_device_is_connected == "bypass" or bypassing_main_router == True):
+                        step_response_sentence += "\nInternet is working when bypassing main router."
+
+                    elif (how_device_is_connected == "wire"):
+                        step_response_sentence += "\nInternet is working when wired to a network device"
+
+                    # if device connects over WiFi, determine what WiFi network the device is connected to
+                    elif (how_device_is_connected == "wifi" or device == "mobile device"):
+                        step_response_sentence += "\nInternet is working when connected to SSID of: " + \
+                            name_of_wifi_network
+
+                    self.devices_online = True
 
                 # if no, internet is not working, ask more probing questions:
-                # What's the IPv4 Address?
-                # What's the default gateway address?
-                # Does power cycling the device provide internet?
                 elif (is_internet_working == "no"):
 
-                    # Prompt for IPv4 and default gateway address
+                    device_has_self_assigned_ip = None
+
+                    if (how_device_is_connected == "bypass" or bypassing_main_router == True):
+                        step_response_sentence += "\nNo internet when bypassing main router."
+
+                    elif (how_device_is_connected == "wire"):
+                        step_response_sentence += "\nNo internet when wired to a network device."
+
+                    elif (how_device_is_connected == "wifi" or device == "mobile device"):
+                        step_response_sentence += "\nNo internet when connected to SSID of: " + \
+                            name_of_wifi_network
+
+                    # Prompt for IPv4 and router/default gateway address
                     ipv4_address = prompt_for_address("IPv4")
-                    default_gateway = prompt_for_address("default gateway")
+
+                    if (device == "computer" and type_of_computer == "mac"):
+                        default_gateway = prompt_for_address("router")
+                    else:
+                        default_gateway = prompt_for_address("default gateway")
 
                     if (step_response == "exit"):
                         return
 
-                    step_response_sentence += "\nNo internet."
                     step_response_sentence += "\nIPv4 address: " + \
                         ipv4_address
                     step_response_sentence += "\nDefault Gateway: " + \
                         default_gateway
 
-                    # renew IP address when user enters an APIPA address
-                    # related?
-                    # power cycle device when self.devices_online == True
+                    # if device's IPv4 address is self-assigned, inform there's a self-assigned IP and/or manually renew the IP address
+                    if (ipv4_address.startswith("169.254.")):
+                        device_has_self_assigned_ip = True
 
-                    # If the device has an IP address from the router, advise to run ping tests
-                    if (not (ipv4_address.startswith("169.254.")) and not (default_gateway.startswith("169.254."))):
-                        # self.valid_ip_with_no_internet = True
+                        if (device == "mobile device"):
+                            pass
+                        elif (device == "computer"):
+                            # Advise to renew IP address
+                            print(
+                                "\nDevice's self assigned IPv4 address will not work\nFollow these instructions to renew the IP address:\n")
+
+                            if (type_of_computer == "windows"):
+                                # Show instructions for renewing IP on Windows
+                                print("On Windows: \n1. Open Command Prompt")
+                                print(
+                                    "2. Run 'ipconfig /release' to release the current IP \n3. Run 'ipconfig /renew' to renew the IP")
+
+                            elif (type_of_computer == "mac"):
+                                # Show instructions for renewing IP on Mac
+                                print("On macOS: \n1. Open System Preferences")
+                                print(
+                                    "2. Select 'Network' \n3. Select current interface \n4. Select 'Details' \n5. Select 'TCP/IP' \n6. Select 'Renew DHCP Lease'")
+
+                                # Show instructions for renewing IP on older versions of Mac
+                                print(
+                                    "\nOn older versions of macOS: \n1. Open System Preferences")
+                                print(
+                                    "2. Select 'Network' \n3. Select current interface \n4. Select 'Advanced' \n5. Select 'TCP/IP' \n6. Select 'Renew DHCP Lease'")
+
+                            elif (type_of_computer == "linux"):
+                                # Show instructions for renewing IP on Linux
+                                print(
+                                    "On Linux: \n1. Press CTRL+ALT+T to launch Terminal")
+                                print(
+                                    "2. Run 'sudo dhclient – r' to release the current IP \n3. Run 'sudo dhclient' to renew the IP")
+
+                            print()
+
+                            # Prompt for IPv4 and router/default gateway address
+                            ipv4_address = prompt_for_address("IPv4")
+
+                            if (type_of_computer == "mac"):
+                                default_gateway = prompt_for_address("router")
+                            else:
+                                default_gateway = prompt_for_address(
+                                    "default gateway")
+
+                            # Display results of releasing/renewing IP addresses
+                            step_response_sentence += "\n\nReleased and renewed IP addresses on " + \
+                                name_of_device + "."
+                            step_response_sentence += "\nIPv4 address: " + ipv4_address
+                            step_response_sentence += "\nDefault Gateway: " + default_gateway
+
+                            # if there's still a self-assigned IPv4 address
+                            if (ipv4_address.startswith("169.254.")):
+                                device_has_self_assigned_ip = True
+
+                                step_response_sentence += "\n\nDevice is still getting a self assigned IPv4 address."
+
+                            # if there's a non-self-assigned IPv4 address, ask if the internet is working
+                            elif (not (ipv4_address.startswith("169.254."))):
+                                device_has_self_assigned_ip == False
+
+                                # Check if internet is working
+                                is_internet_working = input(
+                                    "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+                                if (is_internet_working == "exit"):
+
+                                    step_response = "exit"
+                                    return
+
+                                while (is_internet_working != "yes" and is_internet_working != "no"):
+                                    print(
+                                        "\nInvalid response - 'yes' or 'no' was not entered.")
+
+                                    is_internet_working = input(
+                                        "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+                                    if (is_internet_working == "exit"):
+
+                                        step_response = "exit"
+                                        return
+
+                                # if internet is working, mention that and leave the function
+                                if (is_internet_working == "yes"):
+                                    step_response_sentence += "\n\nInternet working now."
+                                    return
+
+                                # if internet is not working, assign self.device_has_valid_ip_but_no_internet = True
+                                if (is_internet_working == "no"):
+                                    self.device_has_valid_ip_but_no_internet = True
+
+                                    step_response_sentence += "\n\nInternet still not working even with non-self-assigned IP address."
+
+                    # if there's no internet after manually renewing IPv4 address and devices besides this device are online, power cycle this device
+                    if (self.devices_online == True and (device_has_self_assigned_ip == True or self.device_has_valid_ip_but_no_internet == True)):
+                        # Advise to power cycle or ask if power cycling helped
+                        pass
+
+                    # If device has a non-self-assigned IP address, device has no internet, and all other devices are offline, advise to run ping tests
+                    if ((not (ipv4_address.startswith("169.254."))) and self.devices_online == False):
+                        # ping step appears in recommended steps when this attribute is true
+                        # self.device_has_valid_ip_but_no_internet = True
                         pass
 
             print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
-            # if only some devices are online
-            if (self.devices_online == True and self.devices_offline == True):
-                # Somewhere here, set self.devices_offline to False
-                pass
+            # # if only some devices are online
+            # if (self.devices_online == True and self.devices_offline == True):
+            #     # Somewhere here, set self.devices_offline to False
+            #     pass
 
             # if main router offline, ONT/modem status online or n/a, and main router can be bypassed, check wired device for internet.
-            elif (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"):
+            if (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"):
                 check_computer_tv_mobile_or_other_device(
                     "computer", bypassing_main_router=True)
 
@@ -2604,6 +2761,8 @@ class Ticket():
 
                     if (step_response == "exit"):
                         return
+
+            self.set_troubleshooting_steps()
 
         def run_ping_tests():
             nonlocal step_response
