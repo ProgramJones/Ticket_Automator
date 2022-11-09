@@ -2676,11 +2676,41 @@ class Ticket():
 
                     # if there's no internet after manually renewing IPv4 address and devices besides this device are online, power cycle this device
                     if (self.devices_online == True and (device_has_self_assigned_ip == True or self.device_has_valid_ip_but_no_internet == True)):
-                        # Advise to power cycle or ask if power cycling helped
-                        pass
+                        device_has_internet_after_power_cycling = input(
+                            "Is the internet working after power cycling the devive?\nEnter 'yes' or 'no': ").lower().strip()
+
+                        if (device_has_internet_after_power_cycling == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                        while (device_has_internet_after_power_cycling != "yes" and device_has_internet_after_power_cycling != "no"):
+                            print(
+                                "\nInvalid response - 'yes' or 'no' was not entered.")
+
+                            device_has_internet_after_power_cycling = input(
+                                "\nEnter 'yes' or 'no' to respond: ").lower().strip()
+
+                            if (device_has_internet_after_power_cycling == "exit"):
+
+                                step_response = "exit"
+                                return
+
+                        if (device_has_internet_after_power_cycling == "yes"):
+                            self.device_has_valid_ip_but_no_internet = False
+                            device_has_self_assigned_ip == False
+
+                            step_response_sentence += "\n\nInternet working after power cycling device."
+
+                        elif (device_has_internet_after_power_cycling == "no"):
+                            self.device_has_valid_ip_but_no_internet = True
+
+                            step_response_sentence += "\n\nInternet still not working even after power cycling device."
+
+                    # Condition to ref to oem/LT if device has no internet and other devices have internet, even after previous conditions
 
                     # If device has a non-self-assigned IP address, device has no internet, and all other devices are offline, advise to run ping tests
-                    if ((not (ipv4_address.startswith("169.254."))) and self.devices_online == False):
+                    if (self.device_has_valid_ip_but_no_internet == True and self.devices_online == False):
                         # ping step appears in recommended steps when this attribute is true
                         # self.device_has_valid_ip_but_no_internet = True
                         pass
