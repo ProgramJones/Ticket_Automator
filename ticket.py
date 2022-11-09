@@ -2416,10 +2416,6 @@ class Ticket():
                     nonlocal step_response
                     nonlocal step_response_sentence
 
-                    if (type_of_address == "default gateway"):
-                        print(
-                            "\nNOTE: The default gateway is called 'router' on Mac.")
-
                     while (True):
 
                         # Change prompt depending on if checking for IPv4 or DG
