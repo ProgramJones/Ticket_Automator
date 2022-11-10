@@ -234,82 +234,63 @@ class Ticket():
         Append number, name, address, custom_issue, service, and category attributes to ticket_content dictionary.
         """
 
+        def print_ticket_preview(**kwargs):
+            system.clear_prompt_or_terminal()
+
+            print("\nTicket:\n")
+
+            if (len(kwargs) == 0):
+                pass
+            else:
+                for key, value in kwargs.items():
+                    if (key == "number"):
+                        print("cb: " + value)
+                    elif (key == "name"):
+                        print("s/w " + value)
+                    elif (key == "address"):
+                        print("address: " + value)
+                    elif (key == "user" or key == "custom_issue"):
+                        print("\n" + value)
+
+            print("\n----------------------------------\n\n")
+
+            if (self.category == None):
+                print("Answer the following questions to create the ticket:\n\n\n")
+            else:
+                print("All questions answered!\n\n\n")
+
         # Clear prompt and ask for user
-        system.clear_prompt_or_terminal()
-
-        print("\nTicket:")
-        print("\n----------------------------------\n\n")
-
-        print("Answer the following questions to create the ticket:")
-        print("\n\n")
+        print_ticket_preview()
 
         # Prompt the user for their name - Assign user's name to class instance's attributes.
         self.user = self.set_user()
 
         # Clear prompt, append user to ticket, ask for number
-        system.clear_prompt_or_terminal()
-
-        print("\nTicket:\n")
-        print(self.user)
-        print("\n----------------------------------\n\n")
-
-        print("Answer the following questions to create the ticket:")
-        print("\n\n")
+        print_ticket_preview(user=self.user)
 
         # Prompt the user for contact information - Assign contact information to class instance's attributes.
         print("Contact Information:")
+
         self.number = input("What's the best callback number? ").strip()
 
-        system.clear_prompt_or_terminal()
+        print_ticket_preview(number=self.number, user=self.user)
 
-        print("\nTicket:\n")
-        print("cb: " + self.number)
-        print()
-        print(self.user)
-        print("\n----------------------------------\n\n")
-
-        print("Answer the following questions to create the ticket:")
-        print("\n\n")
         print("Contact Information:")
         print("What's the best callback number? " + self.number)
 
         self.name = input("Who is being helped? ").strip()
 
-        system.clear_prompt_or_terminal()
+        print_ticket_preview(number=self.number,
+                             name=self.name, user=self.user)
 
-        print("\nTicket:\n")
-
-        print("cb: " + self.number)
-        print("s/w: " + self.name)
-        print()
-        print(self.user)
-
-        print("\n----------------------------------\n\n")
-
-        print("Answer the following questions to create the ticket:")
-
-        print("\n\n")
         print("Contact Information:")
         print("What's the best callback number? " + self.number)
         print("Who is being helped? " + self.name)
 
         self.address = input("What's their address? ").strip()
 
-        system.clear_prompt_or_terminal()
-
-        print("\nTicket:\n")
-
-        print("cb: " + self.number)
-        print("s/w: " + self.name)
-        print("address: " + self.address)
-        print()
-        print(self.user)
-
-        print("\n----------------------------------\n\n")
-
-        print("Answer the following questions to create the ticket:")
-
-        print("\n\n")
+        print_ticket_preview(number=self.number, name=self.name,
+                             address=self.address, user=self.user)
 
         # Append number, name, and address key and values to ticket_content
         self.ticket_content.update({"number": "cb: " + self.number})
@@ -323,43 +304,13 @@ class Ticket():
         # Append custom issue key and value to ticket_content
         self.ticket_content.update({"custom_issue": self.custom_issue})
 
-        system.clear_prompt_or_terminal()
-
-        print("\nTicket:\n")
-
-        print("cb: " + self.number)
-        print("s/w: " + self.name)
-        print("address: " + self.address)
-        print()
-        print(self.custom_issue)
-        print()
-        print(self.user)
-
-        print("\n----------------------------------\n\n")
-
-        print("Answer the following questions to create the ticket:")
-
-        print("\n\n")
+        print_ticket_preview(number=self.number, name=self.name,
+                             address=self.address, custom_issue=self.custom_issue, user=self.user)
 
         self.service = self.set_service()
 
-        system.clear_prompt_or_terminal()
-
-        print("\nTicket:\n")
-
-        print("cb: " + self.number)
-        print("s/w: " + self.name)
-        print("address: " + self.address)
-        print()
-        print(self.custom_issue)
-        print()
-        print(self.user)
-
-        print("\n----------------------------------\n\n")
-
-        print("Answer the following questions to create the ticket:")
-
-        print("\n\n")
+        print_ticket_preview(number=self.number, name=self.name,
+                             address=self.address, custom_issue=self.custom_issue, user=self.user)
 
         self.category = self.set_category()
 
@@ -370,21 +321,8 @@ class Ticket():
         # Append user key and value to end of ticket_content
         self.ticket_content.update({"user": self.user})
 
-        system.clear_prompt_or_terminal()
-
-        print("\nTicket:\n")
-
-        print("cb: " + self.number)
-        print("s/w: " + self.name)
-        print("address: " + self.address)
-        print()
-        print(self.custom_issue)
-        print()
-        print(self.user)
-
-        print("\n----------------------------------\n\n")
-
-        print("All questions answered!\n")
+        print_ticket_preview(number=self.number, name=self.name,
+                             address=self.address, custom_issue=self.custom_issue, user=self.user)
 
         print("Service: " + self.service + " | Category: " + self.category)
         print("Outputting ticket, ticket status, troubleshooting steps, and diagnostic questions.",
