@@ -246,7 +246,7 @@ class Ticket():
                     if (key == "number"):
                         print("cb: " + value)
                     elif (key == "name"):
-                        print("s/w " + value)
+                        print("s/w: " + value)
                     elif (key == "address"):
                         print("address: " + value)
                     elif (key == "user" or key == "custom_issue"):
@@ -256,36 +256,40 @@ class Ticket():
 
             if (self.category == None):
                 print("Answer the following questions to create the ticket:\n\n\n")
+
+                # if user is about to enter callback number
+                if (len(kwargs) == 1):
+                    print("Contact Information:")
+                # if user already entered the callback number
+                if (len(kwargs) == 2):
+                    print("Contact Information:")
+                    print("What's the best callback number? " + self.number)
+                # if user already entered the callback number and name
+                if (len(kwargs) == 3):
+                    print("Contact Information:")
+                    print("What's the best callback number? " + self.number)
+                    print("Who is being helped? " + self.name)
             else:
                 print("All questions answered!\n\n\n")
 
-        # Clear prompt and ask for user
+        # Clear prompt and show ticket preview
         print_ticket_preview()
 
         # Prompt the user for their name - Assign user's name to class instance's attributes.
         self.user = self.set_user()
 
-        # Clear prompt, append user to ticket, ask for number
+        # Clear prompt, append user to ticket preview, and ask for number
         print_ticket_preview(user=self.user)
 
         # Prompt the user for contact information - Assign contact information to class instance's attributes.
-        print("Contact Information:")
-
         self.number = input("What's the best callback number? ").strip()
 
         print_ticket_preview(number=self.number, user=self.user)
-
-        print("Contact Information:")
-        print("What's the best callback number? " + self.number)
 
         self.name = input("Who is being helped? ").strip()
 
         print_ticket_preview(number=self.number,
                              name=self.name, user=self.user)
-
-        print("Contact Information:")
-        print("What's the best callback number? " + self.number)
-        print("Who is being helped? " + self.name)
 
         self.address = input("What's their address? ").strip()
 
@@ -301,11 +305,11 @@ class Ticket():
         print("Issue:")
         self.custom_issue = input("What's the Issue? ").strip()
 
-        # Append custom issue key and value to ticket_content
-        self.ticket_content.update({"custom_issue": self.custom_issue})
-
         print_ticket_preview(number=self.number, name=self.name,
                              address=self.address, custom_issue=self.custom_issue, user=self.user)
+
+        # Append custom issue key and value to ticket_content
+        self.ticket_content.update({"custom_issue": self.custom_issue})
 
         self.service = self.set_service()
 
