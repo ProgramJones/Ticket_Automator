@@ -566,15 +566,17 @@ class Ticket():
                               ):
                             self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe main router is offline and can't be bypassed."
 
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 9 and (self.main_router["status"] == "online" or (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"))):
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Check a device for internet.")
+
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 10 and (self.device_has_valid_ip_but_no_internet == True and self.devices_online == False)):
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Run ping tests on a computer.")
+
                         # if main router is online and additional router is offline
 
                         # if main router is online and extender is offline
-
-                        # if main router is offline and can be bypassed
-                        # if main router is online
-                        if (len(self.recommended_troubleshooting_steps[0]) == 9 and (self.main_router["status"] == "online" or (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"))):
-                            self.recommended_troubleshooting_steps[0].append(
-                                "Check a device for internet.")
 
                     # Branching from the 'power_cycle' function
                     #
@@ -597,15 +599,17 @@ class Ticket():
                               ):
                             self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe main router is offline and can't be bypassed."
 
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 8 and (self.main_router["status"] == "online" or (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"))):
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Check a device for internet.")
+
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 9 and (self.device_has_valid_ip_but_no_internet == True and self.devices_online == False)):
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Run ping tests on a computer.")
+
                         # if main router is online and additional router is offline
 
                         # if main router is online and extender is offline
-
-                        # if main router is offline and can be bypassed
-                        # if main router is online
-                        if (len(self.recommended_troubleshooting_steps[0]) == 8 and (self.main_router["status"] == "online" or (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"))):
-                            self.recommended_troubleshooting_steps[0].append(
-                                "Check a device for internet.")
 
                 self.troubleshooting_steps = self.recommended_troubleshooting_steps
 
@@ -2175,6 +2179,11 @@ class Ticket():
             # Ask if all of the saved network devices have internet
             if (self.can_check_network_device_lights == "yes"):
 
+                # Set these attributes to empty lists, in case this method is called multiple times
+                self.additional_routers = []
+                self.extenders = []
+                self.switches = []
+
                 print(
                     "Do all of the following network devices show internet:\n")
 
@@ -2205,6 +2214,64 @@ class Ticket():
                 # if yes, all network devices show internet, add "All network devices show internet." to ticket.
                 if (all_network_devices_show_internet == "yes"):
                     step_response_sentence = "All network devices show internet."
+
+                    # Call what_status_and_who_provided function for each network device and assign relevant network device attributes to function's return value.
+                    for brand_and_model, type_of_device in self.network_devices.items():
+
+                        # what_status_and_who_provided - Working with these possible return values:
+                        #
+                        # if (device_type == "Main Router" or device_type == "Indoor ONT" or device_type == "ONT/Router" or device_type == "Modem" or device_type == "Modem/Router") or (device_type == "Additional Router" or device_type == "Extender" or device_type == "Switch"):
+                        #     return {"device": brand_and_model, "device_type": device_type, "status": online_offline_or_na, "provided_by": device_provided_by, "can_bypass": ""}
+
+                        if (step_response == "exit"):
+                            return
+
+                        if (type_of_device == "Main Router"):
+
+                            self.main_router["device"] = brand_and_model
+                            self.main_router["device_type"] = type_of_device
+                            self.main_router["status"] = "online"
+
+                        elif (type_of_device == "Indoor ONT"):
+
+                            self.indoor_ont["device"] = brand_and_model
+                            self.indoor_ont["device_type"] = type_of_device
+                            self.indoor_ont["status"] = "online"
+
+                        elif (type_of_device == "ONT/Router"):
+
+                            self.ont_router["device"] = brand_and_model
+                            self.ont_router["device_type"] = type_of_device
+                            self.ont_router["status"] = "online"
+
+                        elif (type_of_device == "Modem"):
+
+                            self.modem["device"] = brand_and_model
+                            self.modem["device_type"] = type_of_device
+                            self.modem["status"] = "online"
+
+                        elif (type_of_device == "Modem/Router"):
+
+                            self.modem_router["device"] = brand_and_model
+                            self.modem_router["device_type"] = type_of_device
+                            self.modem_router["status"] = "online"
+
+                        elif (type_of_device == "Additional Router"):
+
+                            self.additional_routers.append(
+                                {"device": brand_and_model, "device_type": type_of_device, "status": "online", "provided_by": "", "can_bypass": ""})
+
+                        elif (type_of_device == "Extender"):
+
+                            self.extenders.append(
+                                {"device": brand_and_model, "device_type": type_of_device, "status": "online", "provided_by": "", "can_bypass": ""})
+
+                        elif (type_of_device == "Switch"):
+
+                            self.switches.append({"device": brand_and_model, "device_type": type_of_device,
+                                                 "status": "online", "provided_by": "", "can_bypass": ""})
+
+                    # Have a similar for loop here that sets the status, name, and type
 
                 # if no, not all network devices show internet, what device don't have internet?
                 if (all_network_devices_show_internet == "no"):
@@ -2288,11 +2355,6 @@ class Ticket():
                                 return
 
                         return can_we_bypass
-
-                    # Set these attributes to empty lists, in case this method is called multiple times
-                    self.additional_routers = []
-                    self.extenders = []
-                    self.switches = []
 
                     # Call what_status_and_who_provided function for each network device and assign relevant network device attributes to function's return value.
                     for brand_and_model, type_of_device in self.network_devices.items():
@@ -2579,9 +2641,12 @@ class Ticket():
                     step_response_sentence += "\nDefault Gateway: " + \
                         default_gateway
 
+                    self.device_has_valid_ip_but_no_internet = True
+
                     # if device's IPv4 address is self-assigned, inform there's a self-assigned IP and/or manually renew the IP address
                     if (ipv4_address.startswith("169.254.")):
                         device_has_self_assigned_ip = True
+                        self.device_has_valid_ip_but_no_internet = False
 
                         if (device == "mobile device"):
                             pass
@@ -2677,7 +2742,7 @@ class Ticket():
                     # if there's no internet after manually renewing IPv4 address and devices besides this device are online, power cycle this device
                     if (self.devices_online == True and (device_has_self_assigned_ip == True or self.device_has_valid_ip_but_no_internet == True)):
                         device_has_internet_after_power_cycling = input(
-                            "Is the internet working after power cycling the devive?\nEnter 'yes' or 'no': ").lower().strip()
+                            "\nIs the internet working after power cycling the devive?\nEnter 'yes' or 'no': ").lower().strip()
 
                         if (device_has_internet_after_power_cycling == "exit"):
 
@@ -2699,21 +2764,13 @@ class Ticket():
                         if (device_has_internet_after_power_cycling == "yes"):
                             self.device_has_valid_ip_but_no_internet = False
                             device_has_self_assigned_ip == False
+                            self.devices_online = True
 
                             step_response_sentence += "\n\nInternet working after power cycling device."
 
                         elif (device_has_internet_after_power_cycling == "no"):
-                            self.device_has_valid_ip_but_no_internet = True
 
-                            step_response_sentence += "\n\nInternet still not working even after power cycling device."
-
-                    # Condition to ref to oem/LT if device has no internet and other devices have internet, even after previous conditions
-
-                    # If device has a non-self-assigned IP address, device has no internet, and all other devices are offline, advise to run ping tests
-                    if (self.device_has_valid_ip_but_no_internet == True and self.devices_online == False):
-                        # ping step appears in recommended steps when this attribute is true
-                        # self.device_has_valid_ip_but_no_internet = True
-                        pass
+                            step_response_sentence += "\n\nInternet still not working even after power cycling device.\nReferred to OEM/local tech."
 
             print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
