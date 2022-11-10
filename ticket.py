@@ -43,7 +43,7 @@ class Ticket():
         # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nEscalating problem to a higher level is required to solve the problem."
         # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nReferring to a local technician or the product manufacturer is required to solve the problem." (For device issues)
         #
-        self.ticket_status = "Ticket Status: Problem not resolved yet."
+        self.ticket_status = "Ticket Status:\nProblem not resolved yet."
 
         # Variable assigned in "Check account status." - Possibly assign step of "Check status of all services." from result of this attribute
         self.account_status = None  # Possible values: "online", "offline", or "n/a"
@@ -234,28 +234,87 @@ class Ticket():
         Append number, name, address, custom_issue, service, and category attributes to ticket_content dictionary.
         """
 
-        print("\n\n-------------------------------------------\n\n")
-        print("More information needed to create the ticket.\nPlease answer the following questions:")
+        # Clear prompt and ask for user
+        system.clear_prompt_or_terminal()
 
+        print("\nTicket:")
+        print("\n----------------------------------\n\n")
+
+        print("Answer the following questions to create the ticket:")
         print("\n\n")
 
         # Prompt the user for their name - Assign user's name to class instance's attributes.
         self.user = self.set_user()
 
+        # Clear prompt, append user to ticket, ask for number
+        system.clear_prompt_or_terminal()
+
+        print("\nTicket:\n")
+        print(self.user)
+        print("\n----------------------------------\n\n")
+
+        print("Answer the following questions to create the ticket:")
         print("\n\n")
 
         # Prompt the user for contact information - Assign contact information to class instance's attributes.
         print("Contact Information:")
         self.number = input("What's the best callback number? ").strip()
+
+        system.clear_prompt_or_terminal()
+
+        print("\nTicket:\n")
+        print("cb: " + self.number)
+        print()
+        print(self.user)
+        print("\n----------------------------------\n\n")
+
+        print("Answer the following questions to create the ticket:")
+        print("\n\n")
+        print("Contact Information:")
+        print("What's the best callback number? " + self.number)
+
         self.name = input("Who is being helped? ").strip()
+
+        system.clear_prompt_or_terminal()
+
+        print("\nTicket:\n")
+
+        print("cb: " + self.number)
+        print("s/w: " + self.name)
+        print()
+        print(self.user)
+
+        print("\n----------------------------------\n\n")
+
+        print("Answer the following questions to create the ticket:")
+
+        print("\n\n")
+        print("Contact Information:")
+        print("What's the best callback number? " + self.number)
+        print("Who is being helped? " + self.name)
+
         self.address = input("What's their address? ").strip()
+
+        system.clear_prompt_or_terminal()
+
+        print("\nTicket:\n")
+
+        print("cb: " + self.number)
+        print("s/w: " + self.name)
+        print("address: " + self.address)
+        print()
+        print(self.user)
+
+        print("\n----------------------------------\n\n")
+
+        print("Answer the following questions to create the ticket:")
+
+        print("\n\n")
 
         # Append number, name, and address key and values to ticket_content
         self.ticket_content.update({"number": "cb: " + self.number})
         self.ticket_content.update({"name": "s/w: " + self.name})
         self.ticket_content.update({"address": "address: " + self.address})
-
-        print("\n\n")
 
         # Prompt user for issue information - Assign issue information to class instance's attributes.
         print("Issue:")
@@ -264,9 +323,41 @@ class Ticket():
         # Append custom issue key and value to ticket_content
         self.ticket_content.update({"custom_issue": self.custom_issue})
 
+        system.clear_prompt_or_terminal()
+
+        print("\nTicket:\n")
+
+        print("cb: " + self.number)
+        print("s/w: " + self.name)
+        print("address: " + self.address)
+        print()
+        print(self.custom_issue)
+        print()
+        print(self.user)
+
+        print("\n----------------------------------\n\n")
+
+        print("Answer the following questions to create the ticket:")
+
         print("\n\n")
 
         self.service = self.set_service()
+
+        system.clear_prompt_or_terminal()
+
+        print("\nTicket:\n")
+
+        print("cb: " + self.number)
+        print("s/w: " + self.name)
+        print("address: " + self.address)
+        print()
+        print(self.custom_issue)
+        print()
+        print(self.user)
+
+        print("\n----------------------------------\n\n")
+
+        print("Answer the following questions to create the ticket:")
 
         print("\n\n")
 
@@ -279,7 +370,19 @@ class Ticket():
         # Append user key and value to end of ticket_content
         self.ticket_content.update({"user": self.user})
 
-        print("\n\n")
+        system.clear_prompt_or_terminal()
+
+        print("\nTicket:\n")
+
+        print("cb: " + self.number)
+        print("s/w: " + self.name)
+        print("address: " + self.address)
+        print()
+        print(self.custom_issue)
+        print()
+        print(self.user)
+
+        print("\n----------------------------------\n\n")
 
         print("All questions answered!\n")
 
@@ -928,13 +1031,11 @@ class Ticket():
 
         system.clear_prompt_or_terminal()
 
-        print("\n\n----------------------------------\n\n")
-
-        print("Ticket:\n")
+        print("\nTicket:\n")
 
         print(self.print_ticket())
 
-        print("\n\n")
+        print("\n----------------------------------\n\n")
 
         # Possible values for ticket_status:
         # self.ticket_status = "Ticket Status: Problem not resolved yet."
@@ -2910,8 +3011,18 @@ class Ticket():
                         "\nWhat WiFi network is the computer connected to?\nEnter name of WiFi network to respond: ").strip()
                     step_response_sentence += "\nConnected to SSID of: " + name_of_wifi_network
 
-                # Run ping tests here
+                # Issue when at least 2.5% of packets are lost
+                packets_sent = None
+                packets_lost = None
 
+                # Issue when avg is at least 100
+                avg_value = None
+
+                # Function called when prompted for min, max, avg, and lost
+                def set_ping_statistics():
+                    pass
+
+                # Run ping tests
                 print(
                     "\n\nEnter 'Done' to exit prompt and save ping statistics to ticket.\n")
 
@@ -2922,7 +3033,7 @@ class Ticket():
                         step_response = "exit"
                         return
                     if (host.lower() == "done"):
-                        return
+                        break
                     step_response_sentence += "\n\nPinging Host: " + host
 
                     packets_sent = input(
@@ -2931,7 +3042,7 @@ class Ticket():
                         step_response = "exit"
                         return
                     if (packets_sent.lower() == "done"):
-                        return
+                        break
                     step_response_sentence += "\nSent: " + packets_sent
 
                     packets_lost = input(
@@ -2940,7 +3051,7 @@ class Ticket():
                         step_response = "exit"
                         return
                     if (packets_lost.lower() == "done"):
-                        return
+                        break
                     step_response_sentence += "\nLost: " + packets_lost
 
                     min_value = input("What's the min ping speed? ").strip()
@@ -2948,7 +3059,7 @@ class Ticket():
                         step_response = "exit"
                         return
                     if (min_value.lower() == "done"):
-                        return
+                        break
                     step_response_sentence += "\nMin: " + min_value
 
                     max_value = input("What's the max ping speed? ").strip()
@@ -2956,7 +3067,7 @@ class Ticket():
                         step_response = "exit"
                         return
                     if (max_value.lower() == "done"):
-                        return
+                        break
                     step_response_sentence += "\nMax: " + min_value
 
                     avg_value = input("What's the avg ping speed? ").strip()
@@ -2964,7 +3075,7 @@ class Ticket():
                         step_response = "exit"
                         return
                     if (avg_value.lower() == "done"):
-                        return
+                        break
                     step_response_sentence += "\nAvg: " + avg_value
 
             # if a computer cannot be used, mention that and do nothing else
