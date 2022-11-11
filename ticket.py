@@ -1101,9 +1101,21 @@ class Ticket():
             nonlocal step_response_sentence
 
             def print_responses(all_questions_answered=False, **kwargs):
+
+                nonlocal step_response_sentence
+
                 system.clear_prompt_or_terminal()
 
                 print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+                print("\nAdding To Ticket::\n")
+
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
+
+                print("\n----------------------------------\n\n\n")
 
                 print("\nResponses:\n")
 
