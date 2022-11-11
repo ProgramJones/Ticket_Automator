@@ -1108,7 +1108,7 @@ class Ticket():
 
                 print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
-                print("\nAdding To Ticket::\n")
+                print("\nAdding To Ticket:\n")
 
                 if (step_response_sentence == ""):
                     pass
@@ -1225,10 +1225,59 @@ class Ticket():
             nonlocal step_response_sentence
             nonlocal step_response
 
-            print("\nEnter 'exit' at any time to exit prompt.\n\n")
+            def print_responses(all_questions_answered=False, **kwargs):
+
+                nonlocal step_response_sentence
+
+                system.clear_prompt_or_terminal()
+
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+                print("\nAdding To Ticket:\n")
+
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
+
+                print("\n----------------------------------\n\n\n")
+
+                print("\nResponses:\n")
+
+                if (len(kwargs) == 0):
+                    pass
+                else:
+                    for key, value in kwargs.items():
+                        if (key == "can_be_checked"):
+                            print(
+                                "Can a landline phone be checked for dial tone: " + value)
+                        if (key == "has_dial_tone"):
+                            print("Landline has dial tone: " + value)
+
+                print("\n----------------------------------\n\n\n")
+
+                if (all_questions_answered == False):
+                    print("Answer the following questions to add this step:\n\n\n")
+                else:
+                    print("All questions answered!\n\n\n")
+
+                    print("Adding step to ticket.",
+                          end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+
+                    print()
+
+            print_responses()
 
             can_be_checked = input(
-                "Can a landline phone be checked for dial tone?\nEnter “yes” or “no” to respond: ").lower().strip()
+                "Can a landline phone be checked for dial tone?\nEnter “yes” or “no”: ").lower().strip()
 
             if (can_be_checked == "exit"):
 
@@ -1239,7 +1288,7 @@ class Ticket():
                 print("\nInvalid response - 'yes' or 'no' was not entered.")
 
                 can_be_checked = input(
-                    "\nCan a landline phone be checked for dial tone?\nEnter “yes” or “no” to respond: ").lower().strip()
+                    "\nCan a landline phone be checked for dial tone?\nEnter “yes” or “no”: ").lower().strip()
 
                 if (can_be_checked == "exit"):
 
@@ -1248,8 +1297,10 @@ class Ticket():
 
             if (can_be_checked == "yes"):
 
+                print_responses(can_be_checked="Yes")
+
                 has_dial_tone = input(
-                    "\nDoes the landline phone have dial tone?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+                    "Does the landline phone have dial tone?\nEnter 'yes' or 'no': ").lower().strip()
 
                 if (has_dial_tone == "exit"):
 
@@ -1260,7 +1311,7 @@ class Ticket():
                     print("\nInvalid response - 'yes' or 'no' was not entered.")
 
                     has_dial_tone = input(
-                        "\nDoes the landline phone have dial tone?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+                        "\nDoes the landline phone have dial tone?\nEnter 'yes' or 'no': ").lower().strip()
 
                     if (has_dial_tone == "exit"):
 
@@ -1270,11 +1321,20 @@ class Ticket():
                 if (has_dial_tone == "yes"):
                     step_response_sentence = "Landline phone has dial tone."
 
+                    print_responses(
+                        can_be_checked="Yes", has_dial_tone="Yes", all_questions_answered=True)
+
                 elif (has_dial_tone == "no"):
                     step_response_sentence = "Landline phone does not have dial tone."
 
+                    print_responses(
+                        can_be_checked="Yes", has_dial_tone="No", all_questions_answered=True)
+
             elif (can_be_checked == "no"):
                 step_response_sentence = "No landline phone can be checked for dial tone."
+
+                print_responses(can_be_checked="No",
+                                all_questions_answered=True)
 
         def check_status_of_all_services():
 
