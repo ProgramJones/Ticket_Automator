@@ -237,7 +237,7 @@ class Ticket():
         def print_ticket_preview(**kwargs):
             system.clear_prompt_or_terminal()
 
-            print("\nTicket:\n")
+            print("\nTicket Preview:\n")
 
             if (len(kwargs) == 0):
                 pass
@@ -252,7 +252,7 @@ class Ticket():
                     elif (key == "user" or key == "custom_issue"):
                         print("\n" + value)
 
-            print("\n----------------------------------\n\n")
+            print("\n----------------------------------\n\n\n")
 
             if (self.category == None):
                 print("Answer the following questions to create the ticket:\n\n\n")
@@ -332,13 +332,13 @@ class Ticket():
         print("Outputting ticket, ticket status, troubleshooting steps, and diagnostic questions.",
               end="", flush=True)
 
-        time.sleep(.75)
+        time.sleep(.70)
         print(".", end="", flush=True)
 
-        time.sleep(.75)
+        time.sleep(.70)
         print(".", end="", flush=True)
 
-        time.sleep(.75)
+        time.sleep(.70)
 
         print()
 
@@ -977,7 +977,7 @@ class Ticket():
 
         print(self.print_ticket())
 
-        print("\n----------------------------------\n\n")
+        print("\n----------------------------------\n\n\n")
 
         # Possible values for ticket_status:
         # self.ticket_status = "Ticket Status: Problem not resolved yet."
@@ -1036,7 +1036,7 @@ class Ticket():
 
         system.clear_prompt_or_terminal()
 
-        print("\nEnter 'exit' at any time to exit prompt.\n\n")
+        print("\nEnter 'exit' at any time to exit prompt.\n\n\n")
 
         self.print_troubleshooting_steps()
 
@@ -1045,7 +1045,7 @@ class Ticket():
         # While second_index is not an int and second_index is less than or greater than self.troubleshooting steps list, run the following code
         while (True):
             second_index = input(
-                "\nSelect a step by entering the number next to it: ").strip()
+                "\n\nSelect a step by entering the number next to it: ").strip()
 
             if (second_index.lower() == "exit"):
                 self.print_ticket_steps_and_questions()
@@ -1100,7 +1100,43 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("\nEnter 'exit' at any time to exit prompt.\n\n")
+            def print_responses(all_questions_answered=False, **kwargs):
+                system.clear_prompt_or_terminal()
+
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+                print("\nResponses:\n")
+
+                if (len(kwargs) == 0):
+                    pass
+                else:
+                    for key, value in kwargs.items():
+                        if (key == "can_determine_account_status"):
+                            print("Can determine account status: " + value)
+                        if (key == "account_status"):
+                            print("Account Status: " + value)
+
+                print("\n----------------------------------\n\n\n")
+
+                if (all_questions_answered == False):
+                    print("Answer the following questions to add this step:\n\n\n")
+                else:
+                    print("All questions answered!\n\n\n")
+
+                    print("Adding step to ticket.",
+                          end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+
+                    print()
+
+            print_responses()
 
             can_determine_account_status = input(
                 "Can the account status be determined? Enter 'yes' or 'no': ").lower().strip()
@@ -1122,6 +1158,8 @@ class Ticket():
                     return
 
             if (can_determine_account_status == "yes"):
+
+                print_responses(can_determine_account_status="Yes")
 
                 account_status = input(
                     "\nIs the account enabled or disabled? Enter 'enabled' or 'disabled': ").lower().strip()
@@ -1146,6 +1184,10 @@ class Ticket():
                 if (account_status == "disabled"):
                     self.ticket_status = "Ticket Status: Problem resolved.\nAccount is disabled. Advised to pay service provider over phone or on website."
                     step_response_sentence = "Account is disabled. Advised to pay service provider over phone or on website."
+
+                    print_responses(all_questions_answered=True,
+                                    can_determine_account_status="No", account_status="Disabled")
+
                 elif (account_status == "enabled"):
                     self.ticket_status = "Ticket Status: Problem not resolved yet.\nAccount is enabled, but internet is offline."
                     self.account_status = "online"
@@ -1153,12 +1195,18 @@ class Ticket():
                     self.set_troubleshooting_steps()
                     step_response_sentence = "Account is enabled."
 
+                    print_responses(all_questions_answered=True,
+                                    can_determine_account_status="No", account_status="Enabled")
+
             if (can_determine_account_status == 'no'):
                 self.ticket_status = "Ticket Status: Problem not resolved yet.\nCannot determine account status."
                 self.account_status = "n/a"
                 # Call this method to add "Check status of all services." to troubleshooting steps
                 self.set_troubleshooting_steps()
                 step_response_sentence = "Cannot determine account status."
+
+                print_responses(all_questions_answered=True,
+                                can_determine_account_status="No")
 
         def check_landline_phone_for_dial_tone():
 
