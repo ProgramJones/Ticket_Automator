@@ -2108,21 +2108,16 @@ class Ticket():
 
                 print("\n----------------------------------\n\n\n")
 
-                print("\nResponses:\n")
-
-                if (len(kwargs) == 0):
-                    pass
-                else:
-                    for key, value in kwargs.items():
-                        if (key == ""):
-                            print(
-                                "Can check network device lights: " + value)
-
-                print("\n----------------------------------\n\n\n")
-
                 if (all_questions_answered == False):
-                    print(
-                        "\nAnswer the following questions to add this step:\n\n\n")
+
+                    if "checking_again" in kwargs:
+                        print(
+                            "Cabling will be displayed in the following example format:\n")
+                        print(
+                            "wall jack > Router WAN port\nRouter ETH 2 port > Mesh router WAN port\nRouter ETH 4 port > Computer ETH port\n")
+                    elif "can_be_checked" in kwargs:
+                        print(
+                            "\nAnswer the following questions to add this step:\n\n\n")
                 else:
                     print("All questions answered!\n\n\n")
 
@@ -2140,7 +2135,7 @@ class Ticket():
                     print()
 
             if (checking_again == "no"):
-                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+                print_responses(can_be_checked=can_be_checked)
 
                 # See if cabling can be checked
                 can_be_checked = input(
@@ -2155,7 +2150,7 @@ class Ticket():
                     print("Invalid response - 'yes' or 'no' was not entered.")
 
                     can_be_checked = input(
-                        "\nCan cabling be checked? Enter “yes” or “no” to respond: ").lower().strip()
+                        "\nEnter “yes” or “no” to respond: ").lower().strip()
 
                     if (can_be_checked == "exit"):
 
@@ -2165,15 +2160,16 @@ class Ticket():
             # if cabling cannot be checked, mention that and do nothing else
             if ((can_be_checked == "no")):
                 step_response_sentence = "Cabling cannot be checked."
+
+                print_responses(
+                    all_questions_answered="True", can_be_checked=can_be_checked)
+
                 return
 
             # if cabling can be checked, mention that and ask probing questions
             elif ((can_be_checked == "yes") or (checking_again == "yes")):
 
-                print(
-                    "\n\nCabling will be displayed in the following example format:\n")
-                print(
-                    "wall jack > Router WAN port\nRouter ETH 2 port > Mesh router WAN port\nRouter ETH 4 port > Computer ETH port")
+                print_responses(checking_again=checking_again)
 
                 print("\n\nEnter “done” when all cabling is documented.")
 
@@ -2201,6 +2197,9 @@ class Ticket():
                         cabling[-4:]).rstrip()
 
                     step_response_sentence += cabling.rstrip()
+
+                print_responses(
+                    all_questions_answered="True", checking_again=checking_again)
 
         def check_cable_ports():
 
