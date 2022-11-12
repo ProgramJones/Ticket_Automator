@@ -2755,9 +2755,63 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("\nEnter 'exit' at any time to exit prompt.\n\n")
+            def print_responses(all_questions_answered=False, **kwargs):
+
+                nonlocal step_response_sentence
+
+                system.clear_prompt_or_terminal()
+
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+                print("\nAdding To Ticket:\n")
+
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
+
+                print("\n----------------------------------\n\n\n")
+
+                print("\nResponses:\n")
+
+                if (len(kwargs) == 0):
+                    pass
+                else:
+                    for key, value in kwargs.items():
+                        if (key == "can_check_network_device_lights"):
+                            print(
+                                "Can check network device lights: " + value)
+                        if (key == "all_network_devices_show_internet"):
+                            print(
+                                "All network devices show internet: " + value)
+                        if (key == "online_offline_or_na"):
+                            print(
+                                "What's the device status: " + value)
+
+                print("\n----------------------------------\n\n\n")
+
+                if (all_questions_answered == False):
+                    print(
+                        "\nAnswer the following questions to add this step:\n\n\n")
+                else:
+                    print("All questions answered!\n\n\n")
+
+                    print("Adding step to ticket.",
+                          end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+
+                    print()
 
             if (self.can_check_network_device_lights == "no"):
+
+                print_responses()
 
                 # Can network devices be checked?
                 self.can_check_network_device_lights = input(
@@ -2785,6 +2839,9 @@ class Ticket():
                 if (self.can_check_network_device_lights == "no"):
                     step_response_sentence = "Network devices cannot be checked for internet."
 
+                    print_responses(
+                        all_questions_answered=True, can_check_network_device_lights=self.can_check_network_device_lights)
+
             # Ask if all of the saved network devices have internet
             if (self.can_check_network_device_lights == "yes"):
 
@@ -2792,6 +2849,9 @@ class Ticket():
                 self.additional_routers = []
                 self.extenders = []
                 self.switches = []
+
+                print_responses(
+                    can_check_network_device_lights=self.can_check_network_device_lights)
 
                 print(
                     "Do all of the following network devices show internet:\n")
@@ -2880,18 +2940,29 @@ class Ticket():
                             self.switches.append({"device": brand_and_model, "device_type": type_of_device,
                                                  "status": "online", "provided_by": "", "can_bypass": ""})
 
-                    # Have a similar for loop here that sets the status, name, and type
+                    print_responses(
+                        all_questions_answered=True, can_check_network_device_lights=self.can_check_network_device_lights, all_network_devices_show_internet=all_network_devices_show_internet)
 
                 # if no, not all network devices show internet, what device don't have internet?
                 if (all_network_devices_show_internet == "no"):
+
+                    online_offline_or_na = None
+                    device_provided_by = None
+                    can_we_bypass = None
+
+                    # OBJECTIVE: Call print_responses in the below methods with these variables (Would this work? Do we always call bypass function)
 
                     # Function to see if a device is online or offline and whether the device was provided by the service provider or a third party.
                     def what_status_and_who_provided(brand_and_model, device_type):
 
                         nonlocal step_response
 
+                        nonlocal online_offline_or_na
+                        nonlocal device_provided_by
+                        nonlocal can_we_bypass
+
                         online_offline_or_na = input(
-                            "\nIs the " + brand_and_model + " status online, offline, or not available?\nEnter 'online', 'offline', or 'n/a': ").lower().strip()
+                            "Is the " + brand_and_model + " status online, offline, or not available?\nEnter 'online', 'offline', or 'n/a': ").lower().strip()
 
                         if (online_offline_or_na == "exit"):
 
@@ -2903,7 +2974,7 @@ class Ticket():
                                 "\nInvalid response - Neither 'online', 'offline', or 'n/a' were entered.")
 
                             online_offline_or_na = input(
-                                "\nIs the " + brand_and_model + " status online, offline, or not available?\nEnter 'online', 'offline', or 'n/a': ").lower().strip()
+                                "\nEnter 'online', 'offline', or 'n/a': ").lower().strip()
 
                             if (online_offline_or_na == "exit"):
 
@@ -2914,6 +2985,9 @@ class Ticket():
                             return {"device": brand_and_model, "device_type": device_type, "status": online_offline_or_na, "provided_by": "", "can_bypass": ""}
 
                         elif (online_offline_or_na == "offline" or online_offline_or_na == "n/a"):
+
+                            print_responses(
+                                can_check_network_device_lights=self.can_check_network_device_lights, all_network_devices_show_internet=all_network_devices_show_internet, online_offline_or_na=online_offline_or_na)
 
                             device_provided_by = input(
                                 "\nWas the " + brand_and_model + " provided by a service provider or third party?\nEnter 'service provider' or 'third party': ").lower().strip()
@@ -2972,6 +3046,9 @@ class Ticket():
                         #
                         # if (device_type == "Main Router" or device_type == "Indoor ONT" or device_type == "ONT/Router" or device_type == "Modem" or device_type == "Modem/Router") or (device_type == "Additional Router" or device_type == "Extender" or device_type == "Switch"):
                         #     return {"device": brand_and_model, "device_type": device_type, "status": online_offline_or_na, "provided_by": device_provided_by, "can_bypass": ""}
+
+                        print_responses(
+                            can_check_network_device_lights=self.can_check_network_device_lights, all_network_devices_show_internet=all_network_devices_show_internet)
 
                         device = what_status_and_who_provided(
                             brand_and_model, type_of_device)
@@ -3057,6 +3134,9 @@ class Ticket():
 
                     elif (self.main_router["status"] == "online"):
                         step_response_sentence = "The main router is online."
+
+                    print_responses(
+                        all_questions_answered=True, can_check_network_device_lights=self.can_check_network_device_lights, all_network_devices_show_internet=all_network_devices_show_internet)
 
             self.set_troubleshooting_steps()
 
