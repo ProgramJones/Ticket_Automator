@@ -2091,6 +2091,54 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
+            def print_responses(all_questions_answered=False, **kwargs):
+
+                nonlocal step_response_sentence
+
+                system.clear_prompt_or_terminal()
+
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+                print("\nAdding To Ticket:\n")
+
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
+
+                print("\n----------------------------------\n\n\n")
+
+                print("\nResponses:\n")
+
+                if (len(kwargs) == 0):
+                    pass
+                else:
+                    for key, value in kwargs.items():
+                        if (key == ""):
+                            print(
+                                "Can check network device lights: " + value)
+
+                print("\n----------------------------------\n\n\n")
+
+                if (all_questions_answered == False):
+                    print(
+                        "\nAnswer the following questions to add this step:\n\n\n")
+                else:
+                    print("All questions answered!\n\n\n")
+
+                    print("Adding step to ticket.",
+                          end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+
+                    print()
+
             if (checking_again == "no"):
                 print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
@@ -2165,7 +2213,61 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("\nEnter 'exit' at any time to exit prompt.\n\n")
+            def print_responses(all_questions_answered=False, **kwargs):
+
+                nonlocal step_response_sentence
+
+                system.clear_prompt_or_terminal()
+
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+                print("\nAdding To Ticket:\n")
+
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
+
+                print("\n----------------------------------\n\n\n")
+
+                print("\nResponses:\n")
+
+                if (len(kwargs) == 0):
+                    pass
+                else:
+                    for key, value in kwargs.items():
+                        if (key == "can_be_checked"):
+                            print(
+                                "Can check cable ports: " + value)
+                        elif (key == "correct_ports"):
+                            print(
+                                "Cables in correct ports: " + value)
+                        elif (key == "can_be_corrected"):
+                            print(
+                                "Cabling can be corrected: " + value)
+
+                print("\n----------------------------------\n\n\n")
+
+                if (all_questions_answered == False):
+                    print(
+                        "\nAnswer the following questions to add this step:\n\n\n")
+                else:
+                    print("All questions answered!\n\n\n")
+
+                    print("Adding step to ticket.",
+                          end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+
+                    print()
+
+            print_responses()
 
             # See if cable ports can be checked
             can_be_checked = input(
@@ -2180,7 +2282,7 @@ class Ticket():
                 print("Invalid response - 'yes' or 'no' was not entered.")
 
                 can_be_checked = input(
-                    "\nCan cabling be checked? Enter “yes” or “no” to respond: ").lower().strip()
+                    "\nEnter “yes” or “no” to respond: ").lower().strip()
 
                 if (can_be_checked == "exit"):
 
@@ -2192,8 +2294,13 @@ class Ticket():
                 step_response_sentence = "Cable ports cannot be checked."
                 self.correct_ports = "n/a"
 
+                print_responses(all_questions_answered="True",
+                                can_be_checked=can_be_checked)
+
             # if cable ports can be checked, mention that and ask probing questions
             elif (can_be_checked == "yes"):
+
+                print_responses(can_be_checked=can_be_checked)
 
                 correct_ports = input(
                     "Are all cables in the correct ports? Enter “yes” or “no” to respond: ").lower().strip()
@@ -2202,7 +2309,7 @@ class Ticket():
                     print("Invalid response - 'yes' or 'no' was not entered.")
 
                     correct_ports = input(
-                        "\nAre all cables in the correct ports? Enter “yes” or “no” to respond: ").lower().strip()
+                        "\nEnter “yes” or “no” to respond: ").lower().strip()
 
                     if (correct_ports == "exit"):
 
@@ -2213,8 +2320,15 @@ class Ticket():
                     step_response_sentence = "Cables are in the correct ports."
                     self.correct_ports = "yes"
 
+                    print_responses(can_be_checked=can_be_checked,
+                                    correct_ports=correct_ports)
+
                 elif (correct_ports == "no"):
+
                     step_response_sentence = "Cables are not in the correct ports."
+
+                    print_responses(can_be_checked=can_be_checked,
+                                    correct_ports=correct_ports)
 
                     can_be_corrected = input(
                         "Can the cables be moved to the correct ports? Enter “yes” or “no” to respond: ").lower().strip()
@@ -2233,10 +2347,17 @@ class Ticket():
                     if (can_be_corrected == "yes"):
                         step_response_sentence += "\nCables moved to the correct ports.\n\n"
                         self.correct_ports = "yes"
+
+                        print_responses(all_questions_answered="True", can_be_checked=can_be_checked,
+                                        correct_ports=correct_ports, can_be_corrected=can_be_corrected)
+
                         check_cabling("yes", "yes")
                     elif (can_be_corrected == "no"):
                         step_response_sentence += "\nCables can't be moved to the correct ports."
                         self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be switched to the correct ports."
+
+                        print_responses(all_questions_answered="True", can_be_checked=can_be_checked,
+                                        correct_ports=correct_ports, can_be_corrected=can_be_corrected)
 
             self.set_troubleshooting_steps()
 
