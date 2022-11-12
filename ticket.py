@@ -2626,7 +2626,58 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("\nEnter 'exit' at any time to exit prompt.\n\n")
+            def print_responses(all_questions_answered=False, **kwargs):
+
+                nonlocal step_response_sentence
+
+                system.clear_prompt_or_terminal()
+
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+                print("\nAdding To Ticket:\n")
+
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
+
+                print("\n----------------------------------\n\n\n")
+
+                print("\nResponses:\n")
+
+                if (len(kwargs) == 0):
+                    pass
+                else:
+                    for key, value in kwargs.items():
+                        if (key == "can_be_power_cycled"):
+                            print(
+                                "All network devices power cycled: " + value)
+                        if (key == "could_not_power_cycle_list"):
+                            print(
+                                "Could not power cycle: " + value)
+
+                print("\n----------------------------------\n\n\n")
+
+                if (all_questions_answered == False):
+                    print(
+                        "\nAnswer the following questions to add this step:\n\n\n")
+                else:
+                    print("All questions answered!\n\n\n")
+
+                    print("Adding step to ticket.",
+                          end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+
+                    print()
+
+            print_responses()
 
             print("Were all the following devices power cycled:\n")
 
@@ -2656,14 +2707,20 @@ class Ticket():
             if (can_be_power_cycled == "yes"):
                 step_response_sentence = "All network devices power cycled for 30 seconds off."
                 self.power_cycled = "yes"
-                self.ticket_status = "Ticket Status: Problem not resolved yet.\nPower cycled all network devices but haven't verified service works."
+                self.ticket_status = "Ticket Status:\nProblem not resolved yet. Power cycled all network devices but haven't verified service works."
+
+                print_responses(all_questions_answered="True",
+                                can_be_power_cycled="Yes")
 
             if (can_be_power_cycled == "no"):
 
                 number_of_network_devices = len(self.network_devices)
 
+                print_responses(
+                    can_be_power_cycled="No")
+
                 could_not_power_cycle = input(
-                    "\nEnter a comma seperated list of devices that couldn't be power cycled: ").lower().strip()
+                    "Enter a comma seperated list of devices that couldn't be power cycled: ").lower().strip()
 
                 # Create a list of devices that couldn't be power cycled from sentence entered by user, with a new entry in list after every entered comma
                 could_not_power_cycle_list = could_not_power_cycle.split(",")
@@ -2674,11 +2731,17 @@ class Ticket():
                 if (number_of_network_devices == len(could_not_power_cycle_list)):
                     step_response_sentence = "Was not able to power cycle any network device."
                     self.power_cycled = "no"
+
+                    print_responses(
+                        all_questions_answered="True", can_be_power_cycled="No", could_not_power_cycle_list=", ".join(could_not_power_cycle_list))
                 else:
                     step_response_sentence = "Was able to power cycle every device except the: " + \
                         ", ".join(could_not_power_cycle_list)
                     self.power_cycled = "yes"
                     self.ticket_status = "Ticket Status: Problem not resolved yet.\nPower cycled network devices but haven't verified service works."
+
+                    print_responses(
+                        all_questions_answered="True", can_be_power_cycled="No", could_not_power_cycle_list=", ".join(could_not_power_cycle_list))
 
             self.set_troubleshooting_steps()
 
