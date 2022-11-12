@@ -2337,7 +2337,7 @@ class Ticket():
                         print("Invalid response - 'yes' or 'no' was not entered.")
 
                         can_be_corrected = input(
-                            "\nCan the cables be moved to the correct ports? Enter “yes” or “no” to respond: ").lower().strip()
+                            "\nEnter “yes” or “no” to respond: ").lower().strip()
 
                         if (can_be_corrected == "exit"):
 
@@ -2373,7 +2373,71 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("\nEnter 'exit' at any time to exit prompt.\n\n")
+            def print_responses(all_questions_answered=False, **kwargs):
+
+                nonlocal step_response_sentence
+
+                system.clear_prompt_or_terminal()
+
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+                print("\nAdding To Ticket:\n")
+
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
+
+                print("\n----------------------------------\n\n\n")
+
+                print("\nResponses:\n")
+
+                if (len(kwargs) == 0):
+                    pass
+                else:
+                    for key, value in kwargs.items():
+                        if (key == "can_be_checked"):
+                            print(
+                                "Can check cable conditions: " + value)
+                        elif (key == "cables_not_loose_or_damaged"):
+                            if (value == "yes"):
+                                print(
+                                    "Cables not loose or damaged: " + value)
+                            elif (value == "damaged"):
+                                print(
+                                    "Damaged cable: Yes")
+                            elif (value == "loose"):
+                                print(
+                                    "Loose cable: Yes")
+                        elif (key == "can_be_replaced"):
+                            print(
+                                "Cable can be replaced: " + value)
+                        elif (key == "can_be_fixed"):
+                            print(
+                                "Cable can be fixed: " + value)
+
+                print("\n----------------------------------\n\n\n")
+
+                if (all_questions_answered == False):
+                    print(
+                        "\nAnswer the following questions to add this step:\n\n\n")
+                else:
+                    print("All questions answered!\n\n\n")
+
+                    print("Adding step to ticket.",
+                          end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+
+                    print()
+
+            print_responses()
 
             # See if cable ports can be checked
             can_be_checked = input(
@@ -2388,7 +2452,7 @@ class Ticket():
                 print("Invalid response - 'yes' or 'no' was not entered.")
 
                 can_be_checked = input(
-                    "\nCan cable conditions be checked? Enter “yes” or “no” to respond: ").lower().strip()
+                    "\nEnter “yes” or “no” to respond: ").lower().strip()
 
                 if (can_be_checked == "exit"):
 
@@ -2400,107 +2464,147 @@ class Ticket():
                 step_response_sentence = "Cable conditions cannot be checked."
                 self.good_cable_conditions = "n/a"
 
+                print_responses(all_questions_answered="True",
+                                can_be_checked=can_be_checked)
+
             # if cable conditions can be checked, mention that and ask probing questions
             elif (can_be_checked == "yes"):
 
-                cables_not_loose_or_damaged = input(
-                    "\nAre all cables secure and tight on all ends with no visible damage?\nEnter “yes”, “damaged”, or “loose” to respond: ").lower().strip()
+                while (True):
 
-                if (cables_not_loose_or_damaged == "exit"):
-
-                    step_response = "exit"
-                    return
-
-                while (cables_not_loose_or_damaged != "yes" and cables_not_loose_or_damaged != "damaged" and cables_not_loose_or_damaged != "loose"):
-                    print(
-                        "Invalid response - Neither 'yes', 'damaged', or 'loose' were entered.")
+                    print_responses(
+                        can_be_checked=can_be_checked)
 
                     cables_not_loose_or_damaged = input(
-                        "\nAre all cables secure and tight on all ends with no visible damage?\nEnter “yes”, “damaged”, or “loose” to respond: ").lower().strip()
+                        "Are all cables secure and tight on all ends with no visible damage?\nEnter “yes”, “damaged”, or “loose” to respond: ").lower().strip()
 
                     if (cables_not_loose_or_damaged == "exit"):
 
                         step_response = "exit"
                         return
 
-                if (cables_not_loose_or_damaged == "yes"):
-                    step_response_sentence = "All cables secure with no visible damage."
-                    self.good_cable_conditions = "yes"
-                    return
-
-                elif (cables_not_loose_or_damaged == "damaged"):
-                    damaged_cable = input(
-                        "\nWhich cable is damaged? Enter in format of 'beginning device and port > end device and port':\n")
-
-                    step_response_sentence = "Damaged cable: " + damaged_cable
-
-                    can_be_replaced = input(
-                        "\nCan the cable be replaced? Enter “yes” or “no” to respond: ").lower().strip()
-
-                    if (can_be_replaced == "exit"):
-
-                        step_response = "exit"
-                        return
-
-                    while (can_be_replaced != "yes" and can_be_replaced != "no"):
+                    while (cables_not_loose_or_damaged != "yes" and cables_not_loose_or_damaged != "damaged" and cables_not_loose_or_damaged != "loose"):
                         print(
-                            "Invalid response - 'yes' or 'no' was not entered.")
+                            "\nInvalid response - Neither 'yes', 'damaged', or 'loose' were entered.")
+
+                        cables_not_loose_or_damaged = input(
+                            "\nEnter “yes”, “damaged”, or “loose” to respond: ").lower().strip()
+
+                        if (cables_not_loose_or_damaged == "exit"):
+
+                            step_response = "exit"
+                            return
+
+                    if (cables_not_loose_or_damaged == "yes"):
+                        step_response_sentence = "All cables secure with no visible damage."
+                        self.good_cable_conditions = "yes"
+
+                        print_responses(all_questions_answered="True",
+                                        can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged)
+
+                        break
+
+                    elif (cables_not_loose_or_damaged == "damaged"):
+
+                        print_responses(
+                            can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged)
+
+                        damaged_cable = input(
+                            "Which cable is damaged? Enter in format of 'beginning device and port > end device and port':\n")
+
+                        step_response_sentence = "Damaged cable: " + damaged_cable
+
+                        print_responses(
+                            can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged, damaged_cable=damaged_cable)
 
                         can_be_replaced = input(
-                            "\nCan the cable be replaced? Enter “yes” or “no” to respond: ").lower().strip()
+                            "Can the cable be replaced? Enter “yes” or “no” to respond: ").lower().strip()
 
                         if (can_be_replaced == "exit"):
 
                             step_response = "exit"
                             return
 
-                    if (can_be_replaced == "no"):
-                        step_response_sentence += "\nCable cannot be replaced."
-                        self.good_cable_conditions = "no"
-                        self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be replaced."
-                        return
+                        while (can_be_replaced != "yes" and can_be_replaced != "no"):
+                            print(
+                                "Invalid response - 'yes' or 'no' was not entered.")
 
-                    elif (can_be_replaced == "yes"):
-                        step_response_sentence += "\nJust replaced cable."
-                        cables_not_loose_or_damaged = "yes"
-                        self.good_cable_conditions = "yes"
+                            can_be_replaced = input(
+                                "\nEnter “yes” or “no” to respond: ").lower().strip()
 
-                elif (cables_not_loose_or_damaged == "loose"):
-                    loose_cable = input(
-                        "\nWhich cable is loose? Enter in format of 'beginning device and port > end device and port':\n")
+                            if (can_be_replaced == "exit"):
 
-                    step_response_sentence = "Loose cable: " + loose_cable
+                                step_response = "exit"
+                                return
 
-                    can_be_fixed = input(
-                        "\nCan the cable be pushed in or replaced? Enter “yes” or “no” to respond: ").lower().strip()
+                        if (can_be_replaced == "no"):
+                            step_response_sentence += "\nCable cannot be replaced."
+                            self.good_cable_conditions = "no"
+                            self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be replaced."
 
-                    if (can_be_fixed == "exit"):
+                            print_responses(
+                                all_questions_answered="True", can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged, damaged_cable=damaged_cable, can_be_replaced=can_be_replaced)
 
-                        step_response = "exit"
-                        return
+                            break
 
-                    while (can_be_fixed != "yes" and can_be_fixed != "no"):
-                        print(
-                            "Invalid response - 'yes' or 'no' was not entered.")
+                        elif (can_be_replaced == "yes"):
+                            step_response_sentence += "\nJust replaced cable."
+                            cables_not_loose_or_damaged = "yes"
+                            self.good_cable_conditions = "yes"
+
+                            print_responses(
+                                can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged, damaged_cable=damaged_cable, can_be_replaced=can_be_replaced)
+
+                    elif (cables_not_loose_or_damaged == "loose"):
+
+                        print_responses(
+                            can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged)
+
+                        loose_cable = input(
+                            "Which cable is loose? Enter in format of 'beginning device and port > end device and port':\n")
+
+                        step_response_sentence = "Loose cable: " + loose_cable
+
+                        print_responses(
+                            can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged, loose_cable=loose_cable)
 
                         can_be_fixed = input(
-                            "\nCan the cable be pushed in or replaced? Enter “yes” or “no” to respond: ").lower().strip()
+                            "Can the cable be pushed in or replaced? Enter “yes” or “no” to respond: ").lower().strip()
 
                         if (can_be_fixed == "exit"):
 
                             step_response = "exit"
                             return
 
-                    if (can_be_fixed == "no"):
-                        step_response_sentence += "\nCable cannot be pushed in or replaced."
-                        self.good_cable_conditions = "no"
-                        self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be fixed or replaced."
-                        return
+                        while (can_be_fixed != "yes" and can_be_fixed != "no"):
+                            print(
+                                "Invalid response - 'yes' or 'no' was not entered.")
 
-                    if (can_be_fixed == "yes"):
-                        step_response_sentence += "\nJust fixed cabling."
-                        cables_not_loose_or_damaged = "yes"
-                        self.good_cable_conditions = "yes"
+                            can_be_fixed = input(
+                                "\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                            if (can_be_fixed == "exit"):
+
+                                step_response = "exit"
+                                return
+
+                        if (can_be_fixed == "no"):
+                            step_response_sentence += "\nCable cannot be pushed in or replaced."
+                            self.good_cable_conditions = "no"
+                            self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be fixed or replaced."
+
+                            print_responses(
+                                all_questions_answered="True", can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged, loose_cable=loose_cable, can_be_fixed=can_be_fixed)
+
+                            break
+
+                        elif (can_be_fixed == "yes"):
+                            step_response_sentence += "\nJust fixed cabling."
+                            cables_not_loose_or_damaged = "yes"
+                            self.good_cable_conditions = "yes"
+
+                            print_responses(
+                                can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged, loose_cable=loose_cable, can_be_fixed=can_be_fixed)
 
             self.set_troubleshooting_steps()
 
