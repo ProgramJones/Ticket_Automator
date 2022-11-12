@@ -1704,9 +1704,7 @@ class Ticket():
 
                         # if online_services_list contains "phone" or online_services_list contains "TV" and self.service == "fiber", assign ont_status variable to online.
                         if (("phone" in online_services_list or "tv" in online_services_list) and (self.service == "Fiber" and (self.category == "Connectivity" or self.category == "Intermittent Connectivity/Speed"))):
-                            step_response_sentence += (
-                                "\n\nONT is online, but there's no internet - Issue may be the router or some other device.")
-                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device."
+                            self.ticket_status = "Ticket Status:\nProblem not resolved yet. ONT is online, but there's no internet - Issue may be the router or some other device."
                             self.some_services_offline = True
                             self.ont_status = "online"
 
@@ -1715,7 +1713,7 @@ class Ticket():
 
                             self.set_troubleshooting_steps()
                         else:
-                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nOther services are working fine."
+                            self.ticket_status = "Ticket Status:\nProblem not resolved yet. Other services are working fine."
                             self.some_services_offline = True
 
                             print_responses(
@@ -1742,6 +1740,66 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
+            def print_responses(all_questions_answered=False, **kwargs):
+
+                nonlocal step_response_sentence
+
+                system.clear_prompt_or_terminal()
+
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+                print("\nAdding To Ticket:\n")
+
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
+
+                print("\n----------------------------------\n\n\n")
+
+                if "can_check_network_device_lights" in kwargs:
+                    if kwargs["can_check_network_device_lights"] == "yes":
+                        pass
+                    else:
+                        print("\nResponses:\n")
+
+                        if (len(kwargs) == 0):
+                            pass
+                        else:
+                            for key, value in kwargs.items():
+                                if (key == "can_check_network_device_lights"):
+                                    print(
+                                        "Can check network device lights: " + value)
+
+                        print("\n----------------------------------\n\n\n")
+
+                if (all_questions_answered == False):
+
+                    if "can_check_network_device_lights" in kwargs:
+                        if kwargs["can_check_network_device_lights"] == "yes":
+                            print(
+                                "Network device information will be displayed in the following example format:\n")
+                            print("Brand Name - Model Number\nPower: Green - Solid\nInternet: Green - Flashing\n2.4GHz: Green - Flashing\n5GHz: Green - Flashing" +
+                                  "\nEthernet: Off\n\n")
+
+                    print(
+                        "\nAnswer the following questions to add this step:\n\n\n")
+                else:
+                    print("All questions answered!\n\n\n")
+
+                    print("Adding step to ticket.",
+                          end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+
+                    print()
+
             def add_device(device=None):
                 nonlocal step_response
                 nonlocal step_response_sentence
@@ -1752,18 +1810,12 @@ class Ticket():
                 # general_internet_devices = [
                 #     "Main Router", "Additional Router", "Extender", "Switch", "Modem"]
 
-                system.clear_prompt_or_terminal()
-
-                print("\nEnter 'exit' at any time to exit prompt.\n\n")
-
-                print(
-                    "Network device information will be displayed in the following example format:\n")
-                print("Brand Name - Model Number\nPower: Green - Solid\nInternet: Green - Flashing\n2.4GHz: Green - Flashing\n5GHz: Green - Flashing" +
-                      "\nEthernet 1: Off\nEthernet 2: Green - Flashing\nEthernet 3: Off\nEthernet 4: Green - Solid\nUSB: Off\nWPS: Green - Solid")
+                print_responses(
+                    can_check_network_device_lights=self.can_check_network_device_lights)
 
                 if (device == None):
                     print(
-                        "\n\nWhat device is being checked? Enter in format of 'Brand Name – Model Number': ")
+                        "What device is being checked? Enter in format of 'Brand Name – Model Number': ")
 
                     device_brand_and_model = input(
                         "").strip()
@@ -1773,12 +1825,17 @@ class Ticket():
                         step_response = "exit"
                         return
 
+                    step_response_sentence = device_brand_and_model
+
+                    print_responses(
+                        can_check_network_device_lights=self.can_check_network_device_lights)
+
                     print(
-                        "\n\nWhich of the following device types best decribes this device: ")
+                        "Which of the following device types best decribes this device: ")
 
                     if (self.service == "Fiber"):
                         print(
-                            "\n\nMain Router\nAdditional Router\nExtender\nSwitch\nIndoor ONT\nONT/Router\n\n")
+                            "\nMain Router\nAdditional Router\nExtender\nSwitch\nIndoor ONT\nONT/Router\n\n")
 
                         device_type = input(
                             "Enter one of the above device types: ").strip()
@@ -1810,7 +1867,7 @@ class Ticket():
 
                     elif ((self.service in self.internet_services) and (self.service != "Fiber")):
                         print(
-                            "\n\nMain Router\nAdditional Router\nExtender\nSwitch\nModem\nModem/Router\n")
+                            "\nMain Router\nAdditional Router\nExtender\nSwitch\nModem\nModem/Router\n")
 
                         device_type = input(
                             "Enter one of the above device types: ").strip()
@@ -1839,8 +1896,12 @@ class Ticket():
                         {device_brand_and_model: device_type})
                 else:
                     device_brand_and_model = device
+                    step_response_sentence = device_brand_and_model
 
-                print("\n\nEnter “done” when all lights are documented.")
+                print_responses(
+                    can_check_network_device_lights=self.can_check_network_device_lights)
+
+                print("Enter “done” when all lights are documented.")
 
                 print(
                     "\nWhat’s the status of the lights? Enter status in format of 'Light Name: Color – Status': ")
@@ -1868,11 +1929,11 @@ class Ticket():
                         device_lights[-4:]).rstrip()
 
                 # Don't display a new line if device_lights is an empty string
-                if (len(device_lights) == 0):
-                    step_response_sentence = device_brand_and_model
-                else:
-                    step_response_sentence = device_brand_and_model + \
-                        "\n" + device_lights.rstrip()
+                if (len(device_lights) > 0):
+                    step_response_sentence += "\n" + device_lights.rstrip()
+
+                print_responses(
+                    all_questions_answered="True", can_check_network_device_lights=self.can_check_network_device_lights)
 
                 return step_response_sentence
 
@@ -1916,12 +1977,11 @@ class Ticket():
 
                     break
 
-                print(selected_key)
                 return selected_key
 
-            print("\nEnter 'exit' at any time to exit prompt.\n")
-
             if (self.can_check_network_device_lights == "no"):
+
+                print_responses()
 
                 self.can_check_network_device_lights = input(
                     "Can network devices be checked? Enter “yes” or “no” to respond: ").lower().strip()
@@ -1945,6 +2005,10 @@ class Ticket():
                 if (self.can_check_network_device_lights == "no"):
 
                     step_response_sentence = "No network devices can be checked."
+
+                    print_responses(all_questions_answered="True",
+                                    can_check_network_device_lights=self.can_check_network_device_lights)
+
                     return
 
             if (self.can_check_network_device_lights == "yes"):
