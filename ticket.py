@@ -3144,18 +3144,93 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
+            def print_responses(all_questions_answered=False, **kwargs):
+
+                nonlocal step_response_sentence
+
+                system.clear_prompt_or_terminal()
+
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+                print("\nAdding To Ticket:\n")
+
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
+
+                print("\n----------------------------------\n\n\n")
+
+                print("\nResponses:\n")
+
+                if (len(kwargs) == 0):
+                    pass
+                else:
+                    for key, value in kwargs.items():
+                        if (key == "device"):
+                            print(
+                                "Device: " + value)
+                        elif (key == "type_of_computer"):
+                            if (value == ""):
+                                pass
+                            else:
+                                print(
+                                    "Type of computer: " + value)
+                        elif (key == "name_of_device"):
+                            if ("computer" not in value and value != "mobile device" and value != "TV"):
+                                print(
+                                    "Name of device: " + value)
+                            else:
+                                pass
+                        elif (key == "how_device_is_connected"):
+                            if (value == "bypass"):
+                                print("Connected by: bypassing the main router")
+                            elif (value == "wire"):
+                                print("Connected by: wiring to a network device")
+                            elif (value == "wifi"):
+                                print("Connected by: wifi")
+                        elif (key == "name_of_wifi_network"):
+                            if (value == ""):
+                                pass
+                            else:
+                                print("WiFi network: " + value)
+                        elif (key == "is_internet_working"):
+                            print("Internet is working: " + value)
+                        elif (key == "ipv4_address"):
+                            print("IPv4 Address: " + value)
+                        elif (key == "default_gateway"):
+                            print("Default Gateway: " + value)
+                        elif (key == "device_has_internet_after_power_cycling"):
+                            if (value == ""):
+                                pass
+                            else:
+                                print("Internet after power cycling: " + value)
+
+                print("\n----------------------------------\n\n\n")
+
+                if (all_questions_answered == False):
+                    print(
+                        "\nAnswer the following questions to add this step:\n\n\n")
+                else:
+                    print("All questions answered!\n\n\n")
+
+                    print("Adding step to ticket.",
+                          end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+
+                    print()
+
             def check_computer_tv_mobile_or_other_device(device, bypassing_main_router=False):
-                # Device can be:
-                # mobile device
-                # computer
-                # tv
-                # other
 
                 nonlocal step_response
                 nonlocal step_response_sentence
-
-                # Variable for whether current device is online
-                # device_online = None
 
                 # Variable for whether device being checked is getting a non-self-assigned IP
                 # Set to none when checking a device since this value should be reset when checking a new device
@@ -3172,10 +3247,10 @@ class Ticket():
                         # Change prompt depending on if checking for IPv4 or DG
                         if (type_of_address == "IPv4"):
                             address = input(
-                                "\nWhat's the device's " + type_of_address + " address?\nEnter IPv4 address (or 'n/a' if can't find address): ").strip()
+                                "What's the device's " + type_of_address + " address?\nEnter IPv4 address (or 'n/a' if can't find address): ").strip()
                         elif (type_of_address == "default gateway" or type_of_address == "router"):
                             address = input(
-                                "\nWhat's the " + type_of_address + " IPv4 address?\nEnter IPv4 address (or 'n/a' if can't find address): ").strip()
+                                "What's the " + type_of_address + " IPv4 address?\nEnter IPv4 address (or 'n/a' if can't find address): ").strip()
 
                         if (address.lower() == "exit"):
                             step_response = "exit"
@@ -3187,12 +3262,15 @@ class Ticket():
                             ipaddress.IPv4Address(address)
                         except ValueError:
                             print("\n" + address +
-                                  " is not a valid IPv4 address.")
+                                  " is not a valid IPv4 address.\n")
                             continue
 
                         break
 
                     return address
+
+                if (device != "mobile device" and device != "tv"):
+                    print_responses(device=device)
 
                 # if device is a computer, verify what type of computer is being checked
                 type_of_computer = ""
@@ -3200,7 +3278,7 @@ class Ticket():
                 if (device == "computer"):
 
                     type_of_computer = input(
-                        "\nWhat kind of computer is being checked?\nEnter “Windows”, “Mac”, or “Linux” to respond: ").lower().strip()
+                        "What kind of computer is being checked?\nEnter “Windows”, “Mac”, or “Linux” to respond: ").lower().strip()
 
                     if (type_of_computer == "exit"):
 
@@ -3223,7 +3301,7 @@ class Ticket():
 
                 if (device == "other"):
                     name_of_device = input(
-                        "\nWhat's the name of the device?\nEnter the device name to respond: ")
+                        "What's the name of the device?\nEnter the device name to respond: ")
                     step_response_sentence = "Checking for internet on: " + name_of_device + " >\n"
                 else:
                     if (device == "tv"):
@@ -3234,12 +3312,15 @@ class Ticket():
                         name_of_device = device
                     step_response_sentence = "Checking for internet on a " + name_of_device + " >\n"
 
+                print_responses(
+                    device=device, type_of_computer=type_of_computer, name_of_device=name_of_device)
+
                 how_device_is_connected = ""
 
                 # if not checking for internet on a mobile device, determine how the device is connected to the internet?
-                if (device != "mobile device" or bypassing_main_router == False):
+                if (device != "mobile device" or bypassing_main_router == True):
                     how_device_is_connected = input(
-                        "\nIs the device bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
+                        "Is the device bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
 
                     if (how_device_is_connected == "exit"):
 
@@ -3258,14 +3339,24 @@ class Ticket():
                             step_response = "exit"
                             return
 
+                name_of_wifi_network = ""
+
                 # if device connects over WiFi, determine what WiFi network the device is connected to
                 if (how_device_is_connected == "wifi" or device == "mobile device"):
+                    how_device_is_connected = "wifi"
+
+                    print_responses(device=device, type_of_computer=type_of_computer,
+                                    name_of_device=name_of_device, how_device_is_connected=how_device_is_connected)
+
                     name_of_wifi_network = input(
-                        "\nWhat WiFi network is the device connected to?\nEnter name of WiFi network to respond: ").strip()
+                        "What WiFi network is the device connected to?\nEnter name of WiFi network to respond: ").strip()
+
+                print_responses(device=device, type_of_computer=type_of_computer,
+                                name_of_device=name_of_device, how_device_is_connected=how_device_is_connected, name_of_wifi_network=name_of_wifi_network)
 
                 # Check if internet is working
                 is_internet_working = input(
-                    "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+                    "Is the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
 
                 if (is_internet_working == "exit"):
 
@@ -3276,7 +3367,7 @@ class Ticket():
                     print("\nInvalid response - 'yes' or 'no' was not entered.")
 
                     is_internet_working = input(
-                        "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+                        "\nEnter 'yes' or 'no' to respond: ").lower().strip()
 
                     if (is_internet_working == "exit"):
 
@@ -3297,6 +3388,9 @@ class Ticket():
                         step_response_sentence += "\nInternet is working when connected to SSID of: " + \
                             name_of_wifi_network
 
+                    print_responses(all_questions_answered=True, device=device, type_of_computer=type_of_computer,
+                                    name_of_device=name_of_device, how_device_is_connected=how_device_is_connected, name_of_wifi_network=name_of_wifi_network, is_internet_working=is_internet_working)
+
                     self.devices_online = True
 
                 # if no, internet is not working, ask more probing questions:
@@ -3314,9 +3408,25 @@ class Ticket():
                         step_response_sentence += "\nNo internet when connected to SSID of: " + \
                             name_of_wifi_network
 
-                    # Prompt for IPv4 and router/default gateway address
+                    print_responses(device=device, type_of_computer=type_of_computer,
+                                    name_of_device=name_of_device, how_device_is_connected=how_device_is_connected,
+                                    name_of_wifi_network=name_of_wifi_network, is_internet_working=is_internet_working)
+
+                    # Prompt for IPv4 address
                     ipv4_address = prompt_for_address("IPv4")
 
+                    if (step_response == "exit"):
+                        return
+
+                    step_response_sentence += "\nIPv4 address: " + \
+                        ipv4_address
+
+                    print_responses(device=device, type_of_computer=type_of_computer,
+                                    name_of_device=name_of_device, how_device_is_connected=how_device_is_connected,
+                                    name_of_wifi_network=name_of_wifi_network, is_internet_working=is_internet_working,
+                                    ipv4_address=ipv4_address)
+
+                    # Prompt for router/default gateway address
                     if (device == "computer" and type_of_computer == "mac"):
                         default_gateway = prompt_for_address("router")
                     else:
@@ -3325,12 +3435,15 @@ class Ticket():
                     if (step_response == "exit"):
                         return
 
-                    step_response_sentence += "\nIPv4 address: " + \
-                        ipv4_address
                     step_response_sentence += "\nDefault Gateway: " + \
                         default_gateway
 
                     self.device_has_valid_ip_but_no_internet = True
+
+                    print_responses(device=device, type_of_computer=type_of_computer,
+                                    name_of_device=name_of_device, how_device_is_connected=how_device_is_connected,
+                                    name_of_wifi_network=name_of_wifi_network, is_internet_working=is_internet_working,
+                                    ipv4_address=ipv4_address, default_gateway=default_gateway)
 
                     # if device's IPv4 address is self-assigned, inform there's a self-assigned IP and/or manually renew the IP address
                     if (ipv4_address.startswith("169.254.")):
@@ -3342,48 +3455,63 @@ class Ticket():
                         elif (device == "computer"):
                             # Advise to renew IP address
                             print(
-                                "\nDevice's self assigned IPv4 address will not work\nFollow these instructions to renew the IP address:\n")
+                                "Device's self assigned IPv4 address will not work\nFollow these instructions to renew the IP address:\n")
 
                             if (type_of_computer == "windows"):
                                 # Show instructions for renewing IP on Windows
                                 print("On Windows: \n1. Open Command Prompt")
                                 print(
-                                    "2. Run 'ipconfig /release' to release the current IP \n3. Run 'ipconfig /renew' to renew the IP")
+                                    "2. Run 'ipconfig /release' to release the current IP \n3. Run 'ipconfig /renew' to renew the IP\n\n")
 
                             elif (type_of_computer == "mac"):
                                 # Show instructions for renewing IP on Mac
                                 print("On macOS: \n1. Open System Preferences")
                                 print(
-                                    "2. Select 'Network' \n3. Select current interface \n4. Select 'Details' \n5. Select 'TCP/IP' \n6. Select 'Renew DHCP Lease'")
+                                    "2. Select 'Network' \n3. Select current interface \n4. Select 'Details' \n5. Select 'TCP/IP' \n6. Select 'Renew DHCP Lease'\n\n")
 
                                 # Show instructions for renewing IP on older versions of Mac
                                 print(
                                     "\nOn older versions of macOS: \n1. Open System Preferences")
                                 print(
-                                    "2. Select 'Network' \n3. Select current interface \n4. Select 'Advanced' \n5. Select 'TCP/IP' \n6. Select 'Renew DHCP Lease'")
+                                    "2. Select 'Network' \n3. Select current interface \n4. Select 'Advanced' \n5. Select 'TCP/IP' \n6. Select 'Renew DHCP Lease'\n\n")
 
                             elif (type_of_computer == "linux"):
                                 # Show instructions for renewing IP on Linux
                                 print(
                                     "On Linux: \n1. Press CTRL+ALT+T to launch Terminal")
                                 print(
-                                    "2. Run 'sudo dhclient – r' to release the current IP \n3. Run 'sudo dhclient' to renew the IP")
+                                    "2. Run 'sudo dhclient – r' to release the current IP \n3. Run 'sudo dhclient' to renew the IP\n\n")
 
                             print()
 
-                            # Prompt for IPv4 and router/default gateway address
+                            ipv4_address = ""
+                            default_gateway = ""
+
+                            # Prompt for IPv4 address
                             ipv4_address = prompt_for_address("IPv4")
 
+                            if (step_response == "exit"):
+                                return
+
+                            step_response_sentence += "\n\nReleased and renewed IP addresses on " + \
+                                name_of_device + "."
+                            step_response_sentence += "\nIPv4 address: " + ipv4_address
+
+                            print_responses(device=device, type_of_computer=type_of_computer,
+                                            name_of_device=name_of_device, how_device_is_connected=how_device_is_connected,
+                                            name_of_wifi_network=name_of_wifi_network, is_internet_working=is_internet_working,
+                                            ipv4_address=ipv4_address)
+
+                            # Prompt for router/default gateway address
                             if (type_of_computer == "mac"):
                                 default_gateway = prompt_for_address("router")
                             else:
                                 default_gateway = prompt_for_address(
                                     "default gateway")
 
-                            # Display results of releasing/renewing IP addresses
-                            step_response_sentence += "\n\nReleased and renewed IP addresses on " + \
-                                name_of_device + "."
-                            step_response_sentence += "\nIPv4 address: " + ipv4_address
+                            if (step_response == "exit"):
+                                return
+
                             step_response_sentence += "\nDefault Gateway: " + default_gateway
 
                             # if there's still a self-assigned IPv4 address
@@ -3392,13 +3520,23 @@ class Ticket():
 
                                 step_response_sentence += "\n\nDevice is still getting a self assigned IPv4 address."
 
+                                print_responses(device=device, type_of_computer=type_of_computer,
+                                                name_of_device=name_of_device, how_device_is_connected=how_device_is_connected,
+                                                name_of_wifi_network=name_of_wifi_network, is_internet_working=is_internet_working,
+                                                ipv4_address=ipv4_address, default_gateway=default_gateway)
+
                             # if there's a non-self-assigned IPv4 address, ask if the internet is working
                             elif (not (ipv4_address.startswith("169.254."))):
                                 device_has_self_assigned_ip == False
 
+                                print_responses(device=device, type_of_computer=type_of_computer,
+                                                name_of_device=name_of_device, how_device_is_connected=how_device_is_connected,
+                                                name_of_wifi_network=name_of_wifi_network, is_internet_working=is_internet_working,
+                                                ipv4_address=ipv4_address, default_gateway=default_gateway)
+
                                 # Check if internet is working
                                 is_internet_working = input(
-                                    "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+                                    "Is the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
 
                                 if (is_internet_working == "exit"):
 
@@ -3410,7 +3548,7 @@ class Ticket():
                                         "\nInvalid response - 'yes' or 'no' was not entered.")
 
                                     is_internet_working = input(
-                                        "\nIs the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
+                                        "\nEnter 'yes' or 'no' to respond: ").lower().strip()
 
                                     if (is_internet_working == "exit"):
 
@@ -3420,6 +3558,12 @@ class Ticket():
                                 # if internet is working, mention that and leave the function
                                 if (is_internet_working == "yes"):
                                     step_response_sentence += "\n\nInternet working now."
+
+                                    print_responses(all_questions_answered=True, device=device, type_of_computer=type_of_computer,
+                                                    name_of_device=name_of_device, how_device_is_connected=how_device_is_connected,
+                                                    name_of_wifi_network=name_of_wifi_network,
+                                                    ipv4_address=ipv4_address, default_gateway=default_gateway, is_internet_working=is_internet_working)
+
                                     return
 
                                 # if internet is not working, assign self.device_has_valid_ip_but_no_internet = True
@@ -3428,10 +3572,17 @@ class Ticket():
 
                                     step_response_sentence += "\n\nInternet still not working even with non-self-assigned IP address."
 
+                                    print_responses(device=device, type_of_computer=type_of_computer,
+                                                    name_of_device=name_of_device, how_device_is_connected=how_device_is_connected,
+                                                    name_of_wifi_network=name_of_wifi_network,
+                                                    ipv4_address=ipv4_address, default_gateway=default_gateway, is_internet_working=is_internet_working)
+
+                    device_has_internet_after_power_cycling = ""
+
                     # if there's no internet after manually renewing IPv4 address and devices besides this device are online, power cycle this device
                     if (self.devices_online == True and (device_has_self_assigned_ip == True or self.device_has_valid_ip_but_no_internet == True)):
                         device_has_internet_after_power_cycling = input(
-                            "\nIs the internet working after power cycling the devive?\nEnter 'yes' or 'no': ").lower().strip()
+                            "Is the internet working after power cycling the devive?\nEnter 'yes' or 'no': ").lower().strip()
 
                         if (device_has_internet_after_power_cycling == "exit"):
 
@@ -3461,7 +3612,11 @@ class Ticket():
 
                             step_response_sentence += "\n\nInternet still not working even after power cycling device.\nReferred to OEM/local tech."
 
-            print("\nEnter 'exit' at any time to exit prompt.\n\n")
+                    print_responses(all_questions_answered=True, device=device, type_of_computer=type_of_computer,
+                                    name_of_device=name_of_device, how_device_is_connected=how_device_is_connected,
+                                    name_of_wifi_network=name_of_wifi_network,
+                                    ipv4_address=ipv4_address, default_gateway=default_gateway, is_internet_working=is_internet_working,
+                                    device_has_internet_after_power_cycling=device_has_internet_after_power_cycling)
 
             # # if only some devices are online
             # if (self.devices_online == True and self.devices_offline == True):
@@ -3480,10 +3635,12 @@ class Ticket():
 
             # In any other case, check for internet on a phone, computer, TV or other device.
             else:
-                # if True
+
+                print_responses()
+
                 # Ask if checking for internet on a phone, computer, TV or other device.
                 check_which_device = input(
-                    "\nWhat device is being checked for internet?\nEnter 'Mobile Device', 'Computer', 'TV', or 'Other' to respond: ").lower().strip()
+                    "What device is being checked for internet?\nEnter 'Mobile Device', 'Computer', 'TV', or 'Other' to respond: ").lower().strip()
 
                 if (check_which_device == "exit"):
 
@@ -3492,10 +3649,10 @@ class Ticket():
 
                 while (check_which_device != "mobile device" and check_which_device != "computer" and check_which_device != "tv" and check_which_device != "other"):
                     print(
-                        "Invalid response - Neither 'Mobile Device', 'Computer', 'TV', 'Other' were entered.")
+                        "\nInvalid response - Neither 'Mobile Device', 'Computer', 'TV', 'Other' were entered.")
 
                     check_which_device = input(
-                        "\nWhat device is being checked for internet?\nEnter 'Mobile Device', 'Computer', 'TV', or 'Other' to respond: ").lower().strip()
+                        "\nEnter 'Mobile Device', 'Computer', 'TV', or 'Other' to respond: ").lower().strip()
 
                     if (check_which_device == "exit"):
 
@@ -5195,6 +5352,7 @@ class Ticket():
 
         # if user enters 'end', end the program
         elif (ticket_command_choice == "end"):
+            system.clear_prompt_or_terminal()
             os.sys.exit(0)
 
     def create_ticket(self):
