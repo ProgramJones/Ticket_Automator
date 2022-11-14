@@ -987,9 +987,9 @@ class Ticket():
         # self.ticket_status = "Ticket Status: Problem not resolved yet."
         # self.ticket_status = "Ticket Status: Problem resolved.\n" + (More specific message based on what troubleshooting step resolved issue)
         # self.ticket_status = "Ticket Status: Escalating problem to a higher level is required to solve the problem."
-        print(self.ticket_status)
 
-        print("\n\n")
+        if (self.toggle_steps == "Recommended Steps"):
+            print(self.ticket_status + "\n\n\n")
 
         self.print_troubleshooting_steps()
 
