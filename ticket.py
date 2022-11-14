@@ -30,7 +30,6 @@ class Ticket():
         self.recommended_troubleshooting_steps = []
         self.troubleshooting_steps = []
         self.diagnostic_questions = []
-        self.can_check_network_device_lights = "no"
 
         # Contains all the network devices from check_each_network_device | check_network_devices_for_internet logic can be based off this attribute
         self.network_devices = {}
@@ -81,6 +80,11 @@ class Ticket():
         self.additional_routers = []
         self.extenders = []
         self.switches = []
+
+        self.can_check_network_device_lights = None
+        self.can_check_cabling = None
+
+        self.cables_in_correct_ports = None
 
         # Variable for whether device being checked is getting a non-self-assigned IP
         # Used when checking devices
@@ -567,23 +571,20 @@ class Ticket():
                             "Check each network device’s name, model, and lights.")
                         self.recommended_troubleshooting_steps[0].append(
                             "Check cabling.")
-                        self.recommended_troubleshooting_steps[0].append(
-                            "Check if cables are in the correct ports.")
 
-                    elif ((self.correct_ports == "yes" or self.correct_ports == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 5):
-                        self.recommended_troubleshooting_steps[0].append(
-                            "Check cable conditions.")
-
-                    elif ((self.good_cable_conditions == "yes" or self.good_cable_conditions == "n/a") and len(self.recommended_troubleshooting_steps[0]) == 6):
+                    elif (self.can_check_cabling != None and self.can_check_network_device_lights != None and len(self.recommended_troubleshooting_steps[0]) == 4):
                         self.recommended_troubleshooting_steps[0].append(
                             "Power cycle all network devices.")
+
+                        # ATTENTION: I don't need the above two cable variables.
+                        # Just see if the cabling function ended successfully or if cables can't be put in correct ports
 
                     # Branching from the 'power_cycle' function
                     #
                     # ONT status unknown | No equipment could be power cycled
                     elif ((self.only_service_offline == True) and (self.power_cycled == "no")):
 
-                        if (len(self.recommended_troubleshooting_steps[0]) == 7):
+                        if (len(self.recommended_troubleshooting_steps[0]) == 5):
                             # Might be better to see if we can bypass, and only check the ONT if we can't bypass
                             self.recommended_troubleshooting_steps[0].append(
                                 "Check ONT.")
@@ -597,29 +598,29 @@ class Ticket():
                     # ONT is online | Equipment power cycled
                     elif (self.power_cycled == "yes"):
 
-                        if (len(self.recommended_troubleshooting_steps[0]) == 7):
+                        if (len(self.recommended_troubleshooting_steps[0]) == 5):
                             self.recommended_troubleshooting_steps[0].append(
                                 "Check each network device’s name, model, and lights.")
                             self.recommended_troubleshooting_steps[0].append(
                                 "Check network devices for internet.")
 
                         # END of branch - Main router offline | Third party
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 9 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "third party" and
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 7 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "third party" and
                               self.main_router["can_bypass"] == "no"
                               ):
                             self.ticket_status = "Ticket Status: Problem should be referred to a third party.\nThe main router is offline and can't be bypassed."
 
                         # END of branch - Main router offline | service provider
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 9 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "service provider" and
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 7 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "service provider" and
                               self.main_router["can_bypass"] == "no"
                               ):
                             self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe main router is offline and can't be bypassed."
 
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 9 and (self.main_router["status"] == "online" or (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"))):
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 7 and (self.main_router["status"] == "online" or (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"))):
                             self.recommended_troubleshooting_steps[0].append(
                                 "Check a device for internet.")
 
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 10 and (self.device_has_valid_ip_but_no_internet == True and self.devices_online == False)):
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 8 and (self.device_has_valid_ip_but_no_internet == True and self.devices_online == False)):
                             self.recommended_troubleshooting_steps[0].append(
                                 "Run ping tests on a computer.")
 
@@ -1983,7 +1984,7 @@ class Ticket():
 
                 return selected_key
 
-            if (self.can_check_network_device_lights == "no"):
+            if (self.can_check_network_device_lights == "no" or self.can_check_network_device_lights == None):
 
                 print_responses()
 
@@ -2091,7 +2092,7 @@ class Ticket():
 
                         del self.network_devices[device_to_remove]
 
-        def check_cabling(can_be_checked="yes", checking_again="no"):
+        def check_cabling():
             nonlocal step_response
             nonlocal step_response_sentence
 
@@ -2112,14 +2113,60 @@ class Ticket():
 
                 print("\n----------------------------------\n\n\n")
 
+                if "checking_cabling" not in kwargs:
+
+                    print("\nResponses:\n")
+
+                    if (len(kwargs) == 0):
+                        pass
+                    else:
+                        for key, value in kwargs.items():
+                            if (key == "can_check_cabling"):
+                                print(
+                                    "Can check cabling: " + value)
+                            elif (key == "correct_ports"):
+                                print(
+                                    "Cables in correct ports: " + value)
+                            elif (key == "can_be_corrected"):
+                                if (value == ""):
+                                    pass
+                                else:
+                                    print(
+                                        "Cables can be put in correct ports: " + value)
+                            elif (key == "cables_not_loose_or_damaged"):
+                                if (value == "yes"):
+                                    print(
+                                        "Cables not loose or damaged: " + value)
+                                elif (value == "damaged"):
+                                    print(
+                                        "Damaged cable: Yes")
+                                elif (value == "loose"):
+                                    print(
+                                        "Loose cable: Yes")
+                            elif (key == "can_be_replaced"):
+                                if (value == "no"):
+                                    print(
+                                        "Cable can be replaced: " + value)
+                                else:
+                                    pass
+                            elif (key == "can_be_fixed"):
+                                if (value == "no"):
+                                    print(
+                                        "Cable can be fixed: " + value)
+                                else:
+                                    pass
+
+                    print("\n----------------------------------\n\n\n")
+
                 if (all_questions_answered == False):
 
-                    if "checking_again" in kwargs:
-                        print(
-                            "Cabling will be displayed in the following example format:\n")
-                        print(
-                            "wall jack > Router WAN port\nRouter ETH 2 port > Mesh router WAN port\nRouter ETH 4 port > Computer ETH port\n")
-                    elif "can_be_checked" in kwargs:
+                    if "checking_cabling" in kwargs:
+                        if (kwargs["checking_cabling"] == True):
+                            print(
+                                "Cabling will be displayed in the following example format:\n")
+                            print(
+                                "wall jack > Router WAN port\nRouter ETH 2 port > Mesh router WAN port\nRouter ETH 4 port > Computer ETH port\n")
+                    elif "checking_cabling" not in kwargs:
                         print(
                             "\nAnswer the following questions to add this step:\n\n\n")
                 else:
@@ -2138,42 +2185,12 @@ class Ticket():
 
                     print()
 
-            if (checking_again == "no"):
-                print_responses(can_be_checked=can_be_checked)
+            def check_cable_connections():
 
-                # See if cabling can be checked
-                can_be_checked = input(
-                    "Can cabling be checked? Enter “yes” or “no” to respond: ").lower().strip()
+                nonlocal step_response
+                nonlocal step_response_sentence
 
-                if (can_be_checked == "exit"):
-
-                    step_response = "exit"
-                    return
-
-                while (can_be_checked != "yes" and can_be_checked != "no"):
-                    print("Invalid response - 'yes' or 'no' was not entered.")
-
-                    can_be_checked = input(
-                        "\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                    if (can_be_checked == "exit"):
-
-                        step_response = "exit"
-                        return
-
-            # if cabling cannot be checked, mention that and do nothing else
-            if ((can_be_checked == "no")):
-                step_response_sentence = "Cabling cannot be checked."
-
-                print_responses(
-                    all_questions_answered="True", can_be_checked=can_be_checked)
-
-                return
-
-            # if cabling can be checked, mention that and ask probing questions
-            elif ((can_be_checked == "yes") or (checking_again == "yes")):
-
-                print_responses(checking_again=checking_again)
+                print_responses(checking_cabling=True)
 
                 print("\n\nEnter “done” when all cabling is documented.")
 
@@ -2202,108 +2219,16 @@ class Ticket():
 
                     step_response_sentence += cabling.rstrip()
 
-                print_responses(
-                    all_questions_answered="True", checking_again=checking_again)
+            def check_cable_ports():
 
-        def check_cable_ports():
-
-            # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be switched to the correct ports."
-            # - Show Steps: None
-            # - Condition: Cabling can't be moved to correct ports
-            # self.correct_ports == "yes", or "n/a"
-            # - Show Steps: "Check cable conditions."
-            # - Condition: Cabling can be moved to correct ports, cabling can't be checked, cabling aready in correct ports
-            nonlocal step_response
-            nonlocal step_response_sentence
-
-            def print_responses(all_questions_answered=False, **kwargs):
-
+                nonlocal step_response
                 nonlocal step_response_sentence
 
-                system.clear_prompt_or_terminal()
+                nonlocal correct_ports
+                nonlocal can_be_corrected
 
-                print("\nEnter 'exit' at any time to exit prompt.\n\n")
-
-                print("\nAdding To Ticket:\n")
-
-                if (step_response_sentence == ""):
-                    pass
-                else:
-                    print(step_response_sentence)
-
-                print("\n----------------------------------\n\n\n")
-
-                print("\nResponses:\n")
-
-                if (len(kwargs) == 0):
-                    pass
-                else:
-                    for key, value in kwargs.items():
-                        if (key == "can_be_checked"):
-                            print(
-                                "Can check cable ports: " + value)
-                        elif (key == "correct_ports"):
-                            print(
-                                "Cables in correct ports: " + value)
-                        elif (key == "can_be_corrected"):
-                            print(
-                                "Cabling can be corrected: " + value)
-
-                print("\n----------------------------------\n\n\n")
-
-                if (all_questions_answered == False):
-                    print(
-                        "\nAnswer the following questions to add this step:\n\n\n")
-                else:
-                    print("All questions answered!\n\n\n")
-
-                    print("Adding step to ticket.",
-                          end="", flush=True)
-
-                    time.sleep(.70)
-                    print(".", end="", flush=True)
-
-                    time.sleep(.70)
-                    print(".", end="", flush=True)
-
-                    time.sleep(.70)
-
-                    print()
-
-            print_responses()
-
-            # See if cable ports can be checked
-            can_be_checked = input(
-                "Can cable ports be checked? Enter “yes” or “no” to respond: ").lower().strip()
-
-            if (can_be_checked == "exit"):
-
-                step_response = "exit"
-                return
-
-            while (can_be_checked != "yes" and can_be_checked != "no"):
-                print("Invalid response - 'yes' or 'no' was not entered.")
-
-                can_be_checked = input(
-                    "\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                if (can_be_checked == "exit"):
-
-                    step_response = "exit"
-                    return
-
-            # if cable ports cannot be checked, mention that and do nothing else
-            if (can_be_checked == "no"):
-                step_response_sentence = "Cable ports cannot be checked."
-                self.correct_ports = "n/a"
-
-                print_responses(all_questions_answered="True",
-                                can_be_checked=can_be_checked)
-
-            # if cable ports can be checked, mention that and ask probing questions
-            elif (can_be_checked == "yes"):
-
-                print_responses(can_be_checked=can_be_checked)
+                print_responses(
+                    can_check_cabling=self.can_check_cabling)
 
                 correct_ports = input(
                     "Are all cables in the correct ports? Enter “yes” or “no” to respond: ").lower().strip()
@@ -2320,17 +2245,17 @@ class Ticket():
                         return
 
                 if (correct_ports == "yes"):
-                    step_response_sentence = "Cables are in the correct ports."
+                    step_response_sentence += "\n\nCables are in the correct ports."
                     self.correct_ports = "yes"
 
-                    print_responses(can_be_checked=can_be_checked,
+                    print_responses(can_check_cabling=self.can_check_cabling,
                                     correct_ports=correct_ports)
 
                 elif (correct_ports == "no"):
 
-                    step_response_sentence = "Cables are not in the correct ports."
+                    step_response_sentence += "\nCables are not in the correct ports."
 
-                    print_responses(can_be_checked=can_be_checked,
+                    print_responses(can_check_cabling=self.can_check_cabling,
                                     correct_ports=correct_ports)
 
                     can_be_corrected = input(
@@ -2351,132 +2276,37 @@ class Ticket():
                         step_response_sentence += "\nCables moved to the correct ports.\n\n"
                         self.correct_ports = "yes"
 
-                        print_responses(all_questions_answered="True", can_be_checked=can_be_checked,
-                                        correct_ports=correct_ports, can_be_corrected=can_be_corrected)
+                        check_cable_connections()
 
-                        check_cabling("yes", "yes")
                     elif (can_be_corrected == "no"):
-                        step_response_sentence += "\nCables can't be moved to the correct ports."
+                        self.cables_in_correct_ports = False
                         self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be switched to the correct ports."
 
-                        print_responses(all_questions_answered="True", can_be_checked=can_be_checked,
-                                        correct_ports=correct_ports, can_be_corrected=can_be_corrected)
+                        step_response_sentence += "\nCables can't be moved to the correct ports."
 
-            self.set_troubleshooting_steps()
+                        print_responses(
+                            all_questions_answered=True, can_check_cabling=self.can_check_cabling,
+                            correct_ports=correct_ports, can_be_corrected=can_be_corrected)
 
-        def check_cable_conditions():
+                        return
 
-            # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be fixed or replaced."
-            # self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be replaced."
-            # - Show Steps: None
-            # - Condition: Cabling can't be replaced (damaged cables), Cabling can't be fixed or replaced (loose cables)
-            # self.good_cable_conditions == "yes", or "n/a"
-            # - Show Steps: "Power cycle all network devices."
-            # - Condition: Cables fixed or replaced, cabling can't be checked, cables aready secure with no damage
-            nonlocal step_response
-            nonlocal step_response_sentence
+            def check_cable_conditions():
 
-            def print_responses(all_questions_answered=False, **kwargs):
-
+                nonlocal step_response
                 nonlocal step_response_sentence
 
-                system.clear_prompt_or_terminal()
+                nonlocal correct_ports
+                nonlocal can_be_corrected
 
-                print("\nEnter 'exit' at any time to exit prompt.\n\n")
-
-                print("\nAdding To Ticket:\n")
-
-                if (step_response_sentence == ""):
-                    pass
-                else:
-                    print(step_response_sentence)
-
-                print("\n----------------------------------\n\n\n")
-
-                print("\nResponses:\n")
-
-                if (len(kwargs) == 0):
-                    pass
-                else:
-                    for key, value in kwargs.items():
-                        if (key == "can_be_checked"):
-                            print(
-                                "Can check cable conditions: " + value)
-                        elif (key == "cables_not_loose_or_damaged"):
-                            if (value == "yes"):
-                                print(
-                                    "Cables not loose or damaged: " + value)
-                            elif (value == "damaged"):
-                                print(
-                                    "Damaged cable: Yes")
-                            elif (value == "loose"):
-                                print(
-                                    "Loose cable: Yes")
-                        elif (key == "can_be_replaced"):
-                            print(
-                                "Cable can be replaced: " + value)
-                        elif (key == "can_be_fixed"):
-                            print(
-                                "Cable can be fixed: " + value)
-
-                print("\n----------------------------------\n\n\n")
-
-                if (all_questions_answered == False):
-                    print(
-                        "\nAnswer the following questions to add this step:\n\n\n")
-                else:
-                    print("All questions answered!\n\n\n")
-
-                    print("Adding step to ticket.",
-                          end="", flush=True)
-
-                    time.sleep(.70)
-                    print(".", end="", flush=True)
-
-                    time.sleep(.70)
-                    print(".", end="", flush=True)
-
-                    time.sleep(.70)
-
-                    print()
-
-            print_responses()
-
-            # See if cable ports can be checked
-            can_be_checked = input(
-                "Can cable conditions be checked? Enter “yes” or “no” to respond: ").lower().strip()
-
-            if (can_be_checked == "exit"):
-
-                step_response = "exit"
-                return
-
-            while (can_be_checked != "yes" and can_be_checked != "no"):
-                print("Invalid response - 'yes' or 'no' was not entered.")
-
-                can_be_checked = input(
-                    "\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                if (can_be_checked == "exit"):
-
-                    step_response = "exit"
-                    return
-
-            # if cable conditions cannot be checked, mention that and do nothing else
-            if (can_be_checked == "no"):
-                step_response_sentence = "Cable conditions cannot be checked."
-                self.good_cable_conditions = "n/a"
-
-                print_responses(all_questions_answered="True",
-                                can_be_checked=can_be_checked)
-
-            # if cable conditions can be checked, mention that and ask probing questions
-            elif (can_be_checked == "yes"):
+                nonlocal cables_not_loose_or_damaged
+                nonlocal can_be_replaced
+                nonlocal can_be_fixed
 
                 while (True):
 
                     print_responses(
-                        can_be_checked=can_be_checked)
+                        can_check_cabling=self.can_check_cabling,
+                        correct_ports=correct_ports, can_be_corrected=can_be_corrected)
 
                     cables_not_loose_or_damaged = input(
                         "Are all cables secure and tight on all ends with no visible damage?\nEnter “yes”, “damaged”, or “loose” to respond: ").lower().strip()
@@ -2499,26 +2329,27 @@ class Ticket():
                             return
 
                     if (cables_not_loose_or_damaged == "yes"):
-                        step_response_sentence = "All cables secure with no visible damage."
+                        step_response_sentence += "\n\nAll cables secure with no visible damage."
                         self.good_cable_conditions = "yes"
-
-                        print_responses(all_questions_answered="True",
-                                        can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged)
 
                         break
 
                     elif (cables_not_loose_or_damaged == "damaged"):
 
                         print_responses(
-                            can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged)
+                            can_check_cabling=self.can_check_cabling,
+                            correct_ports=correct_ports, can_be_corrected=can_be_corrected,
+                            cables_not_loose_or_damaged=cables_not_loose_or_damaged)
 
                         damaged_cable = input(
                             "Which cable is damaged? Enter in format of 'beginning device and port > end device and port':\n")
 
-                        step_response_sentence = "Damaged cable: " + damaged_cable
+                        step_response_sentence += "\n\nDamaged cable: " + damaged_cable
 
                         print_responses(
-                            can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged, damaged_cable=damaged_cable)
+                            can_check_cabling=self.can_check_cabling,
+                            correct_ports=correct_ports, can_be_corrected=can_be_corrected,
+                            cables_not_loose_or_damaged=cables_not_loose_or_damaged)
 
                         can_be_replaced = input(
                             "Can the cable be replaced? Enter “yes” or “no” to respond: ").lower().strip()
@@ -2545,9 +2376,6 @@ class Ticket():
                             self.good_cable_conditions = "no"
                             self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be replaced."
 
-                            print_responses(
-                                all_questions_answered="True", can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged, damaged_cable=damaged_cable, can_be_replaced=can_be_replaced)
-
                             break
 
                         elif (can_be_replaced == "yes"):
@@ -2555,21 +2383,22 @@ class Ticket():
                             cables_not_loose_or_damaged = "yes"
                             self.good_cable_conditions = "yes"
 
-                            print_responses(
-                                can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged, damaged_cable=damaged_cable, can_be_replaced=can_be_replaced)
-
                     elif (cables_not_loose_or_damaged == "loose"):
 
                         print_responses(
-                            can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged)
+                            can_check_cabling=self.can_check_cabling,
+                            correct_ports=correct_ports, can_be_corrected=can_be_corrected,
+                            cables_not_loose_or_damaged=cables_not_loose_or_damaged)
 
                         loose_cable = input(
                             "Which cable is loose? Enter in format of 'beginning device and port > end device and port':\n")
 
-                        step_response_sentence = "Loose cable: " + loose_cable
+                        step_response_sentence += "\n\nLoose cable: " + loose_cable
 
                         print_responses(
-                            can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged, loose_cable=loose_cable)
+                            can_check_cabling=self.can_check_cabling,
+                            correct_ports=correct_ports, can_be_corrected=can_be_corrected,
+                            cables_not_loose_or_damaged=cables_not_loose_or_damaged)
 
                         can_be_fixed = input(
                             "Can the cable be pushed in or replaced? Enter “yes” or “no” to respond: ").lower().strip()
@@ -2596,9 +2425,6 @@ class Ticket():
                             self.good_cable_conditions = "no"
                             self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be fixed or replaced."
 
-                            print_responses(
-                                all_questions_answered="True", can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged, loose_cable=loose_cable, can_be_fixed=can_be_fixed)
-
                             break
 
                         elif (can_be_fixed == "yes"):
@@ -2606,10 +2432,72 @@ class Ticket():
                             cables_not_loose_or_damaged = "yes"
                             self.good_cable_conditions = "yes"
 
-                            print_responses(
-                                can_be_checked=can_be_checked, cables_not_loose_or_damaged=cables_not_loose_or_damaged, loose_cable=loose_cable, can_be_fixed=can_be_fixed)
+            # See if cabling can be checked
+            if (self.can_check_cabling == "no" or self.can_check_cabling == None):
+                print_responses(can_be_checked=self.can_check_cabling)
 
-            self.set_troubleshooting_steps()
+                # See if cabling can be checked
+                self.can_check_cabling = input(
+                    "Can cabling be checked? Enter “yes” or “no” to respond: ").lower().strip()
+
+                if (self.can_check_cabling == "exit"):
+
+                    step_response = "exit"
+                    return
+
+                while (self.can_check_cabling != "yes" and self.can_check_cabling != "no"):
+                    print("Invalid response - 'yes' or 'no' was not entered.")
+
+                    self.can_check_cabling = input(
+                        "\nEnter “yes” or “no” to respond: ").lower().strip()
+
+                    if (self.can_check_cabling == "exit"):
+
+                        step_response = "exit"
+                        return
+
+            # if cabling cannot be checked, mention that and do nothing else
+            if (self.can_check_cabling == "no"):
+                step_response_sentence = "Cabling cannot be checked."
+
+                print_responses(
+                    all_questions_answered="True", can_check_cabling=self.can_check_cabling)
+
+                return
+
+            # if cabling can be checked, mention that and ask probing questions
+            elif (self.can_check_cabling == "yes"):
+
+                correct_ports = ""
+
+                # In print_responses, there's simple 'pass' condition when value is never changed
+                can_be_corrected = ""
+
+                cables_not_loose_or_damaged = ""
+
+                # In print_responses, there's simple 'pass' conditions when values are never changed
+                can_be_replaced = ""
+                can_be_fixed = ""
+
+                self.cables_in_correct_ports = None
+
+                check_cable_connections()
+
+                check_cable_ports()
+
+                if (self.cables_in_correct_ports == False):
+                    self.set_troubleshooting_steps()
+                    return
+
+                check_cable_conditions()
+
+                # Edit this to account for all variables in all three functions
+                print_responses(
+                    all_questions_answered=True, can_check_cabling=self.can_check_cabling,
+                    correct_ports=correct_ports, can_be_corrected=can_be_corrected,
+                    cables_not_loose_or_damaged=cables_not_loose_or_damaged, can_be_replaced=can_be_replaced, can_be_fixed=can_be_fixed)
+
+                self.set_troubleshooting_steps()
 
         def power_cycle():
 
@@ -4754,14 +4642,6 @@ class Ticket():
         elif (step == "Check cabling."):
             system.clear_prompt_or_terminal()
             check_cabling()
-
-        elif (step == "Check if cables are in the correct ports."):
-            system.clear_prompt_or_terminal()
-            check_cable_ports()
-
-        elif (step == "Check cable conditions."):
-            system.clear_prompt_or_terminal()
-            check_cable_conditions()
 
         elif (step == "Power cycle all network devices."):
             system.clear_prompt_or_terminal()
