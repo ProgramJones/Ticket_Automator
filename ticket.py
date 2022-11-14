@@ -3697,8 +3697,49 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("\nEnter 'exit' at any time to exit prompt.\n\n")
-            print("\nNOTE:\nSpeeds are most accurate when bypassing the main router.\nIf main router can't be bypassed, wiring to a network device is second best.\nIf a device can't be wired at all, it's okay to use 5G WiFi or 2.4G if there's no 5G.\n\n")
+            def print_responses(all_questions_answered=False, running_pings=False):
+
+                nonlocal step_response_sentence
+
+                system.clear_prompt_or_terminal()
+
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+                print("\nNOTE:\nSpeeds are most accurate when bypassing the main router.\nIf main router can't be bypassed, wiring to a network device is second best.\nIf a device can't be wired at all, it's okay to use 5G WiFi or 2.4G if there's no 5G.\n\n")
+
+                print("\nAdding To Ticket:\n")
+
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
+
+                print("\n----------------------------------\n\n\n")
+
+                if (all_questions_answered == False):
+                    if (running_pings == True):
+                        print(
+                            "Enter 'Done' to exit prompt and save ping statistics to ticket.\n")
+                    else:
+                        print(
+                            "\nAnswer the following questions to add this step:\n\n\n")
+
+                else:
+                    print("All questions answered!\n\n\n")
+
+                    print("Adding step to ticket.",
+                          end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+
+                    print()
+
+            print_responses()
 
             # Can a computer be used?
             can_be_used = input(
@@ -3722,11 +3763,12 @@ class Ticket():
 
             # if a computer can be used, run ping tests on it
             if (can_be_used == "yes"):
-                step_response_sentence = "Running ping tests on a computer."
+
+                print_responses()
 
                 # How is the computer connected to the internet?
                 how_computer_is_connected = input(
-                    "\nIs the computer bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
+                    "Is the computer bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
 
                 if (how_computer_is_connected == "exit"):
 
@@ -3738,7 +3780,7 @@ class Ticket():
                         "\nInvalid response - Neither 'Bypass', 'Wire', or 'WiFi' were entered.")
 
                     how_computer_is_connected = input(
-                        "\nIs the computer bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
+                        "\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
 
                     if (how_computer_is_connected == "exit"):
 
@@ -3746,86 +3788,272 @@ class Ticket():
                         return
 
                 if (how_computer_is_connected == "bypass"):
-                    step_response_sentence += "\nComputer is bypassing the main router."
+                    step_response_sentence = "Pings on computer bypassing the main router >"
 
                 elif (how_computer_is_connected == "wire"):
-                    step_response_sentence += "\nComputer is wiring to a network device."
+                    step_response_sentence = "Pings on computer wired to a network device >"
 
                 elif (how_computer_is_connected == "wifi"):
                     name_of_wifi_network = input(
                         "\nWhat WiFi network is the computer connected to?\nEnter name of WiFi network to respond: ").strip()
-                    step_response_sentence += "\nConnected to SSID of: " + name_of_wifi_network
+                    step_response_sentence = "Pings on computer connected to SSID of: " + name_of_wifi_network
 
                 # Issue when at least 2.5% of packets are lost
                 packets_sent = None
                 packets_lost = None
 
+                min_value = None
+                max_value = None
+
                 # Issue when avg is at least 100
                 avg_value = None
 
-                # Function called when prompted for min, max, avg, and lost
-                def set_ping_statistics():
-                    pass
+                def check_for_valid_number(number):
+                    # Returns a number that can be converted and that's not less than 0
+                    # Used for: sent, lost, min, max, avg
 
-                # Run ping tests
-                print(
-                    "\n\nEnter 'Done' to exit prompt and save ping statistics to ticket.\n")
+                    try:
+                        # Check if user entered a number
+                        number = int(number)
+                    except ValueError:
+                        print("\nInvalid response - a number was not entered.\n")
+                        return number
+
+                    if (number < 0):
+                        print(
+                            "\nInvalid response - number must be greater than or equal to 0.\n")
+
+                    return number
+
+                def set_ping_statistics(statistic):
+                    # Function called when prompted for min, max, avg, and lost
+
+                    nonlocal packets_sent
+                    nonlocal packets_lost
+                    nonlocal min_value
+                    nonlocal max_value
+                    nonlocal avg_value
+
+                    nonlocal step_response
+                    step_response = None
+
+                    nonlocal step_response_sentence
+
+                    nonlocal how_computer_is_connected
+
+                    print_responses(running_pings=True)
+
+                    if (statistic == "host"):
+                        host = input("What host is being pinged? ").strip()
+
+                        if (host.lower() == "exit"):
+                            step_response = "exit"
+                            return
+                        elif (host.lower() == "done"):
+                            step_response = "done"
+                            return
+                        elif (host.lower() == "n/a"):
+                            step_response = "n/a"
+                            return
+
+                        step_response_sentence += "\n\nPinging Host: " + host
+
+                    if (statistic == "sent"):
+
+                        packets_sent = ""
+
+                        while (type(packets_sent) != int or packets_sent < 0):
+
+                            packets_sent = input(
+                                "How many packets are being sent?\nEnter either a number or 'n/a': ").strip()
+
+                            if (packets_sent.lower() == "exit"):
+                                step_response = "exit"
+                                return
+                            elif (packets_sent.lower() == "done"):
+                                step_response = "done"
+                                return
+                            elif (packets_sent.lower() == "n/a"):
+                                step_response = "n/a"
+                                step_response_sentence += "\nSent: " + \
+                                    packets_sent
+                                return
+
+                            packets_sent = check_for_valid_number(packets_sent)
+
+                        step_response_sentence += "\nSent: " + \
+                            str(packets_sent)
+
+                    if (statistic == "lost"):
+
+                        packets_lost = ""
+
+                        while (type(packets_lost) != int or packets_lost < 0):
+
+                            packets_lost = input(
+                                "How many packets were lost?\nEnter either a number or 'n/a': ").strip()
+
+                            if (packets_lost.lower() == "exit"):
+                                step_response = "exit"
+                                return
+                            elif (packets_lost.lower() == "done"):
+                                step_response = "done"
+                                return
+                            elif (packets_lost.lower() == "n/a"):
+                                step_response = "n/a"
+                                step_response_sentence += "\nLost: " + packets_lost
+                                return
+
+                            packets_lost = check_for_valid_number(packets_lost)
+
+                        step_response_sentence += "\nLost: " + \
+                            str(packets_lost)
+
+                    if (statistic == "min"):
+
+                        min_value = ""
+
+                        while (type(min_value) != int or min_value < 0):
+
+                            min_value = input(
+                                "What's the min ping speed?\nEnter either a number or 'n/a': ").strip()
+
+                            if (min_value.lower() == "exit"):
+                                step_response = "exit"
+                                return
+                            elif (min_value.lower() == "done"):
+                                step_response = "done"
+                                return
+                            elif (min_value.lower() == "n/a"):
+                                step_response = "n/a"
+                                step_response_sentence += "\nMin: " + min_value
+                                return
+
+                            min_value = check_for_valid_number(min_value)
+
+                        step_response_sentence += "\nMin: " + \
+                            str(min_value) + "ms"
+
+                    if (statistic == "max"):
+
+                        max_value = ""
+
+                        while (type(max_value) != int or max_value < 0):
+
+                            max_value = input(
+                                "What's the max ping speed?\nEnter either a number or 'n/a': ").strip()
+
+                            if (max_value.lower() == "exit"):
+                                step_response = "exit"
+                                return
+                            elif (max_value.lower() == "done"):
+                                step_response = "done"
+                                return
+                            elif (max_value.lower() == "n/a"):
+                                step_response = "n/a"
+                                step_response_sentence += "\nMax: " + max_value
+                                return
+
+                            max_value = check_for_valid_number(max_value)
+
+                        step_response_sentence += "\nMax: " + \
+                            str(max_value) + "ms"
+
+                    if (statistic == "avg"):
+
+                        avg_value = ""
+
+                        while (type(avg_value) != int or avg_value < 0):
+
+                            avg_value = input(
+                                "What's the avg ping speed?\nEnter either a number or 'n/a': ").strip()
+
+                            if (avg_value.lower() == "exit"):
+                                step_response = "exit"
+                                return
+                            elif (avg_value.lower() == "done"):
+                                step_response = "done"
+                                return
+                            elif (avg_value.lower() == "n/a"):
+                                step_response = "n/a"
+                                step_response_sentence += "\nAvg: " + avg_value
+                                return
+
+                            avg_value = check_for_valid_number(avg_value)
+
+                        step_response_sentence += "\nAvg: " + \
+                            str(avg_value) + "ms"
+
+                # Run ping tests:
 
                 while (True):
 
-                    host = input("\nWhat host is being pinged? ").strip()
-                    if (host.lower() == "exit"):
-                        step_response = "exit"
+                    set_ping_statistics("host")
+                    if (step_response == "exit"):
                         return
-                    if (host.lower() == "done"):
+                    elif (step_response == "done"):
                         break
-                    step_response_sentence += "\n\nPinging Host: " + host
+                    elif (step_response == "n/a"):
+                        pass
 
-                    packets_sent = input(
-                        "How many packets are being sent? ").strip()
-                    if (packets_sent.lower() == "exit"):
-                        step_response = "exit"
+                    set_ping_statistics("sent")
+                    if (step_response == "exit"):
                         return
-                    if (packets_sent.lower() == "done"):
+                    elif (step_response == "done"):
                         break
-                    step_response_sentence += "\nSent: " + packets_sent
+                    elif (step_response == "n/a"):
+                        pass
 
-                    packets_lost = input(
-                        "How many packets were lost? ").strip()
-                    if (packets_lost.lower() == "exit"):
-                        step_response = "exit"
+                    set_ping_statistics("lost")
+                    if (step_response == "exit"):
                         return
-                    if (packets_lost.lower() == "done"):
+                    elif (step_response == "done"):
                         break
-                    step_response_sentence += "\nLost: " + packets_lost
+                    elif (step_response == "n/a"):
+                        pass
 
-                    min_value = input("What's the min ping speed? ").strip()
-                    if (min_value.lower() == "exit"):
-                        step_response = "exit"
+                    set_ping_statistics("min")
+                    if (step_response == "exit"):
                         return
-                    if (min_value.lower() == "done"):
+                    elif (step_response == "done"):
                         break
-                    step_response_sentence += "\nMin: " + min_value
+                    elif (step_response == "n/a"):
+                        pass
 
-                    max_value = input("What's the max ping speed? ").strip()
-                    if (max_value.lower() == "exit"):
-                        step_response = "exit"
+                    set_ping_statistics("max")
+                    if (step_response == "exit"):
                         return
-                    if (max_value.lower() == "done"):
+                    elif (step_response == "done"):
                         break
-                    step_response_sentence += "\nMax: " + min_value
+                    elif (step_response == "n/a"):
+                        pass
 
-                    avg_value = input("What's the avg ping speed? ").strip()
-                    if (avg_value.lower() == "exit"):
-                        step_response = "exit"
+                    set_ping_statistics("avg")
+                    if (step_response == "exit"):
                         return
-                    if (avg_value.lower() == "done"):
+                    elif (step_response == "done"):
                         break
-                    step_response_sentence += "\nAvg: " + avg_value
+                    elif (step_response == "n/a"):
+                        pass
+
+                    # At end of loop, inform if lost or avg values are bad
+
+                    # if (lost is some percent):
+                    #     do something
+
+                    # Rules for lost:
+                    # Make sure number isn't greater than packets sent
+
+                    # Rules for avg:
+                    # Make sure avg isn't greater or equal to 100
+
+                print_responses(all_questions_answered=True)
 
             # if a computer cannot be used, mention that and do nothing else
             if (can_be_used == "no"):
                 step_response_sentence = "Can't run ping tests - No computer can be used."
+
+                print_responses(all_questions_answered=True)
 
         def run_speed_tests():
             nonlocal step_response
