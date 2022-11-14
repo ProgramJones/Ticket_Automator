@@ -87,6 +87,10 @@ class Ticket():
         # Possible values: True or False
         self.device_has_valid_ip_but_no_internet = None
 
+        # Assigned during 'run_ping_tests"
+        self.significant_packet_loss = False
+        self.significant_latency = False
+
         self.internet_services = ["Fiber", "DSL", "Cable", "Fixed Wireless"]
         self.services = [self.internet_services, ["Email"], ["TV"], ["N/A"]]
 
@@ -3808,6 +3812,12 @@ class Ticket():
                 # Issue when avg is at least 100
                 avg_value = None
 
+                # Holds lost values from all ping tests
+                packets_lost_list = []
+
+                # Holds avg values from all ping tests
+                avg_value_list = []
+
                 def check_for_valid_number(number):
                     # Returns a number that can be converted and that's not less than 0
                     # Used for: sent, lost, min, max, avg
@@ -3834,12 +3844,14 @@ class Ticket():
                     nonlocal max_value
                     nonlocal avg_value
 
+                    nonlocal how_computer_is_connected
+
+                    nonlocal packets_lost_list
+
                     nonlocal step_response
                     step_response = None
 
                     nonlocal step_response_sentence
-
-                    nonlocal how_computer_is_connected
 
                     print_responses(running_pings=True)
 
@@ -3905,6 +3917,14 @@ class Ticket():
                                 return
 
                             packets_lost = check_for_valid_number(packets_lost)
+
+                            if (type(packets_lost) == int):
+                                if (packets_lost > packets_sent):
+                                    print(
+                                        "\nInvalid response - Cannot be more lost packets than packets sent.\n")
+                                    packets_lost = ""
+
+                        packets_lost_list.append(packets_lost)
 
                         step_response_sentence += "\nLost: " + \
                             str(packets_lost)
@@ -3981,6 +4001,8 @@ class Ticket():
 
                             avg_value = check_for_valid_number(avg_value)
 
+                        avg_value_list.append(avg_value)
+
                         step_response_sentence += "\nAvg: " + \
                             str(avg_value) + "ms"
 
@@ -4036,16 +4058,21 @@ class Ticket():
                     elif (step_response == "n/a"):
                         pass
 
-                    # At end of loop, inform if lost or avg values are bad
+                # Inform if more than 2% of sent packets were lost or avg values are bad
 
-                    # if (lost is some percent):
-                    #     do something
+                for packet in packets_lost_list:
+                    if (packet >= (packets_sent * .025)):
+                        self.significant_packet_loss = True
+                        step_response_sentence += "\n\nSignificant packet loss while pinging."
 
-                    # Rules for lost:
-                    # Make sure number isn't greater than packets sent
+                        break
 
-                    # Rules for avg:
-                    # Make sure avg isn't greater or equal to 100
+                for value in avg_value_list:
+                    if (value >= 100):
+                        self.significant_latency = True
+                        step_response_sentence += "\n\nSignificant latency while pinging."
+
+                        break
 
                 print_responses(all_questions_answered=True)
 
