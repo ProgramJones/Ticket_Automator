@@ -4292,66 +4292,130 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("\nEnter 'exit' at any time to exit prompt.\n\n")
+            def print_responses(all_questions_answered=False, checking_battery_backup_lights=False, **kwargs):
 
-            can_be_checked = input(
+                nonlocal step_response_sentence
+
+                system.clear_prompt_or_terminal()
+
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+                print("\nAdding To Ticket:\n")
+
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
+
+                print("\n----------------------------------\n\n\n")
+
+                if (checking_battery_backup_lights == False):
+                    print("\nResponses:\n")
+
+                    if (len(kwargs) == 0):
+                        pass
+                    else:
+                        for key, value in kwargs.items():
+                            if (key == "battery_backup_can_be_checked"):
+                                print("Can check battery backup: " + value)
+
+                    print("\n----------------------------------\n\n\n")
+                else:
+                    pass
+
+                if (all_questions_answered == False):
+                    if (checking_battery_backup_lights == True):
+                        print(
+                            "\nBattery backup information will be displayed in the following example format:\n")
+
+                        print(
+                            "Battery Backup:\nAC: Amber - Solid\nDC: Green - Solid")
+
+                        print(
+                            "\n\nEnter “done” when all lights are documented.\n\n\n")
+                    else:
+                        print(
+                            "\nAnswer the following questions to add this step:\n\n\n")
+                else:
+                    print("All questions answered!\n\n\n")
+
+                    print("Adding step to ticket.",
+                          end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+
+                    print()
+
+            def check_battery_backup_lights():
+
+                nonlocal step_response
+                nonlocal step_response_sentence
+
+                step_response_sentence = "Battery Backup"
+                battery_backup_light = ""
+
+                while (battery_backup_light.lower().strip() != "done"):
+
+                    print_responses(checking_battery_backup_lights=True,
+                                    battery_backup_can_be_checked=battery_backup_can_be_checked)
+
+                    battery_backup_light = input(
+                        "Enter light in format of 'Light Name: Color – Status': ").strip()
+
+                    if (battery_backup_light.lower().strip() == "exit"):
+                        step_response = "exit"
+                        return
+                    elif (battery_backup_light.lower().strip() == "done"):
+                        break
+
+                    step_response_sentence += "\n" + battery_backup_light
+
+            def check_battery_backup_power():
+                pass
+
+            print_responses()
+
+            battery_backup_can_be_checked = input(
                 "Can the ONT's battery backup be checked? Enter “yes” or “no” to respond: ").lower().strip()
 
-            if (can_be_checked == "exit"):
+            if (battery_backup_can_be_checked == "exit"):
 
                 step_response = "exit"
                 return
 
-            while (can_be_checked != "yes" and can_be_checked != "no"):
+            while (battery_backup_can_be_checked != "yes" and battery_backup_can_be_checked != "no"):
                 print("\nInvalid response - 'yes' or 'no' was not entered.")
 
-                can_be_checked = input(
+                battery_backup_can_be_checked = input(
                     "\nCan the ONT's battery backup be checked? Enter “yes” or “no” to respond: ").lower().strip()
 
-                if (can_be_checked == "exit"):
+                if (battery_backup_can_be_checked == "exit"):
 
                     step_response = "exit"
                     return
 
             # if the battery backup cannot be checked, mention that and do nothing else
-            if (can_be_checked == "no"):
+            if (battery_backup_can_be_checked == "no"):
                 step_response_sentence = "ONT's battery backup cannot be checked."
 
-            # if battery backup can be checked, check the battery backup lights
-            elif (can_be_checked == "yes"):
+                print_responses(all_questions_answered=True,
+                                battery_backup_can_be_checked=battery_backup_can_be_checked)
 
-                print(
-                    "\n\nBattery backup information will be displayed in the following example format:\n")
+            # if battery backup can be checked, check the battery backup lights and power
+            elif (battery_backup_can_be_checked == "yes"):
 
-                print(
-                    "Battery Backup:\nAC: Amber - Solid\nDC: Green - Solid")
+                check_battery_backup_lights()
 
-                print("\n\nEnter “done” when all lights are documented.")
+                check_battery_backup_power()
 
-                print(
-                    "\nWhat’s the status of the lights? Enter status in format of 'Light Name: Color – Status': ")
-
-                battery_backup_lights = input("").strip()
-
-                if (battery_backup_lights.lower() == "exit"):
-
-                    step_response = "exit"
-                    return
-
-                while ("done" not in battery_backup_lights.lower().strip()):
-
-                    battery_backup_lights += "\n" + input("").strip()
-
-                    if ("exit" in battery_backup_lights.lower().strip()):
-
-                        step_response = "exit"
-                        return
-
-                if (len(battery_backup_lights) >= 4):
-                    battery_backup_lights = battery_backup_lights.rstrip(
-                        battery_backup_lights[-4:]).rstrip()
-
-                    step_response_sentence += "Battery Backup:\n" + battery_backup_lights.rstrip()
+                print_responses(all_questions_answered=True,
+                                battery_backup_can_be_checked=battery_backup_can_be_checked)
 
         def check_battery_backup_power():
 
@@ -4716,7 +4780,7 @@ class Ticket():
             system.clear_prompt_or_terminal()
             check_ont()
 
-        elif (step == "Check ONT’s battery backup."):
+        elif (step == "Check ONT's battery backup."):
             system.clear_prompt_or_terminal()
             check_battery_backup()
 

@@ -1,5 +1,11 @@
 # Ticket Automator
 
+## Project Status
+---
+
+I'm currently in college and working a full time job, but will work on this program when I have a chance!
+
+
 ## Description
 ---
 
