@@ -1770,7 +1770,7 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            def print_responses(all_questions_answered=False, **kwargs):
+            def print_responses(all_questions_answered=False, checking_network_device_lights=False, **kwargs):
 
                 nonlocal step_response_sentence
 
@@ -1805,15 +1805,16 @@ class Ticket():
 
                 if (all_questions_answered == False):
 
-                    if "can_check_network_device_lights" in kwargs:
-                        if kwargs["can_check_network_device_lights"] == "yes":
-                            print(
-                                "Network device information will be displayed in the following example format:\n")
-                            print("Brand Name - Model Number\nPower: Green - Solid\nInternet: Green - Flashing\n2.4GHz: Green - Flashing\n5GHz: Green - Flashing" +
-                                  "\nEthernet: Off\n\n")
+                    if checking_network_device_lights == True:
+                        print(
+                            "Network device information will be displayed in the following example format:\n")
+                        print("Brand Name - Model Number\nPower: Green - Solid\nInternet: Green - Flashing\n2.4GHz: Green - Flashing\n5GHz: Green - Flashing" +
+                              "\nEthernet: Off\n\n")
+                        print("Enter “done” when all lights are documented.\n\n\n")
+                    else:
+                        print(
+                            "\nAnswer the following questions to add this step:\n\n\n")
 
-                    print(
-                        "\nAnswer the following questions to add this step:\n\n\n")
                 else:
                     print("All questions answered!\n\n\n")
 
@@ -1865,7 +1866,7 @@ class Ticket():
 
                     if (self.service == "Fiber"):
                         print(
-                            "\nMain Router\nAdditional Router\nExtender\nSwitch\nIndoor ONT\nONT/Router\n\n")
+                            "\nMain Router\nAdditional Router\nExtender\nSwitch\nIndoor ONT\nONT/Router\n\n\n")
 
                         device_type = input(
                             "Enter one of the above device types: ").strip()
@@ -1897,7 +1898,7 @@ class Ticket():
 
                     elif ((self.service in self.internet_services) and (self.service != "Fiber")):
                         print(
-                            "\nMain Router\nAdditional Router\nExtender\nSwitch\nModem\nModem/Router\n")
+                            "\nMain Router\nAdditional Router\nExtender\nSwitch\nModem\nModem/Router\n\n\n")
 
                         device_type = input(
                             "Enter one of the above device types: ").strip()
@@ -1928,42 +1929,28 @@ class Ticket():
                     device_brand_and_model = device
                     step_response_sentence = device_brand_and_model
 
-                print_responses(
-                    can_check_network_device_lights=self.can_check_network_device_lights)
+                # Document network device lights
 
-                print("Enter “done” when all lights are documented.")
+                network_device_light = ""
 
-                print(
-                    "\nWhat’s the status of the lights? Enter status in format of 'Light Name: Color – Status': ")
+                while (network_device_light.lower().strip() != "done"):
 
-                device_lights = input("").strip()
+                    print_responses(checking_network_device_lights=True,
+                                    can_check_network_device_lights=self.can_check_network_device_lights)
 
-                if (device_lights.lower() == "exit"):
+                    network_device_light = input(
+                        "Enter light in format of 'Light Name: Color – Status': ").strip()
 
-                    step_response = "exit"
-                    return
-
-                while ("done" not in device_lights.lower().strip()):
-
-                    device_lights += "\n" + input("").strip()
-
-                    if ("exit" in device_lights.lower().strip()):
-
+                    if (network_device_light.lower().strip() == "exit"):
                         step_response = "exit"
                         return
+                    elif (network_device_light.lower().strip() == "done"):
+                        break
 
-                # Remove "done" and last new line from device_lights, only if device_lights length is greater than or equal to 4
-                # If this is removed, no possiblity of only have a brand and model with no lights
-                if (len(device_lights) >= 4):
-                    device_lights = device_lights.rstrip(
-                        device_lights[-4:]).rstrip()
+                    step_response_sentence += "\n" + network_device_light
 
-                # Don't display a new line if device_lights is an empty string
-                if (len(device_lights) > 0):
-                    step_response_sentence += "\n" + device_lights.rstrip()
-
-                print_responses(
-                    all_questions_answered="True", can_check_network_device_lights=self.can_check_network_device_lights)
+                print_responses(all_questions_answered=True,
+                                can_check_network_device_lights=self.can_check_network_device_lights)
 
                 return step_response_sentence
 
