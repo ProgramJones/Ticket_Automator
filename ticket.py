@@ -4190,65 +4190,115 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
-            print("\nEnter 'exit' at any time to exit prompt.\n\n")
+            def print_responses(all_questions_answered=False, checking_ont_lights=False, **kwargs):
 
-            can_be_checked = input(
+                nonlocal step_response_sentence
+
+                system.clear_prompt_or_terminal()
+
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
+
+                print("\nAdding To Ticket:\n")
+
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
+
+                print("\n----------------------------------\n\n\n")
+
+                print("\nResponses:\n")
+
+                if (len(kwargs) == 0):
+                    pass
+                else:
+                    for key, value in kwargs.items():
+                        if (key == "can_check_ont"):
+                            print("Can check ONT: " + value)
+
+                print("\n----------------------------------\n\n\n")
+
+                if (all_questions_answered == False):
+                    if (checking_ont_lights == True):
+                        print(
+                            "\nONT information will be displayed in the following example format:\n")
+
+                        print(
+                            "ONT:\nPower: Amber - Solid\nWAN: Amber - Flashing")
+
+                        print(
+                            "\n\nEnter “done” when all lights are documented.\n\n\n")
+                    else:
+                        print(
+                            "\nAnswer the following questions to add this step:\n\n\n")
+                else:
+                    print("All questions answered!\n\n\n")
+
+                    print("Adding step to ticket.",
+                          end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
+
+                    time.sleep(.70)
+
+                    print()
+
+            print_responses()
+
+            can_check_ont = input(
                 "Can the ONT be checked? Enter “yes” or “no” to respond: ").lower().strip()
 
-            if (can_be_checked == "exit"):
+            if (can_check_ont == "exit"):
 
                 step_response = "exit"
                 return
 
-            while (can_be_checked != "yes" and can_be_checked != "no"):
+            while (can_check_ont != "yes" and can_check_ont != "no"):
                 print("\nInvalid response - 'yes' or 'no' was not entered.")
 
-                can_be_checked = input(
+                can_check_ont = input(
                     "\nCan the ONT be checked? Enter “yes” or “no” to respond: ").lower().strip()
 
-                if (can_be_checked == "exit"):
+                if (can_check_ont == "exit"):
 
                     step_response = "exit"
                     return
 
             # if the ONT cannot be checked, mention that and do nothing else
-            if (can_be_checked == "no"):
+            if (can_check_ont == "no"):
                 step_response_sentence = "ONT cannot be checked."
 
+                print_responses(all_questions_answered=True,
+                                can_check_ont=can_check_ont)
+
             # if ONT can be checked, check the ONT lights
-            elif (can_be_checked == "yes"):
-                print(
-                    "\n\nONT information will be displayed in the following example format:\n")
+            elif (can_check_ont == "yes"):
 
-                print(
-                    "ONT:\nPower: Amber - Solid\nWAN: Amber - Flashing")
+                step_response_sentence = "ONT"
+                ont_light = ""
 
-                print("\n\nEnter “done” when all lights are documented.")
+                while (ont_light.lower().strip() != "done"):
 
-                print(
-                    "\nWhat’s the status of the lights? Enter status in format of 'Light Name: Color – Status': ")
+                    print_responses(checking_ont_lights=True,
+                                    can_check_ont=can_check_ont)
 
-                ont_lights = input("").strip()
+                    ont_light = input(
+                        "Enter light in format of 'Light Name: Color – Status': ").strip()
 
-                if (ont_lights.lower() == "exit"):
-
-                    step_response = "exit"
-                    return
-
-                while ("done" not in ont_lights.lower().strip()):
-
-                    ont_lights += "\n" + input("").strip()
-
-                    if ("exit" in ont_lights.lower().strip()):
-
+                    if (ont_light.lower().strip() == "exit"):
                         step_response = "exit"
                         return
+                    elif (ont_light.lower().strip() == "done"):
+                        break
 
-                if (len(ont_lights) >= 4):
-                    ont_lights = ont_lights.rstrip(
-                        ont_lights[-4:]).rstrip()
+                    step_response_sentence += "\n" + ont_light
 
-                    step_response_sentence += "ONT:\n" + ont_lights.rstrip()
+                print_responses(all_questions_answered=True,
+                                can_check_ont=can_check_ont)
 
         def check_battery_backup():
 
