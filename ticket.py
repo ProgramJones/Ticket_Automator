@@ -4268,7 +4268,25 @@ class Ticket():
             nonlocal step_response_sentence
 
             battery_backup_has_power = ""
-            can_plug_other_device_into_outlet = ""
+
+            # Variables from function: check_battery_backup_power > check_battery_backup_outlet
+            can_other_device_plug_into_other_outlet_port = ""
+            is_other_device_getting_power = ""
+            can_battery_backup_plug_into_other_port = ""
+            does_battery_backup_have_power_in_other_port = ""
+
+            # Variables from function: check_battery_backup_power > check_gcfi_reset_button
+            can_nearby_gfci_reset_button_be_pressed = ""
+            does_pressing_reset_give_power = ""
+
+            # Variables from function: check_battery_backup_power > check_breaker_box
+            can_breaker_box_be_checked = ""
+            are_any_breakers_tripped_or_off = ""
+            does_resetting_breakers_give_battery_backup_power = ""
+
+            # Variables from function: check_battery_backup_power > check_working_outlet
+            can_battery_backup_wire_to_working_outlet = ""
+            is_there_power_after_wiring_to_other_outlet = ""
 
             def print_responses(all_questions_answered=False, checking_battery_backup_lights=False, **kwargs):
 
@@ -4340,9 +4358,29 @@ class Ticket():
                 nonlocal step_response
                 nonlocal step_response_sentence
 
-                # From function: check_battery_backup_outlet
                 nonlocal battery_backup_has_power
-                nonlocal can_plug_other_device_into_outlet
+
+                # Variables from function: check_battery_backup_outlet
+                nonlocal can_other_device_plug_into_other_outlet_port
+                nonlocal is_other_device_getting_power
+                nonlocal can_battery_backup_plug_into_other_port
+                nonlocal does_battery_backup_have_power_in_other_port
+
+                # Variables from function: check_gcfi_reset_button
+                nonlocal can_nearby_gfci_reset_button_be_pressed
+                nonlocal does_pressing_reset_give_power
+
+                # Variables from function: check_breaker_box
+                nonlocal can_breaker_box_be_checked
+                nonlocal are_any_breakers_tripped_or_off
+                nonlocal does_resetting_breakers_give_battery_backup_power
+
+                # Variables from function: check_working_outlet
+                nonlocal can_battery_backup_wire_to_working_outlet
+                nonlocal is_there_power_after_wiring_to_other_outlet
+
+                # Objective:
+                # 1. Setup print_resposnes for each function
 
                 # Check if the other port of battery backup's outlet can be tested
                 def check_battery_backup_outlet():
@@ -4351,22 +4389,30 @@ class Ticket():
                     nonlocal step_response_sentence
 
                     # Check if the other port of battery backup's outlet can be tested
-                    can_plug_other_device_into_outlet = check_for_a_or_b(
+                    can_other_device_plug_into_other_outlet_port = check_for_a_or_b(
                         "Can some other device plug into the other port of the outlet used by the battery backup?\nEnter “yes” or “no”: ", "yes", "no")
                     if (step_response == "exit"):
                         return
 
+                    # If no other device can be plugged into other outlet port ...
+                    if (can_other_device_plug_into_other_outlet_port == "no"):
+                        step_response_sentence += "\nNo other device can be plugged into outlet."
+
                     # If some other device can be plugged into other outlet port ...
-                    if (can_plug_other_device_into_outlet == "yes"):
+                    elif (can_other_device_plug_into_other_outlet_port == "yes"):
 
                         # Check device for power
-                        other_device_getting_power = check_for_a_or_b(
+                        is_other_device_getting_power = check_for_a_or_b(
                             "Is the other device getting power?\nEnter “yes” or “no”: ", "yes", "no")
                         if (step_response == "exit"):
                             return
 
+                        # if some other device does not get power from other outlet port ...
+                        if (is_other_device_getting_power == "no"):
+                            step_response_sentence += "\nSome other device is not getting power in the same outlet used by battery backup."
+
                         # if some other device gets power from other outlet port ...
-                        if (other_device_getting_power == "yes"):
+                        elif (is_other_device_getting_power == "yes"):
                             step_response_sentence += "\nSome other device is getting power in the same outlet used by battery backup."
 
                             # Check if battery backup gets power from other port
@@ -4375,37 +4421,29 @@ class Ticket():
                             if (step_response == "exit"):
                                 return
 
-                            # If battery backup can be plugged into other port ...
-                            if (can_battery_backup_plug_into_other_port == "yes"):
-
-                                # Check if battery backup gets power in other port
-                                battery_backup_powered_in_other_port = check_for_a_or_b(
-                                    "Is the battery backup getting power in the outlet's other port?\nEnter “yes” or “no” to respond: ", "yes", "no")
-                                if (step_response == "exit"):
-                                    return
-
-                                # If battery backup gets power from other port ...
-                                if (battery_backup_powered_in_other_port == "yes"):
-                                    step_response_sentence += "\nBattery backup gets power from outlet's other port."
-
-                                    step_response = "battery_backup_has_power"
-                                    return
-
-                                # If battery backup does not get power from other port ...
-                                elif (battery_backup_powered_in_other_port == "no"):
-                                    step_response_sentence += "\nBattery backup does not get power from outlet's other port."
-
                             # If battery backup cannot be plugged into other port ...
                             if (can_battery_backup_plug_into_other_port == "no"):
                                 step_response_sentence += "\nBattery backup cannot be plugged into outlet's other port."
 
-                        # if some other device does not get power from other outlet port ...
-                        elif (other_device_getting_power == "no"):
-                            step_response_sentence += "\nSome other device is not getting power in the same outlet used by battery backup."
+                            # If battery backup can be plugged into other port ...
+                            elif (can_battery_backup_plug_into_other_port == "yes"):
 
-                    # If no other device can be plugged into other outlet port ...
-                    elif (can_plug_other_device_into_outlet == "no"):
-                        step_response_sentence += "\nNo other device can be plugged into outlet."
+                                # Check if battery backup gets power in other port
+                                does_battery_backup_have_power_in_other_port = check_for_a_or_b(
+                                    "Is the battery backup getting power in the outlet's other port?\nEnter “yes” or “no” to respond: ", "yes", "no")
+                                if (step_response == "exit"):
+                                    return
+
+                                # If battery backup does not get power from other port ...
+                                if (does_battery_backup_have_power_in_other_port == "no"):
+                                    step_response_sentence += "\nBattery backup does not get power from outlet's other port."
+
+                                # If battery backup gets power from other port ...
+                                elif (does_battery_backup_have_power_in_other_port == "yes"):
+                                    step_response_sentence += "\nBattery backup gets power from outlet's other port."
+
+                                    step_response = "battery_backup_has_power"
+                                    return
 
                 # Check if a nearby GCF reset button can be pressed
                 def check_gcfi_reset_button():
@@ -4419,8 +4457,12 @@ class Ticket():
                     if (step_response == "exit"):
                         return
 
+                    # If no GCFI reset button can be pressed ...
+                    if (can_nearby_gfci_reset_button_be_pressed == "no"):
+                        step_response_sentence += "\n\nNo GCFI reset button can be pressed."
+
                     # If a GCFI reset button can be pressed ...
-                    if (can_nearby_gfci_reset_button_be_pressed == "yes"):
+                    elif (can_nearby_gfci_reset_button_be_pressed == "yes"):
 
                         # Check if pressing reset button gives power
                         does_pressing_reset_give_power = check_for_a_or_b(
@@ -4428,20 +4470,66 @@ class Ticket():
                         if (step_response == "exit"):
                             return
 
+                        # If battery backup does not have power after pressing reset button ...
+                        if (does_pressing_reset_give_power == "no"):
+                            step_response_sentence += "\n\nPressed GFCI reset button. > Battery backup still has no power."
+
                         # If battery backup has power after pressing reset button ...
-                        if (does_pressing_reset_give_power == "yes"):
-                            step_response_sentence += "/nPressed GFCI reset button. > Battery backup has power."
+                        elif (does_pressing_reset_give_power == "yes"):
+                            step_response_sentence += "\n\nPressed GFCI reset button. > Battery backup has power."
 
                             step_response = "battery_backup_has_power"
                             return
 
-                        # If battery backup does not have power after pressing reset button ...
-                        elif (does_pressing_reset_give_power == "no"):
-                            step_response_sentence += "\nPressed GFCI reset button. > Battery backup still has no power."
-
                 # Check whether all breakers are on or not
                 def check_breaker_box():
-                    pass
+
+                    nonlocal step_response
+                    nonlocal step_response_sentence
+
+                    # Check if the breaker box can be checked
+                    can_breaker_box_be_checked = check_for_a_or_b(
+                        "Can the breaker box be checked?\nEnter “yes” or “no” to respond: ", "yes", "no")
+                    if (step_response == "exit"):
+                        return
+
+                    # If the breaker box cannot be checked ...
+                    if (can_breaker_box_be_checked == "no"):
+                        step_response_sentence += "\n\nNo breaker box can be checked."
+
+                    # If the breaker box can be checked ...
+                    elif (can_breaker_box_be_checked == "yes"):
+
+                        # Check if any breakers are tripped or off
+                        are_any_breakers_tripped_or_off = check_for_a_or_b(
+                            "Are all breakers on?\nEnter “yes” or “no” to respond: ", "yes", "no")
+                        if (step_response == "exit"):
+                            return
+
+                        # If no breakers are tripped or off ...
+                        if (are_any_breakers_tripped_or_off == "no"):
+                            step_response_sentence += "\n\nChecked breaker box > All breakers are on."
+
+                        # If breakers are tripped or off ...
+                        elif (are_any_breakers_tripped_or_off == "yes"):
+                            step_response_sentence += "\n\nChecked breaker box > Tripped/Off breakers found."
+
+                            # Check if resetting breakers gives the battery backup power
+                            does_resetting_breakers_give_battery_backup_power = check_for_a_or_b(
+                                "Are all breakers on?\nEnter “yes” or “no” to respond: ", "yes", "no")
+                            if (step_response == "exit"):
+                                return
+
+                            # If battery backup still has no power ...
+                            if (does_resetting_breakers_give_battery_backup_power == "no"):
+                                step_response_sentence += "\nReset breakers > Battery backup still has no power."
+
+                            # If battery backup has power ...
+                            elif (does_resetting_breakers_give_battery_backup_power == "yes"):
+                                step_response_sentence += "\nReset breakers > Battery backup has power."
+
+                                step_response = "battery_backup_has_power"
+                                return
 
                 # Check if battery backup can be plugged into a different, working outlet
                 def check_working_outlet():
@@ -4455,29 +4543,29 @@ class Ticket():
                     if (step_response == "exit"):
                         return
 
+                    # If battery backup cannot be plugged into a different, working outlet ...
+                    if (can_battery_backup_wire_to_working_outlet == "no"):
+                        step_response_sentence += "\n\nBattery backup can't be wired to a working outlet."
+
                     # If battery backup can be plugged into a different, working outlet ...
-                    if (can_battery_backup_wire_to_working_outlet == "yes"):
+                    elif (can_battery_backup_wire_to_working_outlet == "yes"):
 
                         # Check if battery backup has power in the different, working outlet
-                        power_after_wiring_to_other_outlet = check_for_a_or_b(
+                        is_there_power_after_wiring_to_other_outlet = check_for_a_or_b(
                             "Does the battery backup have power after wiring to a working outlet?\nEnter “yes” or “no” to respond: ", "yes", "no")
                         if (step_response == "exit"):
                             return
 
+                        # If battery backup does not have power in the different, working outlet
+                        if (is_there_power_after_wiring_to_other_outlet == "no"):
+                            step_response_sentence += "\n\nBattery backup still has no power after wiring to a working outlet."
+
                         # If battery backup has power in the different, working outlet
-                        if (power_after_wiring_to_other_outlet == "yes"):
-                            step_response_sentence += "\nBattery backup has power after wiring to a working outlet."
+                        elif (is_there_power_after_wiring_to_other_outlet == "yes"):
+                            step_response_sentence += "\n\nBattery backup has power after wiring to a working outlet."
 
                             step_response == "battery_backup_has_power"
                             return
-
-                        # If battery backup does not have power in the different, working outlet
-                        elif (power_after_wiring_to_other_outlet == "no"):
-                            step_response_sentence += "\nBattery backup still has no power after wiring to a working outlet."
-
-                    # If battery backup cannot be plugged into a different, working outlet ...
-                    elif (can_battery_backup_wire_to_working_outlet == "no"):
-                        step_response_sentence += "\nBattery backup can't be wired to a working outlet."
 
                 print_responses(
                     battery_backup_can_be_checked=battery_backup_can_be_checked)
