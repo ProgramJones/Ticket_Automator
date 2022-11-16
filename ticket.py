@@ -1043,6 +1043,7 @@ class Ticket():
         first_index = 0
         second_index = None
 
+        # Used in steps when checking whether user entered one of two values
         def check_for_a_or_b(question, a, b):
 
             nonlocal step_response
@@ -1072,6 +1073,7 @@ class Ticket():
 
             return variable
 
+        # Used in steps when checking whether user entered one of three values
         def check_for_a_or_b_or_c(question, a, b, c):
             nonlocal step_response
 
@@ -1098,6 +1100,33 @@ class Ticket():
                     return None
 
             return variable
+
+        # Used in steps when documenting lights and cabling
+        def document_lights_or_cabling(light_or_cabling, current_print_responses):
+
+            nonlocal step_response_sentence
+            nonlocal step_response
+
+            status = ""
+
+            while (status.lower().strip() != "done"):
+
+                current_print_responses()
+
+                if (light_or_cabling == "light"):
+                    status = input(
+                        "Enter light in format of 'Light Name: Color – Status': ").strip()
+                elif (light_or_cabling == "cabling"):
+                    status = input(
+                        "Enter in format of 'beginning device and port > end device and port': ").strip()
+
+                if (status.lower().strip() == "exit"):
+                    step_response = "exit"
+                    return
+                elif (status.lower().strip() == "done"):
+                    break
+
+                step_response_sentence += "\n" + status
 
         system.clear_prompt_or_terminal()
 
@@ -1906,23 +1935,8 @@ class Ticket():
                     step_response_sentence = device_brand_and_model
 
                 # Prompt for network device lights
-                network_device_light = ""
-
-                while (network_device_light.lower().strip() != "done"):
-
-                    print_responses(checking_network_device_lights=True,
-                                    can_check_network_device_lights=self.can_check_network_device_lights)
-
-                    network_device_light = input(
-                        "Enter light in format of 'Light Name: Color – Status': ").strip()
-
-                    if (network_device_light.lower().strip() == "exit"):
-                        step_response = "exit"
-                        return
-                    elif (network_device_light.lower().strip() == "done"):
-                        break
-
-                    step_response_sentence += "\n" + network_device_light
+                document_lights_or_cabling(
+                    "light", print_responses)
 
                 print_responses(all_questions_answered=True,
                                 can_check_network_device_lights=self.can_check_network_device_lights)
@@ -2152,7 +2166,7 @@ class Ticket():
                 print("\n\nEnter “done” when all cabling is documented.")
 
                 print(
-                    "\nWhat's the cabling? Enter in format of 'beginning device and port > end device and port': ")
+                    "\nEnter in format of 'beginning device and port > end device and port': ")
 
                 cabling = input("").strip()
 
