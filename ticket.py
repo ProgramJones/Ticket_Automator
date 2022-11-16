@@ -1195,11 +1195,13 @@ class Ticket():
 
             print_responses()
 
+            # See if account status can be determined
             can_determine_account_status = check_for_a_or_b(
                 "Can the account status be determined? Enter 'yes' or 'no': ", "yes", "no")
             if (step_response == "exit"):
                 return
 
+            # If account status can be determined, what's the account status?
             if (can_determine_account_status == "yes"):
                 print_responses(can_determine_account_status="Yes")
 
@@ -1208,6 +1210,7 @@ class Ticket():
                 if (step_response == "exit"):
                     return
 
+                # If account is disabled ...
                 if (account_status == "disabled"):
                     self.ticket_status = "Ticket Status: Problem resolved.\nAccount is disabled. Advised to pay service provider over phone or on website."
                     step_response_sentence = "Account is disabled. Advised to pay service provider over phone or on website."
@@ -1215,6 +1218,7 @@ class Ticket():
                     print_responses(all_questions_answered=True,
                                     can_determine_account_status="No", account_status="Disabled")
 
+                # If account is enabled
                 elif (account_status == "enabled"):
                     self.ticket_status = "Ticket Status: Problem not resolved yet.\nAccount is enabled, but internet is offline."
                     self.account_status = "online"
@@ -1224,6 +1228,7 @@ class Ticket():
                     print_responses(all_questions_answered=True,
                                     can_determine_account_status="No", account_status="Enabled")
 
+            # If account status cannot be determined ...
             if (can_determine_account_status == 'no'):
                 self.ticket_status = "Ticket Status: Problem not resolved yet.\nCannot determine account status."
                 self.account_status = "n/a"
@@ -1291,11 +1296,13 @@ class Ticket():
 
             print_responses()
 
+            # See if a landline phone can be checked
             can_be_checked = check_for_a_or_b(
                 "Can a landline phone be checked for dial tone?\nEnter “yes” or “no”: ", "yes", "no")
             if (step_response == "exit"):
                 return
 
+            # If a landline phone can be checked, see if it has dial tone
             if (can_be_checked == "yes"):
                 print_responses(can_be_checked="Yes")
 
@@ -1304,18 +1311,21 @@ class Ticket():
                 if (step_response == "exit"):
                     return
 
+                # If the landline phone has dial tone
                 if (has_dial_tone == "yes"):
                     step_response_sentence = "Landline phone has dial tone."
 
                     print_responses(
                         can_be_checked="Yes", has_dial_tone="Yes", all_questions_answered=True)
 
+                # If the landline phone has no dial tone
                 elif (has_dial_tone == "no"):
                     step_response_sentence = "Landline phone does not have dial tone."
 
                     print_responses(
                         can_be_checked="Yes", has_dial_tone="No", all_questions_answered=True)
 
+            # If a landline phone cannot be checked, no further questions
             elif (can_be_checked == "no"):
                 step_response_sentence = "No landline phone can be checked for dial tone."
 
