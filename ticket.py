@@ -1291,47 +1291,18 @@ class Ticket():
 
             print_responses()
 
-            can_be_checked = input(
-                "Can a landline phone be checked for dial tone?\nEnter “yes” or “no”: ").lower().strip()
-
-            if (can_be_checked == "exit"):
-
-                step_response = "exit"
+            can_be_checked = check_for_a_or_b(
+                "Can a landline phone be checked for dial tone?\nEnter “yes” or “no”: ", "yes", "no")
+            if (step_response == "exit"):
                 return
 
-            while (can_be_checked != "yes" and can_be_checked != "no"):
-                print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                can_be_checked = input(
-                    "\nCan a landline phone be checked for dial tone?\nEnter “yes” or “no”: ").lower().strip()
-
-                if (can_be_checked == "exit"):
-
-                    step_response = "exit"
-                    return
-
             if (can_be_checked == "yes"):
-
                 print_responses(can_be_checked="Yes")
 
-                has_dial_tone = input(
-                    "Does the landline phone have dial tone?\nEnter 'yes' or 'no': ").lower().strip()
-
-                if (has_dial_tone == "exit"):
-
-                    step_response = "exit"
+                has_dial_tone = check_for_a_or_b(
+                    "Does the landline phone have dial tone?\nEnter 'yes' or 'no': ", "yes", "no")
+                if (step_response == "exit"):
                     return
-
-                while (has_dial_tone != "yes" and has_dial_tone != "no"):
-                    print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                    has_dial_tone = input(
-                        "\nDoes the landline phone have dial tone?\nEnter 'yes' or 'no': ").lower().strip()
-
-                    if (has_dial_tone == "exit"):
-
-                        step_response = "exit"
-                        return
 
                 if (has_dial_tone == "yes"):
                     step_response_sentence = "Landline phone has dial tone."
