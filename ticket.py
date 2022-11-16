@@ -1440,48 +1440,34 @@ class Ticket():
 
                         print()
 
-                # Prompt for network status of all devices, if service is an internet service and category is connectivity or intermittent connectivity/speed.
-
                 print_responses()
 
+                # Determine if any devices are online
+                # if service is an internet service and category is connectivity or intermittent connectivity/speed
                 if (self.service in self.internet_services and (self.category == "Connectivity" or self.category == "Intermittent Connectivity/Speed")):
-                    self.devices_online = input(
-                        "Do any devices have internet? Enter 'yes' or 'no': ").lower().strip()
-
-                    if (self.devices_online == "exit"):
-                        step_response = "exit"
+                    self.devices_online = check_for_a_or_b(
+                        "Do any devices have internet? Enter 'yes' or 'no': ", "yes", "no")
+                    if (step_response == "exit"):
                         return
 
-                    # While are_devices_online is not 'yes' and are_devices_online is not 'no', prompt for network status of all devices.
-                    while (self.devices_online != "yes" and self.devices_online != "no"):
-                        print(
-                            "\nInvalid response - 'yes' or 'no' was not entered.")
-
-                        self.devices_online = input(
-                            "\nDo any devices have internet? Enter 'yes' or 'no': ").lower().strip()
-
-                        if (self.devices_online == "exit"):
-
-                            step_response = "exit"
-                            return
-
-                    # if some devices are online, mention this in step_response_sentence, find out which devices are online, and then set troubleshooting steps.
+                    # Find out which devices are online, and then set troubleshooting steps.
+                    # if some devices are online ...
                     if (self.devices_online == "yes"):
                         self.devices_online = True
-
                         step_response_sentence += "At least one device is online."
 
                         print_responses(
                             devices_online=str(self.devices_online))
 
-                        # Prompt for which devices are online.
                         devices_online = input(
                             "\nWhat devices are online? Enter a comma seperated list of devices: ").lower().strip()
 
                         if (self.devices_online == "exit"):
-
                             step_response = "exit"
                             return
+
+                        # Convert user input into a list of devices
+                        ################################################
 
                         # Create a list of devices online from sentence entered by user, with a new entry in list after every entered comma
                         devices_online_list = devices_online.split(",")
@@ -1492,29 +1478,17 @@ class Ticket():
                         step_response_sentence += "\nDevices online: " + \
                             ", ".join(devices_online_list)
 
+                        ################################################
+
                         print_responses(
                             devices_online=str(self.devices_online), devices_online_list=", ".join(devices_online_list))
 
-                        self.devices_offline = input(
-                            "\nDo any devices NOT have internet? Enter 'yes' or 'no': ").lower().strip()
-
-                        if (self.devices_offline == "exit"):
-                            step_response = "exit"
+                        self.devices_offline = check_for_a_or_b(
+                            "\nDo any devices NOT have internet? Enter 'yes' or 'no': ", "yes", "no")
+                        if (step_response == "exit"):
                             return
 
-                        # While are_devices_offline is not 'yes' and are_devices_online is not 'no', prompt for network status of all devices.
-                        while (self.devices_offline != "yes" and self.devices_offline != "no"):
-                            print(
-                                "Invalid response - 'yes' or 'no' was not entered.")
-
-                            self.devices_offline = input(
-                                "\nEnter 'yes' or 'no': ").lower().strip()
-
-                            if (self.devices_offline == "exit"):
-
-                                step_response = "exit"
-                                return
-
+                        # If some devices are also offline ...
                         if (self.devices_offline == "yes"):
                             self.devices_offline = True
                             step_response_sentence += "\n\nAt least one other device is offline."
@@ -1522,6 +1496,7 @@ class Ticket():
                             print_responses(
                                 all_questions_answered=True, devices_online=str(self.devices_online), devices_online_list=", ".join(devices_online_list), devices_offline=str(self.devices_offline))
 
+                        # If no devices are also offline ...
                         if (self.devices_offline == "no"):
                             # # Option to switch to a different category, since internet is online
                             # self.devices_offline = False
@@ -1546,14 +1521,15 @@ class Ticket():
                     devices_online=str(self.devices_online))
 
                 # Prompt for services provided by service provider.
-
                 services = input(
                     "Enter a comma seperated list of services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
 
                 if (services == "exit"):
-
                     step_response = "exit"
                     return
+
+                # Convert user input into a list of services
+                ################################################
 
                 # Create a list of services from sentence entered by user, with a new entry in list after every entered comma
                 services_list = services.split(",")
@@ -1569,20 +1545,23 @@ class Ticket():
                 else:
                     step_response_sentence += "Services: " + \
                         ", ".join(services_list)
+                ################################################
 
-                # If more than one service is provided by the service provider.
+                # If more than one service is provided by the service provider ...
                 if (number_of_services > 1):
 
                     print_responses(
                         devices_online=str(self.devices_online), services=services)
 
-                    # Prompt for offline services provided by service provider and save prompted information into offline_services variable.
+                    # Prompt for offline services
                     offline_services = input(
                         "Enter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
                     if (offline_services == "exit"):
-
                         step_response = "exit"
                         return
+
+                    # Convert user input into a list of services
+                    ################################################
 
                     # Create a list of offline services from sentence entered by user, with a new entry in list after every entered comma
                     offline_services_list = offline_services.split(",")
@@ -1590,10 +1569,13 @@ class Ticket():
                     offline_services_list = [offline_service.strip(
                     ) for offline_service in offline_services_list]
 
-                    # Parse through services variable to find number of entered services. Save this number into variable called number_of_services.
+                    ################################################
+
+                    # Determine number of offline services
                     number_of_offline_services = len(offline_services_list)
 
-                    # User entered more offline services than services provided by service provider
+                    # Prompt for offline services repeatedly
+                    # If user entered more offline services than services ...
                     while ((number_of_offline_services > number_of_services)):
 
                         print(
@@ -1605,10 +1587,11 @@ class Ticket():
 
                         # Exit questioning if user types "exit"
                         if (offline_services == "exit"):
-
                             step_response = "exit"
                             return
 
+                        # Convert user input into a list of offline services
+                        ################################################
                         # Create a list of offline services from sentence entered by user, with a new entry in list after every entered comma
                         offline_services_list = offline_services.split(",")
                         # Strip any whitespace before and after every offline service in list
@@ -1617,6 +1600,11 @@ class Ticket():
 
                         # Parse through services variable to find number of entered services. Save this number into variable called number_of_services.
                         number_of_offline_services = len(offline_services_list)
+
+                        step_response_sentence += "\nOffline Services: " + \
+                            ", ".join(offline_services_list)
+
+                        ################################################
 
                     # # While not offline services are provided by the service provider
                     # while (not all(offline_service in offline_services_list for service in service_list)):
@@ -1640,41 +1628,43 @@ class Ticket():
                     #     # Parse through services variable to find number of entered services. Save this number into variable called number_of_services.
                     #     number_of_offline_services = len(offline_services_list)
 
-                    step_response_sentence += "\nOffline Services: " + \
-                        ", ".join(offline_services_list)
-
+                    # If all servies are offline ...
                     if (number_of_offline_services == number_of_services):
                         if (self.service == "Fiber"):
                             self.ont_status = "offline"
-                        # if self.servivce == "fiber": Add the "Check ONT's Battery Backup" and "Check ONT" steps from set_troubleshooting_steps()
-                        # if self.service == "dsl": Add "Check landline phone for dial tone" steps from set_troubleshooting_steps()
                         self.ticket_status = "Ticket Status: Problem not resolved yet.\nMultiple and all services are offline."
                         self.all_services_offline = True
 
                         print_responses(
                             all_questions_answered="True", devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list))
-                        self.set_troubleshooting_steps()
 
+                    # If only some but not all services are offline ...
                     elif (number_of_offline_services < number_of_services):
 
                         print_responses(
                             devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list))
-                        self.set_troubleshooting_steps()
 
-                        # Prompt for working services and save prompted information into online_services variable.
+                        # Prompt for working online services
                         online_services = input(
                             "Enter a comma seperated list of working services. (Ex. Internet, Email, Phone, TV): ").lower().strip()
 
                         if (online_services == "exit"):
-
                             step_response = "exit"
                             return
+
+                        # Convert user input into a list of offline services
+                        ################################################
 
                         # Create a list of online services from sentence entered by user, with a new entry in list after every entered comma
                         online_services_list = online_services.split(",")
                         # Strip any whitespace before and after every online service in list
                         online_services_list = [online_service.strip(
                         ) for online_service in online_services_list]
+
+                        step_response_sentence += "\nOnline Services: " + \
+                            ", ".join(online_services_list)
+
+                        ################################################
 
                         # # While not all entered online services are provided, inform that at least one of the online services is not a service provided by the service provider
                         # while (not all(online_service in online_services_list for service in service_list)):
@@ -1695,10 +1685,7 @@ class Ticket():
                         #     online_services_list = [online_service.strip(
                         #     ) for online_service in online_services_list]
 
-                        step_response_sentence += "\nOnline Services: " + \
-                            ", ".join(online_services_list)
-
-                        # if online_services_list contains "phone" or online_services_list contains "TV" and self.service == "fiber", assign ont_status variable to online.
+                        # if service is fiber and 'phone' or 'tv' are online ...
                         if (("phone" in online_services_list or "tv" in online_services_list) and (self.service == "Fiber" and (self.category == "Connectivity" or self.category == "Intermittent Connectivity/Speed"))):
                             self.ticket_status = "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device."
                             self.some_services_offline = True
@@ -1707,7 +1694,7 @@ class Ticket():
                             print_responses(
                                 all_questions_answered="True", devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list), online_services=", ".join(online_services_list))
 
-                            self.set_troubleshooting_steps()
+                        # if service is not fiber and 'phone' or 'tv' are offline
                         else:
                             self.ticket_status = "Ticket Status: Problem not resolved yet.\nOther services are working fine."
                             self.some_services_offline = True
@@ -1715,9 +1702,9 @@ class Ticket():
                             print_responses(
                                 all_questions_answered="True", devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list), online_services=", ".join(online_services_list))
 
-                            self.set_troubleshooting_steps()
+                    self.set_troubleshooting_steps()
 
-                # If only one service is provided by the service provider.
+                # If only one service is provided by the service provider ...
                 elif (number_of_services == 1):
                     self.ticket_status = "Ticket Status: Problem not resolved yet.\nThe only service is offline."
 
