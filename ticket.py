@@ -1072,8 +1072,32 @@ class Ticket():
 
             return variable
 
-        # def check_for_a_b_or_c():
-        #   pass
+        def check_for_a_or_b_or_c(question, a, b, c):
+            nonlocal step_response
+
+            variable = input(question).lower().strip()
+
+            if (variable == "exit"):
+                step_response = "exit"
+                return None
+
+            while (variable != a and variable != b and variable != c):
+
+                if ("\n" in question):
+                    print("\nInvalid response - Neither '" + a + "', '" +
+                          b + "', or '" + c + "' were entered.")
+                else:
+                    print("Invalid response - Neither '" + a + "', '" +
+                          b + "', or '" + c + "' were entered.")
+
+                variable = input("\nEnter '" + a + "', '" +
+                                 b + "', or '" + c + "': ").lower().strip()
+
+                if (variable == "exit"):
+                    step_response = "exit"
+                    return None
+
+            return variable
 
         system.clear_prompt_or_terminal()
 
@@ -1666,7 +1690,8 @@ class Ticket():
 
                         ################################################
 
-                        # # While not all entered online services are provided, inform that at least one of the online services is not a service provided by the service provider
+                        # # Inform that at least one of the online services is not a service provided by the service provider
+                        # # While not all entered online services are provided
                         # while (not all(online_service in online_services_list for service in service_list)):
                         #     print(
                         #         "At least one of the online services is not a service provided by the service provider.")
@@ -1788,15 +1813,11 @@ class Ticket():
                 nonlocal step_response
                 nonlocal step_response_sentence
 
-                # fiber_internet_devices = [
-                #     "Main Router", "Additional Router", "Extender", "Switch", "Indoor ONT"]
-
-                # general_internet_devices = [
-                #     "Main Router", "Additional Router", "Extender", "Switch", "Modem"]
-
                 print_responses(
                     can_check_network_device_lights=self.can_check_network_device_lights)
 
+                # Prompt for network device name and model
+                # if device isn't reassigned in argument
                 if (device == None):
                     print(
                         "What device is being checked? Enter in format of 'Brand Name – Model Number': ")
@@ -1878,12 +1899,13 @@ class Ticket():
 
                     self.network_devices.update(
                         {device_brand_and_model: device_type})
+                # Assign brand and model to device argument's value
+                # if device is reassigned in argument
                 else:
                     device_brand_and_model = device
                     step_response_sentence = device_brand_and_model
 
-                # Document network device lights
-
+                # Prompt for network device lights
                 network_device_light = ""
 
                 while (network_device_light.lower().strip() != "done"):
@@ -1912,7 +1934,7 @@ class Ticket():
                 nonlocal step_response
                 nonlocal step_response_sentence
 
-                # Until no exceptions are found, see if number is a valid number
+                # See if user entered a valid number (selected a valid key)
                 while (True):
 
                     if (update_or_delete == "update"):
@@ -1927,13 +1949,13 @@ class Ticket():
                         return
 
                     try:
-                        # Convert prompted line number from a string to an int and subtract by 1 to get the correct index.
                         selected_number = int(selected_number)
                     except ValueError:
                         print("Invalid response - a number was not entered.")
                         continue
 
-                    # Define the value from selected line to be removed
+                    # Assign selected_key to option user selected
+                    # If selected key matches a key in the list of network devices
                     selected_key = None
 
                     for index, (brand_and_model, type_of_device) in enumerate(self.network_devices.items()):
@@ -1949,31 +1971,16 @@ class Ticket():
 
                 return selected_key
 
+            # See if network devices can be checked
+            # If network devices can't be checked or haven't been checked
             if (self.can_check_network_device_lights == "no" or self.can_check_network_device_lights == None):
 
                 print_responses()
 
-                self.can_check_network_device_lights = input(
-                    "Can network devices be checked? Enter “yes” or “no” to respond: ").lower().strip()
-
-                if (self.can_check_network_device_lights == "exit"):
-
-                    step_response = "exit"
-                    return
-
-                while (self.can_check_network_device_lights != "yes" and self.can_check_network_device_lights != "no"):
-                    print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                    self.can_check_network_device_lights = input(
-                        "\nCan network devices be checked? Enter “yes” or “no” to respond: ").lower().strip()
-
-                    if (self.can_check_network_device_lights == "exit"):
-
-                        step_response = "exit"
-                        return
+                self.can_check_network_device_lights = check_for_a_or_b(
+                    "Can network devices be checked? Enter “yes” or “no” to respond: ", "yes", "no")
 
                 if (self.can_check_network_device_lights == "no"):
-
                     step_response_sentence = "No network devices can be checked."
 
                     print_responses(all_questions_answered="True",
@@ -1981,10 +1988,10 @@ class Ticket():
 
                     return
 
+            # If network devices can be checked
             if (self.can_check_network_device_lights == "yes"):
 
                 if (len(self.network_devices) == 0):
-
                     step_response_sentence = add_device()
 
                     if (step_response == "exit"):
@@ -1992,13 +1999,14 @@ class Ticket():
 
                 else:
 
-                    system.clear_prompt_or_terminal()
+                    print_responses(
+                        can_check_network_device_lights=self.can_check_network_device_lights)
 
                     print("\nEnter 'exit' at any time to exit prompt.\n")
 
                     print("\nThe following devices were saved:")
 
-                    # Print the self.network_devices dictionary with printed indexes before each item (Ex. 1. Brand - Model | Type of device)
+                    # Print all saved network devices
                     for index, (brand_and_model, type_of_device) in enumerate(self.network_devices.items()):
                         print(str(index + 1) + ". " + brand_and_model +
                               " | " + type_of_device)
@@ -2007,27 +2015,11 @@ class Ticket():
                     print(
                         "Update - Choose a saved device and document a new light readout for it.")
                     print("Add - Save a new device and document it's lights.")
-                    print("Delete - Delete a saved device.")
+                    print("Delete - Delete a saved device.\n\n")
 
-                    device_list_choice = input(
-                        "\n\nEnter one of the above commands: ").lower().strip()
-
-                    if (device_list_choice == "exit"):
-
-                        step_response = "exit"
-                        return
-
-                    while (device_list_choice != "update" and device_list_choice != "add" and device_list_choice != "delete"):
-                        print(
-                            "Invalid response - Neither 'update', 'add', or 'delete' were entered.")
-
-                        device_list_choice = input(
-                            "\nEnter one of the above commands: ").lower().strip()
-
-                        if (device_list_choice == "exit"):
-
-                            step_response = "exit"
-                            return
+                    # Prompt to choose 'update', 'add', or 'delete'
+                    device_list_choice = check_for_a_or_b_or_c(
+                        "Enter 'add', 'update', or 'delete': ", "add", "update", "delete")
 
                     if (device_list_choice == "update"):
                         device_lights_to_update = select_key(
