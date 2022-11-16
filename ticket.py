@@ -1113,7 +1113,7 @@ class Ticket():
 
                 current_print_responses()
 
-                if (light_or_cabling == "light"):
+                if (light_or_cabling == "lights"):
                     status = input(
                         "Enter light in format of 'Light Name: Color – Status': ").strip()
                 elif (light_or_cabling == "cabling"):
@@ -1127,6 +1127,17 @@ class Ticket():
                     break
 
                 step_response_sentence += "\n" + status
+
+        # Used when asking for a comma seperated string
+        def prompt_for_value_in_list():
+
+            pass
+
+        # Used after asking for a comma seperated string
+        # Returns formatted string, list, and list length
+        def manipulate_comma_seperated_string(comma_seperated_string):
+            # return formatted_string, list, list_length
+            pass
 
         system.clear_prompt_or_terminal()
 
@@ -1409,368 +1420,367 @@ class Ticket():
             # self.ticket_status = "Ticket Status: Problem not resolved yet.\n" + self.service + ", the only service is offline."
             # Show Steps: Same as above
             # - Condition: Only one service used and it's offline.
-            if (step == "Check status of all services."):
 
-                devices_online = ""
+            devices_online = ""
 
-                services = ""
-                offline_services = ""
-                online_services = ""
+            services = ""
+            offline_services = ""
+            online_services = ""
 
-                services_list = []
-                offline_services_list = []
-                online_services_list = []
+            services_list = []
+            offline_services_list = []
+            online_services_list = []
 
-                number_of_services = None
-                number_of_offline_services = None
+            number_of_services = None
+            number_of_offline_services = None
+
+            nonlocal step_response_sentence
+            nonlocal step_response
+
+            def print_responses(all_questions_answered=False, **kwargs):
 
                 nonlocal step_response_sentence
-                nonlocal step_response
 
-                def print_responses(all_questions_answered=False, **kwargs):
+                system.clear_prompt_or_terminal()
 
-                    nonlocal step_response_sentence
+                print("\nEnter 'exit' at any time to exit prompt.\n\n")
 
-                    system.clear_prompt_or_terminal()
+                print("\nAdding To Ticket:\n")
 
-                    print("\nEnter 'exit' at any time to exit prompt.\n\n")
+                if (step_response_sentence == ""):
+                    pass
+                else:
+                    print(step_response_sentence)
 
-                    print("\nAdding To Ticket:\n")
+                print("\n----------------------------------\n\n\n")
 
-                    if (step_response_sentence == ""):
-                        pass
-                    else:
-                        print(step_response_sentence)
+                print("\nResponses:\n")
 
-                    print("\n----------------------------------\n\n\n")
-
-                    print("\nResponses:\n")
-
-                    if (len(kwargs) == 0):
-                        pass
-                    else:
-                        for key, value in kwargs.items():
-                            if (key == "devices_online"):
-                                if (value == ""):
-                                    pass
-                                else:
-                                    print(
-                                        "Devices are online: " + value)
-                            if (key == "devices_online_list"):
+                if (len(kwargs) == 0):
+                    pass
+                else:
+                    for key, value in kwargs.items():
+                        if (key == "devices_online"):
+                            if (value == ""):
+                                pass
+                            else:
                                 print(
-                                    "Devices online: " + value)
-                            if (key == "devices_offline"):
-                                print(
-                                    "Devices are offline: " + value)
-                            if (key == "services"):
-                                print(
-                                    "Services: " + value)
-                            if (key == "offline_services"):
-                                print(
-                                    "Offline Services: " + value)
-                            if (key == "online_services"):
-                                print(
-                                    "Online Services: " + value)
+                                    "Devices are online: " + value)
+                        if (key == "devices_online_list"):
+                            print(
+                                "Devices online: " + value)
+                        if (key == "devices_offline"):
+                            print(
+                                "Devices are offline: " + value)
+                        if (key == "services"):
+                            print(
+                                "Services: " + value)
+                        if (key == "offline_services"):
+                            print(
+                                "Offline Services: " + value)
+                        if (key == "online_services"):
+                            print(
+                                "Online Services: " + value)
 
-                    print("\n----------------------------------\n\n\n")
+                print("\n----------------------------------\n\n\n")
 
-                    if (all_questions_answered == False):
-                        print(
-                            "Answer the following questions to add this step:\n\n\n")
-                    else:
-                        print("All questions answered!\n\n\n")
+                if (all_questions_answered == False):
+                    print(
+                        "Answer the following questions to add this step:\n\n\n")
+                else:
+                    print("All questions answered!\n\n\n")
 
-                        print("Adding step to ticket.",
-                              end="", flush=True)
+                    print("Adding step to ticket.",
+                          end="", flush=True)
 
-                        time.sleep(.70)
-                        print(".", end="", flush=True)
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
 
-                        time.sleep(.70)
-                        print(".", end="", flush=True)
+                    time.sleep(.70)
+                    print(".", end="", flush=True)
 
-                        time.sleep(.70)
+                    time.sleep(.70)
 
-                        print()
+                    print()
 
-                print_responses()
+            print_responses()
 
-                # Determine if any devices are online
-                # if service is an internet service and category is connectivity or intermittent connectivity/speed
-                if (self.service in self.internet_services and (self.category == "Connectivity" or self.category == "Intermittent Connectivity/Speed")):
-                    self.devices_online = check_for_a_or_b(
-                        "Do any devices have internet? Enter 'yes' or 'no': ", "yes", "no")
+            # Determine if any devices are online
+            # if service is an internet service and category is connectivity or intermittent connectivity/speed
+            if (self.service in self.internet_services and (self.category == "Connectivity" or self.category == "Intermittent Connectivity/Speed")):
+                self.devices_online = check_for_a_or_b(
+                    "Do any devices have internet? Enter 'yes' or 'no': ", "yes", "no")
+                if (step_response == "exit"):
+                    return
+
+                # Find out which devices are online, and then set troubleshooting steps.
+                # if some devices are online ...
+                if (self.devices_online == "yes"):
+                    self.devices_online = True
+                    step_response_sentence += "At least one device is online."
+
+                    print_responses(
+                        devices_online=str(self.devices_online))
+
+                    devices_online = input(
+                        "\nWhat devices are online? Enter a comma seperated list of devices: ").lower().strip()
+
+                    if (self.devices_online == "exit"):
+                        step_response = "exit"
+                        return
+
+                    # Convert user input into a list of devices
+                    ################################################
+
+                    # Create a list of devices online from sentence entered by user, with a new entry in list after every entered comma
+                    devices_online_list = devices_online.split(",")
+                    # Strip any whitespace before and after every service in list
+                    devices_online_list = [device_online.strip(
+                    ) for device_online in devices_online_list]
+
+                    step_response_sentence += "\nDevices online: " + \
+                        ", ".join(devices_online_list)
+
+                    ################################################
+
+                    print_responses(
+                        devices_online=str(self.devices_online), devices_online_list=", ".join(devices_online_list))
+
+                    self.devices_offline = check_for_a_or_b(
+                        "\nDo any devices NOT have internet? Enter 'yes' or 'no': ", "yes", "no")
                     if (step_response == "exit"):
                         return
 
-                    # Find out which devices are online, and then set troubleshooting steps.
-                    # if some devices are online ...
-                    if (self.devices_online == "yes"):
-                        self.devices_online = True
-                        step_response_sentence += "At least one device is online."
-
-                        print_responses(
-                            devices_online=str(self.devices_online))
-
-                        devices_online = input(
-                            "\nWhat devices are online? Enter a comma seperated list of devices: ").lower().strip()
-
-                        if (self.devices_online == "exit"):
-                            step_response = "exit"
-                            return
-
-                        # Convert user input into a list of devices
-                        ################################################
-
-                        # Create a list of devices online from sentence entered by user, with a new entry in list after every entered comma
-                        devices_online_list = devices_online.split(",")
-                        # Strip any whitespace before and after every service in list
-                        devices_online_list = [device_online.strip(
-                        ) for device_online in devices_online_list]
-
-                        step_response_sentence += "\nDevices online: " + \
-                            ", ".join(devices_online_list)
-
-                        ################################################
-
-                        print_responses(
-                            devices_online=str(self.devices_online), devices_online_list=", ".join(devices_online_list))
-
-                        self.devices_offline = check_for_a_or_b(
-                            "\nDo any devices NOT have internet? Enter 'yes' or 'no': ", "yes", "no")
-                        if (step_response == "exit"):
-                            return
-
-                        # If some devices are also offline ...
-                        if (self.devices_offline == "yes"):
-                            self.devices_offline = True
-                            step_response_sentence += "\n\nAt least one other device is offline."
-
-                            print_responses(
-                                all_questions_answered=True, devices_online=str(self.devices_online), devices_online_list=", ".join(devices_online_list), devices_offline=str(self.devices_offline))
-
-                        # If no devices are also offline ...
-                        if (self.devices_offline == "no"):
-                            # # Option to switch to a different category, since internet is online
-                            # self.devices_offline = False
-                            # step_response_sentence += "\n\nNo device is offline."
-                            pass
-
-                        # Will add step to 'Check a device for internet.'
-                        self.ticket_status = "Ticket Status: Problem not resolved yet.\nOnly some devices have internet."
-                        self.set_troubleshooting_steps()
-
-                        return
-
-                    # if no devices are online, mention this in step_response_sentence.
-                    if (self.devices_online == "no"):
-
-                        self.devices_online = False
+                    # If some devices are also offline ...
+                    if (self.devices_offline == "yes"):
                         self.devices_offline = True
+                        step_response_sentence += "\n\nAt least one other device is offline."
 
-                        step_response_sentence += "No devices are online."
+                        print_responses(
+                            all_questions_answered=True, devices_online=str(self.devices_online), devices_online_list=", ".join(devices_online_list), devices_offline=str(self.devices_offline))
+
+                    # If no devices are also offline ...
+                    if (self.devices_offline == "no"):
+                        # # Option to switch to a different category, since internet is online
+                        # self.devices_offline = False
+                        # step_response_sentence += "\n\nNo device is offline."
+                        pass
+
+                    # Will add step to 'Check a device for internet.'
+                    self.ticket_status = "Ticket Status: Problem not resolved yet.\nOnly some devices have internet."
+                    self.set_troubleshooting_steps()
+
+                    return
+
+                # if no devices are online, mention this in step_response_sentence.
+                if (self.devices_online == "no"):
+
+                    self.devices_online = False
+                    self.devices_offline = True
+
+                    step_response_sentence += "No devices are online."
+
+            print_responses(
+                devices_online=str(self.devices_online))
+
+            # Prompt for services provided by service provider.
+            services = input(
+                "Enter a comma seperated list of services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
+
+            if (services == "exit"):
+                step_response = "exit"
+                return
+
+            # Convert user input into a list of services
+            ################################################
+
+            # Create a list of services from sentence entered by user, with a new entry in list after every entered comma
+            services_list = services.split(",")
+            # Strip any whitespace before and after every service in list
+            services_list = [service.strip() for service in services_list]
+
+            # Parse through services variable to find number of entered services. Save this number into variable called number_of_services.
+            number_of_services = len(services_list)
+
+            if (self.service in self.internet_services and (self.category == "Connectivity" or self.category == "Intermittent Connectivity/Speed")):
+                step_response_sentence += "\n\nServices: " + \
+                    ", ".join(services_list)
+            else:
+                step_response_sentence += "Services: " + \
+                    ", ".join(services_list)
+            ################################################
+
+            # If more than one service is provided by the service provider ...
+            if (number_of_services > 1):
 
                 print_responses(
-                    devices_online=str(self.devices_online))
+                    devices_online=str(self.devices_online), services=services)
 
-                # Prompt for services provided by service provider.
-                services = input(
-                    "Enter a comma seperated list of services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
-
-                if (services == "exit"):
+                # Prompt for offline services
+                offline_services = input(
+                    "Enter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
+                if (offline_services == "exit"):
                     step_response = "exit"
                     return
 
                 # Convert user input into a list of services
                 ################################################
 
-                # Create a list of services from sentence entered by user, with a new entry in list after every entered comma
-                services_list = services.split(",")
-                # Strip any whitespace before and after every service in list
-                services_list = [service.strip() for service in services_list]
+                # Create a list of offline services from sentence entered by user, with a new entry in list after every entered comma
+                offline_services_list = offline_services.split(",")
+                # Strip any whitespace before and after every offline service in list
+                offline_services_list = [offline_service.strip(
+                ) for offline_service in offline_services_list]
 
-                # Parse through services variable to find number of entered services. Save this number into variable called number_of_services.
-                number_of_services = len(services_list)
-
-                if (self.service in self.internet_services and (self.category == "Connectivity" or self.category == "Intermittent Connectivity/Speed")):
-                    step_response_sentence += "\n\nServices: " + \
-                        ", ".join(services_list)
-                else:
-                    step_response_sentence += "Services: " + \
-                        ", ".join(services_list)
                 ################################################
 
-                # If more than one service is provided by the service provider ...
-                if (number_of_services > 1):
+                # Determine number of offline services
+                number_of_offline_services = len(offline_services_list)
 
-                    print_responses(
-                        devices_online=str(self.devices_online), services=services)
+                # Prompt for offline services repeatedly
+                # If user entered more offline services than services ...
+                while ((number_of_offline_services > number_of_services)):
 
-                    # Prompt for offline services
+                    print(
+                        "There cannot be more offline services than services provided by service provider.")
+
+                    # Prompt for offline services provided by service provider and save prompted information into offline_services variable.
                     offline_services = input(
-                        "Enter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
+                        "\nEnter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
+
+                    # Exit questioning if user types "exit"
                     if (offline_services == "exit"):
                         step_response = "exit"
                         return
 
-                    # Convert user input into a list of services
+                    # Convert user input into a list of offline services
                     ################################################
-
                     # Create a list of offline services from sentence entered by user, with a new entry in list after every entered comma
                     offline_services_list = offline_services.split(",")
                     # Strip any whitespace before and after every offline service in list
                     offline_services_list = [offline_service.strip(
                     ) for offline_service in offline_services_list]
 
-                    ################################################
-
-                    # Determine number of offline services
+                    # Parse through services variable to find number of entered services. Save this number into variable called number_of_services.
                     number_of_offline_services = len(offline_services_list)
 
-                    # Prompt for offline services repeatedly
-                    # If user entered more offline services than services ...
-                    while ((number_of_offline_services > number_of_services)):
+                    step_response_sentence += "\nOffline Services: " + \
+                        ", ".join(offline_services_list)
 
-                        print(
-                            "There cannot be more offline services than services provided by service provider.")
+                    ################################################
 
-                        # Prompt for offline services provided by service provider and save prompted information into offline_services variable.
-                        offline_services = input(
-                            "\nEnter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
+                # # While not offline services are provided by the service provider
+                # while (not all(offline_service in offline_services_list for service in service_list)):
+                #     print(
+                #         "At least one of the offline services is not a service provided by the service provider.")
 
-                        # Exit questioning if user types "exit"
-                        if (offline_services == "exit"):
-                            step_response = "exit"
-                            return
+                #     # Prompt for offline services provided by service provider and save prompted information into offline_services variable.
+                #     offline_services = input(
+                #         "Enter 'exit' to exit prompt.\nEnter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
 
-                        # Convert user input into a list of offline services
-                        ################################################
-                        # Create a list of offline services from sentence entered by user, with a new entry in list after every entered comma
-                        offline_services_list = offline_services.split(",")
-                        # Strip any whitespace before and after every offline service in list
-                        offline_services_list = [offline_service.strip(
-                        ) for offline_service in offline_services_list]
+                #     # Exit questioning if user types "exit"
+                #     if (offline_services == "exit"):
+                #         break
 
-                        # Parse through services variable to find number of entered services. Save this number into variable called number_of_services.
-                        number_of_offline_services = len(offline_services_list)
+                #     # Create a list of offline services from sentence entered by user, with a new entry in list after every entered comma
+                #     offline_services_list = offline_services.split(",")
+                #     # Strip any whitespace before and after every offline service in list
+                #     offline_services_list = [offline_service.strip(
+                #     ) for offline_service in offline_services_list]
 
-                        step_response_sentence += "\nOffline Services: " + \
-                            ", ".join(offline_services_list)
+                #     # Parse through services variable to find number of entered services. Save this number into variable called number_of_services.
+                #     number_of_offline_services = len(offline_services_list)
 
-                        ################################################
-
-                    # # While not offline services are provided by the service provider
-                    # while (not all(offline_service in offline_services_list for service in service_list)):
-                    #     print(
-                    #         "At least one of the offline services is not a service provided by the service provider.")
-
-                    #     # Prompt for offline services provided by service provider and save prompted information into offline_services variable.
-                    #     offline_services = input(
-                    #         "Enter 'exit' to exit prompt.\nEnter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
-
-                    #     # Exit questioning if user types "exit"
-                    #     if (offline_services == "exit"):
-                    #         break
-
-                    #     # Create a list of offline services from sentence entered by user, with a new entry in list after every entered comma
-                    #     offline_services_list = offline_services.split(",")
-                    #     # Strip any whitespace before and after every offline service in list
-                    #     offline_services_list = [offline_service.strip(
-                    #     ) for offline_service in offline_services_list]
-
-                    #     # Parse through services variable to find number of entered services. Save this number into variable called number_of_services.
-                    #     number_of_offline_services = len(offline_services_list)
-
-                    # If all servies are offline ...
-                    if (number_of_offline_services == number_of_services):
-                        if (self.service == "Fiber"):
-                            self.ont_status = "offline"
-                        self.ticket_status = "Ticket Status: Problem not resolved yet.\nMultiple and all services are offline."
-                        self.all_services_offline = True
-
-                        print_responses(
-                            all_questions_answered="True", devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list))
-
-                    # If only some but not all services are offline ...
-                    elif (number_of_offline_services < number_of_services):
-
-                        print_responses(
-                            devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list))
-
-                        # Prompt for working online services
-                        online_services = input(
-                            "Enter a comma seperated list of working services. (Ex. Internet, Email, Phone, TV): ").lower().strip()
-
-                        if (online_services == "exit"):
-                            step_response = "exit"
-                            return
-
-                        # Convert user input into a list of offline services
-                        ################################################
-
-                        # Create a list of online services from sentence entered by user, with a new entry in list after every entered comma
-                        online_services_list = online_services.split(",")
-                        # Strip any whitespace before and after every online service in list
-                        online_services_list = [online_service.strip(
-                        ) for online_service in online_services_list]
-
-                        step_response_sentence += "\nOnline Services: " + \
-                            ", ".join(online_services_list)
-
-                        ################################################
-
-                        # # Inform that at least one of the online services is not a service provided by the service provider
-                        # # While not all entered online services are provided
-                        # while (not all(online_service in online_services_list for service in service_list)):
-                        #     print(
-                        #         "At least one of the online services is not a service provided by the service provider.")
-
-                        #     # Prompt for working services and save prompted information into online_services variable.
-                        #     online_services = input(
-                        #         "Enter 'exit' to exit prompt.\nEnter a comma seperated list of working services. (Ex. Internet, Email, Phone, TV): ").lower().strip()
-
-                        #     # Exit questioning if user types "exit"
-                        #     if (online_services == "exit"):
-                        #         break
-
-                        #     # Create a list of online services from sentence entered by user, with a new entry in list after every entered comma
-                        #     online_services_list = online_services.split(",")
-                        #     # Strip any whitespace before and after every online service in list
-                        #     online_services_list = [online_service.strip(
-                        #     ) for online_service in online_services_list]
-
-                        # if service is fiber and 'phone' or 'tv' are online ...
-                        if (("phone" in online_services_list or "tv" in online_services_list) and (self.service == "Fiber" and (self.category == "Connectivity" or self.category == "Intermittent Connectivity/Speed"))):
-                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device."
-                            self.some_services_offline = True
-                            self.ont_status = "online"
-
-                            print_responses(
-                                all_questions_answered="True", devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list), online_services=", ".join(online_services_list))
-
-                        # if service is not fiber and 'phone' or 'tv' are offline
-                        else:
-                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nOther services are working fine."
-                            self.some_services_offline = True
-
-                            print_responses(
-                                all_questions_answered="True", devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list), online_services=", ".join(online_services_list))
-
-                    self.set_troubleshooting_steps()
-
-                # If only one service is provided by the service provider ...
-                elif (number_of_services == 1):
-                    self.ticket_status = "Ticket Status: Problem not resolved yet.\nThe only service is offline."
-
+                # If all servies are offline ...
+                if (number_of_offline_services == number_of_services):
                     if (self.service == "Fiber"):
-                        self.ont_status = "n/a"
-
-                    self.only_service_offline = True
+                        self.ont_status = "offline"
+                    self.ticket_status = "Ticket Status: Problem not resolved yet.\nMultiple and all services are offline."
+                    self.all_services_offline = True
 
                     print_responses(
-                        all_questions_answered=str(self.only_service_offline), devices_online=str(self.devices_online), services=services)
+                        all_questions_answered="True", devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list))
 
-                    self.set_troubleshooting_steps()
+                # If only some but not all services are offline ...
+                elif (number_of_offline_services < number_of_services):
+
+                    print_responses(
+                        devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list))
+
+                    # Prompt for working online services
+                    online_services = input(
+                        "Enter a comma seperated list of working services. (Ex. Internet, Email, Phone, TV): ").lower().strip()
+
+                    if (online_services == "exit"):
+                        step_response = "exit"
+                        return
+
+                    # Convert user input into a list of offline services
+                    ################################################
+
+                    # Create a list of online services from sentence entered by user, with a new entry in list after every entered comma
+                    online_services_list = online_services.split(",")
+                    # Strip any whitespace before and after every online service in list
+                    online_services_list = [online_service.strip(
+                    ) for online_service in online_services_list]
+
+                    step_response_sentence += "\nOnline Services: " + \
+                        ", ".join(online_services_list)
+
+                    ################################################
+
+                    # # Inform that at least one of the online services is not a service provided by the service provider
+                    # # While not all entered online services are provided
+                    # while (not all(online_service in online_services_list for service in service_list)):
+                    #     print(
+                    #         "At least one of the online services is not a service provided by the service provider.")
+
+                    #     # Prompt for working services and save prompted information into online_services variable.
+                    #     online_services = input(
+                    #         "Enter 'exit' to exit prompt.\nEnter a comma seperated list of working services. (Ex. Internet, Email, Phone, TV): ").lower().strip()
+
+                    #     # Exit questioning if user types "exit"
+                    #     if (online_services == "exit"):
+                    #         break
+
+                    #     # Create a list of online services from sentence entered by user, with a new entry in list after every entered comma
+                    #     online_services_list = online_services.split(",")
+                    #     # Strip any whitespace before and after every online service in list
+                    #     online_services_list = [online_service.strip(
+                    #     ) for online_service in online_services_list]
+
+                    # if service is fiber and 'phone' or 'tv' are online ...
+                    if (("phone" in online_services_list or "tv" in online_services_list) and (self.service == "Fiber" and (self.category == "Connectivity" or self.category == "Intermittent Connectivity/Speed"))):
+                        self.ticket_status = "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device."
+                        self.some_services_offline = True
+                        self.ont_status = "online"
+
+                        print_responses(
+                            all_questions_answered="True", devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list), online_services=", ".join(online_services_list))
+
+                    # if service is not fiber and 'phone' or 'tv' are offline
+                    else:
+                        self.ticket_status = "Ticket Status: Problem not resolved yet.\nOther services are working fine."
+                        self.some_services_offline = True
+
+                        print_responses(
+                            all_questions_answered="True", devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list), online_services=", ".join(online_services_list))
+
+                self.set_troubleshooting_steps()
+
+            # If only one service is provided by the service provider ...
+            elif (number_of_services == 1):
+                self.ticket_status = "Ticket Status: Problem not resolved yet.\nThe only service is offline."
+
+                if (self.service == "Fiber"):
+                    self.ont_status = "n/a"
+
+                self.only_service_offline = True
+
+                print_responses(
+                    all_questions_answered=str(self.only_service_offline), devices_online=str(self.devices_online), services=services)
+
+                self.set_troubleshooting_steps()
 
         def check_each_network_device():
 
@@ -1936,7 +1946,9 @@ class Ticket():
 
                 # Prompt for network device lights
                 document_lights_or_cabling(
-                    "light", print_responses)
+                    "lights", print_responses)
+                if (step_response == "exit"):
+                    return
 
                 print_responses(all_questions_answered=True,
                                 can_check_network_device_lights=self.can_check_network_device_lights)
@@ -1993,6 +2005,8 @@ class Ticket():
 
                 self.can_check_network_device_lights = check_for_a_or_b(
                     "Can network devices be checked? Enter “yes” or “no” to respond: ", "yes", "no")
+                if (step_response == "exit"):
+                    return
 
                 if (self.can_check_network_device_lights == "no"):
                     step_response_sentence = "No network devices can be checked."
@@ -2034,6 +2048,8 @@ class Ticket():
                     # Prompt to choose 'update', 'add', or 'delete'
                     device_list_choice = check_for_a_or_b_or_c(
                         "Enter 'add', 'update', or 'delete': ", "add", "update", "delete")
+                    if (step_response == "exit"):
+                        return
 
                     if (device_list_choice == "update"):
                         device_lights_to_update = select_key(
@@ -4319,412 +4335,216 @@ class Ticket():
 
                     print()
 
-            def check_battery_backup_lights():
-
-                nonlocal step_response
-                nonlocal step_response_sentence
-
-                step_response_sentence = "Battery Backup"
-                battery_backup_light = ""
-
-                while (battery_backup_light.lower().strip() != "done"):
-
-                    print_responses(checking_battery_backup_lights=True,
-                                    battery_backup_can_be_checked=battery_backup_can_be_checked)
-
-                    battery_backup_light = input(
-                        "Enter light in format of 'Light Name: Color – Status': ").strip()
-
-                    if (battery_backup_light.lower().strip() == "exit"):
-                        step_response = "exit"
-                        return
-                    elif (battery_backup_light.lower().strip() == "done"):
-                        break
-
-                    step_response_sentence += "\n" + battery_backup_light
-
             def check_battery_backup_power():
 
                 nonlocal step_response
                 nonlocal step_response_sentence
 
+                # From function: check_battery_backup_outlet
                 nonlocal battery_backup_has_power
                 nonlocal can_plug_other_device_into_outlet
 
+                # Check if the other port of battery backup's outlet can be tested
                 def check_battery_backup_outlet():
-                    pass
 
-                def check_working_outlet():
+                    nonlocal step_response
+                    nonlocal step_response_sentence
 
-                    can_battery_backup_wire_to_working_outlet = input(
-                        "Can the battery backup be plugged into a working outlet?\nEnter “yes” or “no”: ").lower().strip()
-
-                    if (can_battery_backup_wire_to_working_outlet == "exit"):
-
-                        step_response = "exit"
+                    # Check if the other port of battery backup's outlet can be tested
+                    can_plug_other_device_into_outlet = check_for_a_or_b(
+                        "Can some other device plug into the other port of the outlet used by the battery backup?\nEnter “yes” or “no”: ", "yes", "no")
+                    if (step_response == "exit"):
                         return
 
-                    while (can_battery_backup_wire_to_working_outlet != "yes" and can_battery_backup_wire_to_working_outlet != "no"):
-                        print(
-                            "\nInvalid response - 'yes' or 'no' was not entered.")
+                    # If some other device can be plugged into other outlet port ...
+                    if (can_plug_other_device_into_outlet == "yes"):
 
-                        can_battery_backup_wire_to_working_outlet = input(
-                            "\nEnter “yes” or “no”: ").lower().strip()
-
-                        if (can_battery_backup_wire_to_working_outlet == "exit"):
-
-                            step_response = "exit"
+                        # Check device for power
+                        other_device_getting_power = check_for_a_or_b(
+                            "Is the other device getting power?\nEnter “yes” or “no”: ", "yes", "no")
+                        if (step_response == "exit"):
                             return
 
-                    # if yes, does the battery backup have power after being wired to a working outlet?
+                        # if some other device gets power from other outlet port ...
+                        if (other_device_getting_power == "yes"):
+                            step_response_sentence += "\nSome other device is getting power in the same outlet used by battery backup."
 
-                    if (can_battery_backup_wire_to_working_outlet == "yes"):
-
-                        power_after_wiring_to_other_outlet = input(
-                            "\nDoes the battery backup have power after wiring to a working outlet?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                        if (power_after_wiring_to_other_outlet == "exit"):
-
-                            step_response = "exit"
-                            return
-
-                        while (power_after_wiring_to_other_outlet != "yes" and power_after_wiring_to_other_outlet != "no"):
-                            print(
-                                "\nInvalid response - 'yes' or 'no' was not entered.")
-
-                            power_after_wiring_to_other_outlet = input(
-                                "\nDoes the battery backup have power after wiring to a working outlet?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                            if (power_after_wiring_to_other_outlet == "exit"):
-
-                                step_response = "exit"
+                            # Check if battery backup gets power from other port
+                            can_battery_backup_plug_into_other_port = check_for_a_or_b(
+                                "Can the battery backup plug into the other outlet port?\nEnter “yes” or “no” to respond: ", "yes", "no")
+                            if (step_response == "exit"):
                                 return
 
-                        if (power_after_wiring_to_other_outlet == "yes"):
+                            # If battery backup can be plugged into other port ...
+                            if (can_battery_backup_plug_into_other_port == "yes"):
 
-                            # if yes, battery backup has power after wiring to working outlet, add "Battery backup has power after wiring to a working outlet." to ticket.
+                                # Check if battery backup gets power in other port
+                                battery_backup_powered_in_other_port = check_for_a_or_b(
+                                    "Is the battery backup getting power in the outlet's other port?\nEnter “yes” or “no” to respond: ", "yes", "no")
+                                if (step_response == "exit"):
+                                    return
+
+                                # If battery backup gets power from other port ...
+                                if (battery_backup_powered_in_other_port == "yes"):
+                                    step_response_sentence += "\nBattery backup gets power from outlet's other port."
+
+                                    step_response = "battery_backup_has_power"
+                                    return
+
+                                # If battery backup does not get power from other port ...
+                                elif (battery_backup_powered_in_other_port == "no"):
+                                    step_response_sentence += "\nBattery backup does not get power from outlet's other port."
+
+                            # If battery backup cannot be plugged into other port ...
+                            if (can_battery_backup_plug_into_other_port == "no"):
+                                step_response_sentence += "\nBattery backup cannot be plugged into outlet's other port."
+
+                        # if some other device does not get power from other outlet port ...
+                        elif (other_device_getting_power == "no"):
+                            step_response_sentence += "\nSome other device is not getting power in the same outlet used by battery backup."
+
+                    # If no other device can be plugged into other outlet port ...
+                    elif (can_plug_other_device_into_outlet == "no"):
+                        step_response_sentence += "\nNo other device can be plugged into outlet."
+
+                # Check if a nearby GCF reset button can be pressed
+                def check_gcfi_reset_button():
+
+                    nonlocal step_response
+                    nonlocal step_response_sentence
+
+                    # Check if a nearby GCF reset button can be pressed
+                    can_nearby_gfci_reset_button_be_pressed = check_for_a_or_b(
+                        "Can some nearby GFCI reset button be pressed?\nEnter “yes” or “no” to respond: ", "yes", "no")
+                    if (step_response == "exit"):
+                        return
+
+                    # If a GCFI reset button can be pressed ...
+                    if (can_nearby_gfci_reset_button_be_pressed == "yes"):
+
+                        # Check if pressing reset button gives power
+                        does_pressing_reset_give_power = check_for_a_or_b(
+                            "Does the battery backup have power after pressing the GFCI outlet's reset button?\nEnter “yes” or “no” to respond: ", "yes", "no")
+                        if (step_response == "exit"):
+                            return
+
+                        # If battery backup has power after pressing reset button ...
+                        if (does_pressing_reset_give_power == "yes"):
+                            step_response_sentence += "/nPressed GFCI reset button. > Battery backup has power."
+
+                            step_response = "battery_backup_has_power"
+                            return
+
+                        # If battery backup does not have power after pressing reset button ...
+                        elif (does_pressing_reset_give_power == "no"):
+                            step_response_sentence += "\nPressed GFCI reset button. > Battery backup still has no power."
+
+                # Check whether all breakers are on or not
+                def check_breaker_box():
+                    pass
+
+                # Check if battery backup can be plugged into a different, working outlet
+                def check_working_outlet():
+
+                    nonlocal step_response
+                    nonlocal step_response_sentence
+
+                    # Check if battery backup can be plugged into a different, working outlet
+                    can_battery_backup_wire_to_working_outlet = check_for_a_or_b(
+                        "Can the battery backup be plugged into a working outlet?\nEnter “yes” or “no”: ", "yes", "no")
+                    if (step_response == "exit"):
+                        return
+
+                    # If battery backup can be plugged into a different, working outlet ...
+                    if (can_battery_backup_wire_to_working_outlet == "yes"):
+
+                        # Check if battery backup has power in the different, working outlet
+                        power_after_wiring_to_other_outlet = check_for_a_or_b(
+                            "Does the battery backup have power after wiring to a working outlet?\nEnter “yes” or “no” to respond: ", "yes", "no")
+                        if (step_response == "exit"):
+                            return
+
+                        # If battery backup has power in the different, working outlet
+                        if (power_after_wiring_to_other_outlet == "yes"):
                             step_response_sentence += "\nBattery backup has power after wiring to a working outlet."
 
-                        elif (power_after_wiring_to_other_outlet == "no"):
+                            step_response == "battery_backup_has_power"
+                            return
 
-                            # if no, battery backup has no power after wiring to working outlet, add "Battery backup still has no power after wiring to a working outlet." to ticket.
+                        # If battery backup does not have power in the different, working outlet
+                        elif (power_after_wiring_to_other_outlet == "no"):
                             step_response_sentence += "\nBattery backup still has no power after wiring to a working outlet."
 
+                    # If battery backup cannot be plugged into a different, working outlet ...
                     elif (can_battery_backup_wire_to_working_outlet == "no"):
-
-                        # if no, add "Battery backup can't be wired to working outlet." to ticket.
                         step_response_sentence += "\nBattery backup can't be wired to a working outlet."
-
-                def check_gcfi_reset_button():
-                    pass
 
                 print_responses(
                     battery_backup_can_be_checked=battery_backup_can_be_checked)
 
                 # Check if battery backup has power
-                battery_backup_has_power = input(
-                    "Does the battery backup have power? Enter “yes” or “no”: ").lower().strip()
-
-                if (battery_backup_has_power == "exit"):
-
-                    step_response = "exit"
+                battery_backup_has_power = check_for_a_or_b(
+                    "Does the battery backup have power? Enter “yes” or “no”: ", "yes", "no")
+                if (step_response == "exit"):
                     return
 
-                while (battery_backup_has_power != "yes" and battery_backup_has_power != "no"):
-                    print("Invalid response - 'yes' or 'no' was not entered.")
-
-                    battery_backup_has_power = input(
-                        "\nDoes the battery backup have power? Enter “yes” or “no”: ").lower().strip()
-
-                    if (battery_backup_has_power == "exit"):
-
-                        step_response = "exit"
-                        return
-
-                # If yes, battery backup has power, mention that and do nothing else
+                # If yes, battery backup has power ...
                 if (battery_backup_has_power == "yes"):
                     step_response_sentence += "\n\nBattery backup has power."
 
-                # If no, battery backup has no power, mention that and ask probing questions
+                # If no, battery backup has no power ...
                 elif (battery_backup_has_power == "no"):
                     step_response_sentence += "\n\nBattery backup has no power."
 
                     print_responses(
                         battery_backup_can_be_checked=battery_backup_can_be_checked, battery_backup_has_power=battery_backup_has_power)
 
-                    can_plug_other_device_into_outlet = input(
-                        "Can some device plug into the other port of the outlet used by the battery backup?\nEnter “yes” or “no”: ").lower().strip()
-
-                    if (can_plug_other_device_into_outlet == "exit"):
-
-                        step_response = "exit"
+                    check_battery_backup_outlet()
+                    if (step_response == "exit" or step_response == "battery_backup_has_power"):
                         return
 
-                    while (can_plug_other_device_into_outlet != "yes" and can_plug_other_device_into_outlet != "no"):
-                        print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                        can_plug_other_device_into_outlet = input(
-                            "\nEnter “yes” or “no”: ").lower().strip()
-
-                        if (can_plug_other_device_into_outlet == "exit"):
-
-                            step_response = "exit"
-                            return
-
-                    if (can_plug_other_device_into_outlet == "yes"):
-
-                        # if yes, a device can be plugged into the outlet, does the other device get power in the outlet next to battery backup?
-
-                        other_device_getting_power = input(
-                            "Is the other device getting power?\nEnter “yes” or “no”: ").lower().strip()
-
-                        if (other_device_getting_power == "exit"):
-
-                            step_response = "exit"
-                            return
-
-                        while (other_device_getting_power != "yes" and other_device_getting_power != "no"):
-                            print(
-                                "\nInvalid response - 'yes' or 'no' was not entered.")
-
-                            other_device_getting_power = input(
-                                "\nEnter “yes” or “no”: ").lower().strip()
-
-                            if (other_device_getting_power == "exit"):
-
-                                step_response = "exit"
-                                return
-
-                        if (other_device_getting_power == "yes"):
-
-                            # if yes, some other device is getting power in the outlet, add "Some other device is getting power in the same outlet used by battery backup." to ticket.
-                            step_response_sentence += "\nSome other device is getting power in the same outlet used by battery backup."
-
-                            # if yes, some other device is getting power in the outlet, can the battery backup be plugged into the other outlet port?
-
-                            can_battery_backup_plug_into_other_port = input(
-                                "\nCan the battery backup plug into the other outlet port?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                            if (can_battery_backup_plug_into_other_port == "exit"):
-
-                                step_response = "exit"
-                                return
-
-                            while (can_battery_backup_plug_into_other_port != "yes" and can_battery_backup_plug_into_other_port != "no"):
-                                print(
-                                    "\nInvalid response - 'yes' or 'no' was not entered.")
-
-                                can_battery_backup_plug_into_other_port = input(
-                                    "\nCan the battery backup plug into the other outlet port?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                                if (can_battery_backup_plug_into_other_port == "exit"):
-
-                                    step_response = "exit"
-                                    return
-
-                            # if yes, battery backup can be plugged into other outlet port, does the battery backup get power if it's plugged into the other outlet port?
-
-                            if (can_battery_backup_plug_into_other_port == "yes"):
-
-                                battery_backup_powered_in_other_port = input(
-                                    "\nIs the battery backup getting power in the outlet's other port?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                                if (battery_backup_powered_in_other_port == "exit"):
-
-                                    step_response = "exit"
-                                    return
-
-                                while (battery_backup_powered_in_other_port != "yes" and battery_backup_powered_in_other_port != "no"):
-                                    print(
-                                        "\nInvalid response - 'yes' or 'no' was not entered.")
-
-                                    battery_backup_powered_in_other_port = input(
-                                        "\nIs the battery backup getting power in the outlet's other port?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                                    if (battery_backup_powered_in_other_port == "exit"):
-
-                                        step_response = "exit"
-                                        return
-
-                                # if yes, battery backup gets power from other outlet port, add "Battery backup gets power from other outlet port." to ticket
-                                if (battery_backup_powered_in_other_port == "yes"):
-                                    step_response_sentence += "\nBattery backup gets power from outlet's other port."
-
-                                # if no, battery backup does not get power from other outlet port, add "Battery backup does not get power from other outlet port." to ticket
-                                elif (battery_backup_powered_in_other_port == "no"):
-                                    step_response_sentence += "\nBattery backup does not get power from outlet's other port."
-
-                            if (can_battery_backup_plug_into_other_port == "no"):
-                                step_response_sentence += "\nBattery backup cannot be plugged into outlet's other port."
-
-                        # if no, some other device is not getting power in the outlet, add "Some other device is not getting power in the same outlet used by battery backup." to ticket.
-                        elif (other_device_getting_power == "no"):
-                            step_response_sentence += "\nSome other device is not getting power in the same outlet used by battery backup."
-
-                    # if no, no other device can be plugged into the outlet, add "No other device can be plugged into outlet"
-
-                    elif (can_plug_other_device_into_outlet == "no"):
-                        step_response_sentence += "\nNo other device can be plugged into outlet."
-
-                    # If no, battery backup has no power, see if a nearby GFCI reset button can be pressed.
-
-                    can_nearby_gfci_reset_button_be_pressed = input(
-                        "\nCan some nearby GFCI reset button be pressed?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                    if (can_nearby_gfci_reset_button_be_pressed == "exit"):
-
-                        step_response = "exit"
+                    check_gcfi_reset_button()
+                    if (step_response == "exit" or step_response == "battery_backup_has_power"):
                         return
 
-                    while (can_nearby_gfci_reset_button_be_pressed != "yes" and can_nearby_gfci_reset_button_be_pressed != "no"):
-                        print("\nInvalid response - 'yes' or 'no' was not entered.")
+                    check_breaker_box()
+                    if (step_response == "exit" or step_response == "battery_backup_has_power"):
+                        return
 
-                        can_nearby_gfci_reset_button_be_pressed = input(
-                            "\nCan some nearby GFCI reset button be pressed?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                        if (can_nearby_gfci_reset_button_be_pressed == "exit"):
-
-                            step_response = "exit"
-                            return
-
-                    if (can_nearby_gfci_reset_button_be_pressed == "yes"):
-
-                        # If yes, a GFCI reset button can be pressed, does pressing the reset button give the battery backup power?
-                        does_pressing_reset_give_power = input(
-                            "\nDoes the battery backup have power after pressing the GFCI outlet's reset button?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                        if (does_pressing_reset_give_power == "exit"):
-
-                            step_response = "exit"
-                            return
-
-                        while (does_pressing_reset_give_power != "yes" and does_pressing_reset_give_power != "no"):
-                            print(
-                                "\nInvalid response - 'yes' or 'no' was not entered.")
-
-                            does_pressing_reset_give_power = input(
-                                "\nDoes the battery backup have power after pressing the GFCI outlet's reset button?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                            if (does_pressing_reset_give_power == "exit"):
-
-                                step_response = "exit"
-                                return
-
-                        if (does_pressing_reset_give_power == "yes"):
-
-                            # if yes, pressing reset button gives battery backup power, add "Pressed GFCI reset button. > Battery backup has power." to ticket. DONE
-                            step_response_sentence += "/nPressed GFCI reset button. > Battery backup has power."
-
-                        elif (does_pressing_reset_give_power == "no"):
-
-                            # if no, pressing reset button does not give battery backup power, add "Pressed GFCI reset button. > Battery backup still has no power." to ticket.
-                            step_response_sentence += "\nPressed GFCI reset button. > Battery backup still has no power."
-
-                            # if no, pressing reset button does not give battery backup power, see if battery backup can be wired to a working outlet.
-
-                            can_battery_backup_wire_to_working_outlet = input(
-                                "\nCan the battery backup be plugged into a working outlet?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                            if (can_battery_backup_wire_to_working_outlet == "exit"):
-
-                                step_response = "exit"
-                                return
-
-                            while (can_battery_backup_wire_to_working_outlet != "yes" and can_battery_backup_wire_to_working_outlet != "no"):
-                                print(
-                                    "\nInvalid response - 'yes' or 'no' was not entered.")
-
-                                can_battery_backup_wire_to_working_outlet = input(
-                                    "\nCan the battery backup be plugged into a working outlet?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                                if (can_battery_backup_wire_to_working_outlet == "exit"):
-
-                                    step_response = "exit"
-                                    return
-
-                            # if yes, does the battery backup have power after being wired to a working outlet?
-
-                            if (can_battery_backup_wire_to_working_outlet == "yes"):
-
-                                power_after_wiring_to_other_outlet = input(
-                                    "\nDoes the battery backup have power after wiring to a working outlet?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                                if (power_after_wiring_to_other_outlet == "exit"):
-
-                                    step_response = "exit"
-                                    return
-
-                                while (power_after_wiring_to_other_outlet != "yes" and power_after_wiring_to_other_outlet != "no"):
-                                    print(
-                                        "\nInvalid response - 'yes' or 'no' was not entered.")
-
-                                    power_after_wiring_to_other_outlet = input(
-                                        "\nDoes the battery backup have power after wiring to a working outlet?\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                                    if (power_after_wiring_to_other_outlet == "exit"):
-
-                                        step_response = "exit"
-                                        return
-
-                                if (power_after_wiring_to_other_outlet == "yes"):
-
-                                    # if yes, battery backup has power after wiring to working outlet, add "Battery backup has power after wiring to a working outlet." to ticket.
-                                    step_response_sentence += "\nBattery backup has power after wiring to a working outlet."
-
-                                elif (power_after_wiring_to_other_outlet == "no"):
-
-                                    # if no, battery backup has no power after wiring to working outlet, add "Battery backup still has no power after wiring to a working outlet." to ticket.
-                                    step_response_sentence += "\nBattery backup still has no power after wiring to a working outlet."
-
-                            elif (can_battery_backup_wire_to_working_outlet == "no"):
-
-                                # if no, add "Battery backup can't be wired to working outlet." to ticket.
-                                step_response_sentence += "\nBattery backup can't be wired to a working outlet."
-
-                    elif (can_nearby_gfci_reset_button_be_pressed == "no"):
-
-                        # If no, a GFCI reset button cannot be pressed, add "No GFCI outlet reset button can be pressed." to ticket.
-                        step_response_sentence += "\nNo GFCI outlet reset button can be pressed."
-
-                        # if no, reset button can't be pressed, see if battery backup can be wired to a working outlet.
-                        check_working_outlet()
+                    check_working_outlet()
+                    if (step_response == "exit" or step_response == "battery_backup_has_power"):
+                        return
 
             print_responses()
 
-            battery_backup_can_be_checked = input(
-                "Can the ONT's battery backup be checked? Enter “yes” or “no”: ").lower().strip()
-
-            if (battery_backup_can_be_checked == "exit"):
-
-                step_response = "exit"
+            # See if battery backup can be checked
+            battery_backup_can_be_checked = check_for_a_or_b(
+                "Can the ONT's battery backup be checked? Enter “yes” or “no”: ", "yes", "no")
+            if (step_response == "exit"):
                 return
 
-            while (battery_backup_can_be_checked != "yes" and battery_backup_can_be_checked != "no"):
-                print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                battery_backup_can_be_checked = input(
-                    "\nCan the ONT's battery backup be checked? Enter “yes” or “no”: ").lower().strip()
-
-                if (battery_backup_can_be_checked == "exit"):
-
-                    step_response = "exit"
-                    return
-
-            # if the battery backup cannot be checked, mention that and do nothing else
+            # if the battery backup cannot be checked ...
             if (battery_backup_can_be_checked == "no"):
                 step_response_sentence = "ONT's battery backup cannot be checked."
 
                 print_responses(all_questions_answered=True,
                                 battery_backup_can_be_checked=battery_backup_can_be_checked)
 
-            # if battery backup can be checked, check the battery backup lights and power
+            # if battery backup can be checked
+            # Check the battery backup lights and power
             elif (battery_backup_can_be_checked == "yes"):
 
-                check_battery_backup_lights()
+                # Check battery backup lights
+                step_response_sentence = "Battery Backup"
 
-                if (1 == 2):
-                    # Temporary while other code is added
-                    check_battery_backup_power()
+                document_lights_or_cabling("lights", print_responses)
+                if (step_response == "exit"):
+                    return
+
+                # Check battery backup power
+                check_battery_backup_power()
+                if (step_response == "exit"):
+                    return
 
                 print_responses(all_questions_answered=True,
                                 battery_backup_can_be_checked=battery_backup_can_be_checked, battery_backup_has_power=battery_backup_has_power)
