@@ -2174,6 +2174,8 @@ class Ticket():
                 nonlocal step_response
                 nonlocal step_response_sentence
 
+                nonlocal checking_cabling
+
                 checking_cabling = True
 
                 document_lights_or_cabling(
