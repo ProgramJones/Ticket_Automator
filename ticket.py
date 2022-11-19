@@ -55,9 +55,14 @@ class Ticket():
         self.some_services_offline = None  # Possible values: True or False | Boolean
         self.only_service_offline = None  # Possible values: True or False | Boolean
 
+        # Assigned in 'check_battery_backup'
+        # Possible values: 'on', 'off', 'n/a'
+        self.battery_backup_status = None
+
         # Steps are based off at least these general attributes
         self.ont_status = None  # Possible values: "online", "offline", or "n/a"
         self.power_cycled = None  # Possible values: "yes", "no"
+
         self.correct_ports = None  # Possible values: "yes", "no", or "n/a"
         self.good_cable_conditions = None  # Possible values: "yes", "no", or "n/a"
 
@@ -86,10 +91,6 @@ class Ticket():
         self.can_check_cabling = None
 
         self.cables_in_correct_ports = None
-
-        # check_battery_backup
-        # Possible values: 'on', 'off', 'n/a'
-        self.battery_backup_status = ""
 
         # Variable for whether device being checked is getting a non-self-assigned IP
         # Used when checking devices
@@ -545,6 +546,8 @@ class Ticket():
                         self.recommended_troubleshooting_steps[0].append(
                             "Check a device for internet.")
 
+                    # END OF BRANCH
+
                 # Branching from the 'check_status_of_all_services' function
                 elif (self.all_services_offline == True):
 
@@ -555,8 +558,6 @@ class Ticket():
                             "Check ONT.")
                         self.recommended_troubleshooting_steps[0].append(
                             "Check ONT's battery backup.")
-                        self.recommended_troubleshooting_steps[0].append(
-                            "Check battery backup for power.")
 
                 # Branching from the 'check_status_of_all_services' function
                 elif ((self.some_services_offline == True or self.only_service_offline == True)):
@@ -586,8 +587,6 @@ class Ticket():
                                 "Check ONT.")
                             self.recommended_troubleshooting_steps[0].append(
                                 "Check ONT's battery backup.")
-                            self.recommended_troubleshooting_steps[0].append(
-                                "Check battery backup for power.")
 
                     # Branching from the 'power_cycle' function
                     #
@@ -629,6 +628,8 @@ class Ticket():
                             self.recommended_troubleshooting_steps[0].append(
                                 "Run ping tests on a computer.")
 
+                            # END OF BRANCH
+
                         # if main router is online and additional router is offline
 
                         # if main router is online and extender is offline
@@ -667,6 +668,8 @@ class Ticket():
                             self.ticket_status = "Ticket Status: Problem not resolved yet.\nAt least one device has a valid IP, but there's still no internet."
                             self.recommended_troubleshooting_steps[0].append(
                                 "Run ping tests on a computer.")
+
+                            # END OF BRANCH
 
                         # if main router is online and additional router is offline
 
@@ -2073,6 +2076,8 @@ class Ticket():
             nonlocal step_response
             nonlocal step_response_sentence
 
+            checking_cabling = False
+
             def print_responses(all_questions_answered=False, **kwargs):
 
                 nonlocal step_response_sentence
@@ -2090,7 +2095,7 @@ class Ticket():
 
                 print("\n----------------------------------\n\n\n")
 
-                if "checking_cabling" not in kwargs:
+                if (checking_cabling == False):
 
                     print("\nResponses:\n")
 
@@ -2137,13 +2142,15 @@ class Ticket():
 
                 if (all_questions_answered == False):
 
-                    if "checking_cabling" in kwargs:
-                        if (kwargs["checking_cabling"] == True):
-                            print(
-                                "Cabling will be displayed in the following example format:\n")
-                            print(
-                                "wall jack > Router WAN port\nRouter ETH 2 port > Mesh router WAN port\nRouter ETH 4 port > Computer ETH port\n")
-                    elif "checking_cabling" not in kwargs:
+                    if (checking_cabling == True):
+                        print(
+                            "Cabling will be displayed in the following example format:\n")
+                        print(
+                            "wall jack > Router WAN port\nRouter ETH 2 port > Mesh router WAN port\nRouter ETH 4 port > Computer ETH port\n")
+                        print(
+                            "\n\nEnter “done” when all cabling is documented.\n\n\n")
+
+                    else:
                         print(
                             "\nAnswer the following questions to add this step:\n\n\n")
                 else:
@@ -2167,34 +2174,12 @@ class Ticket():
                 nonlocal step_response
                 nonlocal step_response_sentence
 
-                print_responses(checking_cabling=True)
+                checking_cabling = True
 
-                print("\n\nEnter “done” when all cabling is documented.")
+                document_lights_or_cabling(
+                    "cabling", print_responses)
 
-                print(
-                    "\nEnter in format of 'beginning device and port > end device and port': ")
-
-                cabling = input("").strip()
-
-                if (cabling.lower() == "exit"):
-
-                    step_response = "exit"
-                    return
-
-                while ("done" not in cabling.lower().strip()):
-
-                    cabling += "\n" + input("").strip()
-
-                    if ("exit" in cabling.lower().strip()):
-
-                        step_response = "exit"
-                        return
-
-                if (len(cabling) >= 4):
-                    cabling = cabling.rstrip(
-                        cabling[-4:]).rstrip()
-
-                    step_response_sentence += cabling.rstrip()
+                checking_cabling = False
 
             def check_cable_ports():
 
