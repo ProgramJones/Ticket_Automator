@@ -87,6 +87,10 @@ class Ticket():
 
         self.cables_in_correct_ports = None
 
+        # check_battery_backup
+        # Possible values: 'on', 'off', 'n/a'
+        self.battery_backup_status = ""
+
         # Variable for whether device being checked is getting a non-self-assigned IP
         # Used when checking devices
         # Possible values: True or False
@@ -4278,10 +4282,6 @@ class Ticket():
             are_any_breakers_tripped_or_off = ""
             does_resetting_breakers_give_battery_backup_power = ""
 
-            # Variable assigned in every function
-            # Possible values: 'on', 'off', 'n/a'
-            battery_backup_status = ""
-
             def print_responses(all_questions_answered=False, checking_battery_backup_lights=False, **kwargs):
 
                 nonlocal step_response_sentence
@@ -4454,10 +4454,6 @@ class Ticket():
                 nonlocal can_battery_backup_wire_to_working_outlet
                 nonlocal is_there_power_after_wiring_to_other_outlet
 
-                # Variable assigned in every function
-                # Possible values: 'on', 'off', 'n/a'
-                nonlocal battery_backup_status
-
                 # Check if the other port of battery backup's outlet can be tested
                 def check_battery_backup_outlet():
 
@@ -4542,7 +4538,7 @@ class Ticket():
                                 elif (does_battery_backup_have_power_in_other_port == "yes"):
                                     step_response_sentence += "\nBattery backup gets power from outlet's other port."
 
-                                    step_response = "battery_backup_has_power"
+                                    self.battery_backup_status = "on"
                                     return
 
                 # Check if a nearby GCF reset button can be pressed
@@ -4597,7 +4593,7 @@ class Ticket():
                         elif (does_pressing_reset_give_power == "yes"):
                             step_response_sentence += "\n\nPressed GFCI reset button. > Battery backup has power."
 
-                            step_response = "battery_backup_has_power"
+                            self.battery_backup_status = "on"
                             return
 
                 # Check if battery backup can be plugged into a different, working outlet
@@ -4656,7 +4652,7 @@ class Ticket():
                         elif (is_there_power_after_wiring_to_other_outlet == "yes"):
                             step_response_sentence += "\n\nBattery backup has power after wiring to a working outlet."
 
-                            step_response == "battery_backup_has_power"
+                            self.battery_backup_status = "on"
                             return
 
                 print_responses(
@@ -4671,23 +4667,23 @@ class Ticket():
                 # If yes, battery backup has power ...
                 if (battery_backup_has_power == "yes"):
                     step_response_sentence += "\n\nBattery backup has power."
-                    battery_backup_status = "on"
+                    self.battery_backup_status = "on"
 
                 # If no, battery backup has no power ...
                 elif (battery_backup_has_power == "no"):
                     step_response_sentence += "\n\nBattery backup has no power."
-                    battery_backup_status = "off"
+                    self.battery_backup_status = "off"
 
                     check_battery_backup_outlet()
-                    if (step_response == "exit" or step_response == "battery_backup_has_power"):
+                    if (step_response == "exit" or self.battery_backup_status == "on"):
                         return
 
                     check_gcfi_reset_button()
-                    if (step_response == "exit" or step_response == "battery_backup_has_power"):
+                    if (step_response == "exit" or self.battery_backup_status == "on"):
                         return
 
                     check_working_outlet()
-                    if (step_response == "exit" or step_response == "battery_backup_has_power"):
+                    if (step_response == "exit" or self.battery_backup_status == "on"):
                         return
 
             # Check whether all breakers are on or not
@@ -4700,8 +4696,6 @@ class Ticket():
                 nonlocal can_breaker_box_be_checked
                 nonlocal are_any_breakers_tripped_or_off
                 nonlocal does_resetting_breakers_give_battery_backup_power
-
-                nonlocal battery_backup_status
 
                 print_responses(battery_backup_can_be_checked=battery_backup_can_be_checked,
                                 battery_backup_has_power=battery_backup_has_power,
@@ -4767,12 +4761,12 @@ class Ticket():
                                         are_any_breakers_tripped_or_off=are_any_breakers_tripped_or_off)
 
                         # Check if resetting breakers gives the battery backup power
-                        if (battery_backup_status == "off"):
+                        if (self.battery_backup_status == "off"):
                             does_resetting_breakers_give_battery_backup_power = check_for_a_or_b(
                                 "Does resetting the breakers give the battery backup power?\nEnter “yes” or “no” to respond: ", "yes", "no")
                             if (step_response == "exit"):
                                 return
-                        elif (battery_backup_status == "n/a"):
+                        elif (self.battery_backup_status == "n/a"):
                             does_resetting_breakers_give_battery_backup_power = check_for_a_or_b(
                                 "Does resetting the breakers turn the internet back on?\nEnter “yes” or “no” to respond: ", "yes", "no")
                             if (step_response == "exit"):
@@ -4781,20 +4775,20 @@ class Ticket():
                         # If battery backup still has no power ...
                         if (does_resetting_breakers_give_battery_backup_power == "no"):
 
-                            if (battery_backup_status == "off"):
+                            if (self.battery_backup_status == "off"):
                                 step_response_sentence += "\nReset breakers > Battery backup still has no power."
-                            elif (battery_backup_status == "n/a"):
+                            elif (self.battery_backup_status == "n/a"):
                                 step_response_sentence += "\nReset breakers > Internet is still offline."
 
                         # If battery backup has power ...
                         elif (does_resetting_breakers_give_battery_backup_power == "yes"):
 
-                            if (battery_backup_status == "off"):
+                            if (self.battery_backup_status == "off"):
                                 step_response_sentence += "\nReset breakers > Battery backup has power."
-                            elif (battery_backup_status == "n/a"):
+                            elif (self.battery_backup_status == "n/a"):
                                 step_response_sentence += "\nReset breakers > Internet is back online."
 
-                            battery_backup_status = "on"
+                            self.battery_backup_status = "on"
 
             print_responses()
 
@@ -4807,7 +4801,7 @@ class Ticket():
             # if the battery backup cannot be checked ...
             if (battery_backup_can_be_checked == "no"):
                 step_response_sentence = "ONT's battery backup cannot be checked."
-                battery_backup_status = "n/a"
+                self.battery_backup_status = "n/a"
 
             # if battery backup can be checked
             # Check the battery backup lights and power
@@ -4826,7 +4820,7 @@ class Ticket():
                     return
 
             # If battery backup couldn't be checked or battery backup was checked but there's still no internet ...
-            if (battery_backup_status == "off" or battery_backup_status == "n/a"):
+            if (self.battery_backup_status == "off" or self.battery_backup_status == "n/a"):
 
                 # Check the breaker box
                 check_breaker_box()
@@ -4846,7 +4840,7 @@ class Ticket():
                             can_breaker_box_be_checked=can_breaker_box_be_checked,
                             are_any_breakers_tripped_or_off=are_any_breakers_tripped_or_off,
                             does_resetting_breakers_give_battery_backup_power=does_resetting_breakers_give_battery_backup_power,
-                            battery_backup_status=battery_backup_status)
+                            battery_backup_status=self.battery_backup_status)
 
         if (step == "Check account status."):
             system.clear_prompt_or_terminal()
