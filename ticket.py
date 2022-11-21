@@ -59,6 +59,9 @@ class Ticket():
         # Possible values: 'on', 'off', 'n/a'
         self.battery_backup_status = None
 
+        # Possible values: True or False
+        self.battery_backup_fixed = None
+
         # Steps are based off at least these general attributes
         self.ont_status = None  # Possible values: "online", "offline", or "n/a"
         self.power_cycled = None  # Possible values: "yes", "no"
@@ -87,8 +90,13 @@ class Ticket():
         self.extenders = []
         self.switches = []
 
+        # Can check variables as globals
+        self.can_check_landline = None
         self.can_check_network_device_lights = None
         self.can_check_cabling = None
+        self.can_check_ont = None
+
+        self.landline_has_dial_tone = None
 
         self.cables_in_correct_ports = None
 
@@ -111,6 +119,7 @@ class Ticket():
 
         self.fiber_connectivity_steps = [
             "Check account status.",
+            "Check landline phone for dial tone.",
             "Check status of all services.",
             "Check each network device’s name, model, and lights.",
             "Check cabling.", "Power cycle all network devices.", "Check ONT.",
@@ -181,12 +190,14 @@ class Ticket():
             "Run speed tests on a device.", "Run ping tests on a computer."
         ]
         self.fiber_intermittent_connectivity_and_speed_steps = [
-            "Check status of all services.", "Run speed tests on a device.", "Run ping tests on a computer.",
+            "Check status of all services.",
+            "Check landline phone for dial tone.",
+            "Run speed tests on a device.", "Run ping tests on a computer.",
             "Check each network device’s name, model, and lights.",
             "Check cabling.",
             "Power cycle all network devices.",
             "Check ONT.",
-            "Check ONT's battery backup.", "Check battery backup for power.",
+            "Check ONT's battery backup.",
             "Check each network device’s name, model, and lights.",
             "Check network devices for internet.", "Check a device for internet.",
             "Run speed tests on a device.", "Run ping tests on a computer."
@@ -523,10 +534,12 @@ class Ticket():
         # If current service is Fiber and category is Connectivity, assign self.troubleshooting_steps to value of self.fiber_connectivity_steps
         elif (self.service == "Fiber" and self.category == "Connectivity"):
 
+            # If user is viewing all steps ...
             if (self.toggle_steps == "All Steps"):
                 self.troubleshooting_steps.append(
                     self.fiber_connectivity_steps)
 
+            # If user is viewing recommended steps ...
             elif (self.toggle_steps == "Recommended Steps"):
 
                 if (len(self.recommended_troubleshooting_steps) == 0):
@@ -537,7 +550,8 @@ class Ticket():
                     self.recommended_troubleshooting_steps[0].append(
                         "Check status of all services.")
 
-                # Branching from the 'check_status_of_all_services' function
+                # If some devices are online and others are offline ...
+                # - Branching from the 'check_status_of_all_services' function
                 elif (self.devices_online == True and self.devices_offline == True):
 
                     # self.ticket_status assigned in 'check_status_of_all_services'
@@ -548,17 +562,89 @@ class Ticket():
 
                     # END OF BRANCH
 
-                # Branching from the 'check_status_of_all_services' function
+                # If all services are offline ...
+                # - Branching from the 'check_status_of_all_services' function
+                # - Could be renamed internet_and_phone_offline
                 elif (self.all_services_offline == True):
+
+                    # Add logic:
+                    # All services are only offline and internet and landline service are offline, and landline wires to wall jack
+                    #
+                    # Below conditions for when wall jack > phone
 
                     # self.ticket_status assigned in 'check_status_of_all_services'
 
+                    # Chech landline for dial tone
                     if (len(self.recommended_troubleshooting_steps[0]) == 2):
+                        self.recommended_troubleshooting_steps[0].append(
+                            "Check landline phone for dial tone.")
+
+                    # Check ONT and battery backup
+                    if (len(self.recommended_troubleshooting_steps[0]) == 3 and self.can_check_landline != None):
                         self.recommended_troubleshooting_steps[0].append(
                             "Check ONT.")
                         self.recommended_troubleshooting_steps[0].append(
                             "Check ONT's battery backup.")
 
+                    # If attempted checking ONT and battery backup wouldn't get power ...
+                    if (self.can_check_ont != None and self.battery_backup_status == "off"):
+
+                        self.ticket_status = "Ticket Status: Problem should be referred to the service provider's main office.\nThe internet, landline, and battery backup are offline."
+
+                        # END OF BRANCH
+
+                    # If attempted checking ONT and battery backup couldn't be checked ...
+                    if (self.can_check_ont != None and self.battery_backup_status == "n/a"):
+
+                        self.ticket_status = "Ticket Status: Problem should be referred to the service provider's main office.\nThe internet and landline are offline. Couldn't troubleshoot the battery backup."
+
+                        # END OF BRANCH
+
+                    # If attempted checking ONT and turned on battery backup power ...
+                    if (self.can_check_ont != None and self.battery_backup_fixed == True):
+
+                        # If it was fixed, check for interent and dial tone
+                        # Check landline for dial tone and check network devices - If still no dial tone and no internet, send form
+
+                        if (len(self.recommended_troubleshooting_steps[0]) == 5):
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Check landline phone for dial tone.")
+
+                        # If landline still has no dial tone ...
+                        elif (self.landline_has_dial_tone == "no"):
+
+                            if (len(self.recommended_troubleshooting_steps[0]) == 6):
+                                self.ticket_status = "Ticket Status: Problem should be referred to the service provider's main office.\nThe internet and landline are offline, even after giving the battery backup power."
+
+                        # If landline has dial tone ...
+                        elif (self.landline_has_dial_tone == "yes"):
+
+                            if (len(self.recommended_troubleshooting_steps[0]) == 6):
+                                self.recommended_troubleshooting_steps[0].append(
+                                    "Check a device for internet.")
+
+                            # If a device has internet ...
+                            elif (self.devices_online == True):
+                                self.ticket_status = "Ticket Status: Problem resolved.\nInternet and landline are back online."
+
+                                # END OF BRANCH
+
+                            # If a device has no internet ...
+                            elif (self.devices_online == False):
+
+                                # (Possible router problem - TASK: Code this condition then branch is done)
+                                #
+                                # Add:
+                                # "Check each network device’s name, model, and lights."
+                                # "Check cabling."
+                                # "Power cycle all network devices."
+                                # "Check each network device’s name, model, and lights."
+                                # "Check network devices for internet."
+                                # "Check a device for internet."
+                                # "Run ping tests on a computer."
+                                pass
+
+                # If either some or the only service is offline ...
                 # Branching from the 'check_status_of_all_services' function
                 elif ((self.some_services_offline == True or self.only_service_offline == True)):
 
@@ -578,7 +664,7 @@ class Ticket():
 
                     # Branching from the 'power_cycle' function
                     #
-                    # ONT status unknown | No equipment could be power cycled
+                    # If ONT status unknown and no equipment could be power cycled ...
                     elif ((self.only_service_offline == True) and (self.power_cycled == "no")):
 
                         if (len(self.recommended_troubleshooting_steps[0]) == 5):
@@ -590,7 +676,7 @@ class Ticket():
 
                     # Branching from the 'power_cycle' function
                     #
-                    # ONT is online | Equipment power cycled
+                    # ONT is online or unknown status| Equipment power cycled
                     elif (self.power_cycled == "yes"):
 
                         # TASK: Assign ticket status for all below scenarios
@@ -603,6 +689,14 @@ class Ticket():
                                 "Check each network device’s name, model, and lights.")
                             self.recommended_troubleshooting_steps[0].append(
                                 "Check network devices for internet.")
+
+                        # If main router offline and the only service is offline ...
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 7 and self.main_router["status"] == "offline" and
+                              self.only_service_offline == True):
+
+                            # TASK: Check ONT
+
+                            pass
 
                         # END of branch - Main router offline | Third party
                         elif (len(self.recommended_troubleshooting_steps[0]) == 7 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "third party" and
@@ -1121,16 +1215,59 @@ class Ticket():
 
                 step_response_sentence += "\n" + status
 
+        # Used when seeing whether all values in first_list_or_set are also in second_list_or_set
+        # If comparison shows a problem, return false
+        def compare_two_lists_or_sets(first_list_or_set, second_list_or_set, comparing_by):
+
+            if ((type(first_list_or_set) == list) and (type(second_list_or_set) == list)):
+                first_set = set(first_list_or_set)
+                second_set = set(second_list_or_set)
+
+            if (comparing_by == "union"):
+                pass
+
+            elif (comparing_by == "intersection"):
+                pass
+
+            elif (comparing_by == "difference"):
+                pass
+
+            elif (comparing_by == "symmetric_difference"):
+                pass
+
         # Used when asking for a comma seperated string
-        def prompt_for_value_in_list():
-
-            pass
-
-        # Used after asking for a comma seperated string
         # Returns formatted string, list, and list length
-        def manipulate_comma_seperated_string(comma_seperated_string):
-            # return formatted_string, list, list_length
-            pass
+        def manipulate_comma_seperated_string(instructions, user_list=None, how_to_compare=None):
+
+            nonlocal step_response
+
+            # Get comma-seperated string from user
+            comma_seperated_string = input(instructions).lower().strip()
+
+            if (comma_seperated_string == "exit"):
+                comma_seperated_string = ""
+                step_response = "exit"
+                return
+
+            # Create a list of all words in comma_seperated_string
+            list_from_string = comma_seperated_string.split(",")
+            # Format list by stripping all whitespace
+            list_from_string = [list_item.strip(
+            ) for list_item in list_from_string]
+
+            # Remove duplicate items from the list
+            list_from_string = list(set(list_from_string))
+
+            # if (list != None):
+            #     check_if_all_list_one_values_are_in_list_two(list_from_string, list)
+
+            # Create int type variable for the number of items in list_from_string
+            list_length = len(list_from_string)
+
+            # Create a formatted string version of comma_seperated_string
+            formatted_string = ", ".join(list_from_string)
+
+            return formatted_string, list_from_string, list_length
 
         system.clear_prompt_or_terminal()
 
@@ -1144,7 +1281,7 @@ class Ticket():
 
         print("")
 
-        # While second_index is not an int and second_index is less than or greater than self.troubleshooting steps list, run the following code
+        # Make sure user selects a valid step
         while (True):
             second_index = input(
                 "\n\nSelect a step by entering the number next to it: ").strip()
@@ -1325,10 +1462,10 @@ class Ticket():
                     pass
                 else:
                     for key, value in kwargs.items():
-                        if (key == "can_be_checked"):
+                        if (key == "can_check_landline"):
                             print(
                                 "Can a landline phone be checked for dial tone: " + value)
-                        if (key == "has_dial_tone"):
+                        if (key == "landline_has_dial_tone"):
                             print("Landline has dial tone: " + value)
 
                 print("\n----------------------------------\n\n\n")
@@ -1353,41 +1490,46 @@ class Ticket():
 
             print_responses()
 
-            # See if a landline phone can be checked
-            can_be_checked = check_for_a_or_b(
-                "Can a landline phone be checked for dial tone?\nEnter “yes” or “no”: ", "yes", "no")
-            if (step_response == "exit"):
-                return
+            if (self.can_check_landline == None or self.can_check_landline == "no"):
 
-            # If a landline phone can be checked, see if it has dial tone
-            if (can_be_checked == "yes"):
-                print_responses(can_be_checked="Yes")
+                # See if a landline phone can be checked
+                self.can_check_landline = check_for_a_or_b(
+                    "Can a landline phone be checked for dial tone?\nEnter “yes” or “no”: ", "yes", "no")
+                if (step_response == "exit"):
+                    return
 
-                has_dial_tone = check_for_a_or_b(
+                # If a landline phone cannot be checked ...
+                if (self.can_check_landline == "no"):
+                    step_response_sentence = "No landline phone can be checked for dial tone."
+
+                    print_responses(can_check_landline=self.can_check_landline,
+                                    all_questions_answered=True)
+
+            # If a landline phone can be checked ...
+            if (self.can_check_landline == "yes"):
+                print_responses(can_check_landline=self.can_check_landline)
+
+                # Check landline phone for dial tone
+                self.landline_has_dial_tone = check_for_a_or_b(
                     "Does the landline phone have dial tone?\nEnter 'yes' or 'no': ", "yes", "no")
                 if (step_response == "exit"):
                     return
 
-                # If the landline phone has dial tone
-                if (has_dial_tone == "yes"):
+                # If the landline phone has dial tone ...
+                if (self.landline_has_dial_tone == "yes"):
                     step_response_sentence = "Landline phone has dial tone."
 
                     print_responses(
-                        can_be_checked="Yes", has_dial_tone="Yes", all_questions_answered=True)
+                        can_check_landline=self.can_check_landline, landline_has_dial_tone=self.landline_has_dial_tone, all_questions_answered=True)
 
-                # If the landline phone has no dial tone
-                elif (has_dial_tone == "no"):
+                # If the landline phone has no dial tone ...
+                elif (self.landline_has_dial_tone == "no"):
                     step_response_sentence = "Landline phone does not have dial tone."
 
                     print_responses(
-                        can_be_checked="Yes", has_dial_tone="No", all_questions_answered=True)
+                        can_check_landline=self.can_check_landline, landline_has_dial_tone=self.landline_has_dial_tone, all_questions_answered=True)
 
-            # If a landline phone cannot be checked, no further questions
-            elif (can_be_checked == "no"):
-                step_response_sentence = "No landline phone can be checked for dial tone."
-
-                print_responses(can_be_checked="No",
-                                all_questions_answered=True)
+            self.set_troubleshooting_steps()
 
         def check_status_of_all_services():
 
@@ -1515,32 +1657,20 @@ class Ticket():
                     print_responses(
                         devices_online=str(self.devices_online))
 
-                    devices_online = input(
-                        "\nWhat devices are online? Enter a comma seperated list of devices: ").lower().strip()
-
-                    if (self.devices_online == "exit"):
-                        step_response = "exit"
+                    # Check what devices are online
+                    devices_online, devices_online_list, devices_online_list_length = manipulate_comma_seperated_string(
+                        "What devices are online? Enter a comma seperated list of devices: ")
+                    if (step_response == "exit"):
                         return
 
-                    # Convert user input into a list of devices
-                    ################################################
-
-                    # Create a list of devices online from sentence entered by user, with a new entry in list after every entered comma
-                    devices_online_list = devices_online.split(",")
-                    # Strip any whitespace before and after every service in list
-                    devices_online_list = [device_online.strip(
-                    ) for device_online in devices_online_list]
-
-                    step_response_sentence += "\nDevices online: " + \
-                        ", ".join(devices_online_list)
-
-                    ################################################
+                    step_response_sentence += "\nDevices online: " + devices_online
 
                     print_responses(
                         devices_online=str(self.devices_online), devices_online_list=", ".join(devices_online_list))
 
+                    # Check if any devices are offline
                     self.devices_offline = check_for_a_or_b(
-                        "\nDo any devices NOT have internet? Enter 'yes' or 'no': ", "yes", "no")
+                        "Do any devices NOT have internet? Enter 'yes' or 'no': ", "yes", "no")
                     if (step_response == "exit"):
                         return
 
@@ -1576,32 +1706,16 @@ class Ticket():
             print_responses(
                 devices_online=str(self.devices_online))
 
-            # Prompt for services provided by service provider.
-            services = input(
-                "Enter a comma seperated list of services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
-
-            if (services == "exit"):
-                step_response = "exit"
+            # Check for services provided by service provider.
+            services, services_list, number_of_services = manipulate_comma_seperated_string(
+                "Enter a comma seperated list of services provided by the service provider (Ex. Internet, Email, Phone, TV): ")
+            if (step_response == "exit"):
                 return
 
-            # Convert user input into a list of services
-            ################################################
-
-            # Create a list of services from sentence entered by user, with a new entry in list after every entered comma
-            services_list = services.split(",")
-            # Strip any whitespace before and after every service in list
-            services_list = [service.strip() for service in services_list]
-
-            # Parse through services variable to find number of entered services. Save this number into variable called number_of_services.
-            number_of_services = len(services_list)
-
             if (self.service in self.internet_services and (self.category == "Connectivity" or self.category == "Intermittent Connectivity/Speed")):
-                step_response_sentence += "\n\nServices: " + \
-                    ", ".join(services_list)
+                step_response_sentence += "\n\nServices: " + services
             else:
-                step_response_sentence += "Services: " + \
-                    ", ".join(services_list)
-            ################################################
+                step_response_sentence += "Services: " + services
 
             # If more than one service is provided by the service provider ...
             if (number_of_services > 1):
@@ -1609,26 +1723,11 @@ class Ticket():
                 print_responses(
                     devices_online=str(self.devices_online), services=services)
 
-                # Prompt for offline services
-                offline_services = input(
-                    "Enter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
-                if (offline_services == "exit"):
-                    step_response = "exit"
+                # Check for offline services provided by service provider.
+                offline_services, offline_services_list, number_of_offline_services = manipulate_comma_seperated_string(
+                    "Enter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ")
+                if (step_response == "exit"):
                     return
-
-                # Convert user input into a list of services
-                ################################################
-
-                # Create a list of offline services from sentence entered by user, with a new entry in list after every entered comma
-                offline_services_list = offline_services.split(",")
-                # Strip any whitespace before and after every offline service in list
-                offline_services_list = [offline_service.strip(
-                ) for offline_service in offline_services_list]
-
-                ################################################
-
-                # Determine number of offline services
-                number_of_offline_services = len(offline_services_list)
 
                 # Prompt for offline services repeatedly
                 # If user entered more offline services than services ...
@@ -1637,30 +1736,11 @@ class Ticket():
                     print(
                         "There cannot be more offline services than services provided by service provider.")
 
-                    # Prompt for offline services provided by service provider and save prompted information into offline_services variable.
-                    offline_services = input(
-                        "\nEnter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ").lower().strip()
-
-                    # Exit questioning if user types "exit"
-                    if (offline_services == "exit"):
-                        step_response = "exit"
+                    # Check for offline services provided by service provider.
+                    offline_services, offline_services_list, number_of_offline_services = manipulate_comma_seperated_string(
+                        "Enter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ")
+                    if (step_response == "exit"):
                         return
-
-                    # Convert user input into a list of offline services
-                    ################################################
-                    # Create a list of offline services from sentence entered by user, with a new entry in list after every entered comma
-                    offline_services_list = offline_services.split(",")
-                    # Strip any whitespace before and after every offline service in list
-                    offline_services_list = [offline_service.strip(
-                    ) for offline_service in offline_services_list]
-
-                    # Parse through services variable to find number of entered services. Save this number into variable called number_of_services.
-                    number_of_offline_services = len(offline_services_list)
-
-                    step_response_sentence += "\nOffline Services: " + \
-                        ", ".join(offline_services_list)
-
-                    ################################################
 
                 # # While not offline services are provided by the service provider
                 # while (not all(offline_service in offline_services_list for service in service_list)):
@@ -1685,6 +1765,9 @@ class Ticket():
                 #     number_of_offline_services = len(offline_services_list)
 
                 # If all servies are offline ...
+
+                step_response_sentence += "\nOffline Services: " + offline_services
+
                 if (number_of_offline_services == number_of_services):
                     if (self.service == "Fiber"):
                         self.ont_status = "offline"
@@ -1700,27 +1783,13 @@ class Ticket():
                     print_responses(
                         devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list))
 
-                    # Prompt for working online services
-                    online_services = input(
-                        "Enter a comma seperated list of working services. (Ex. Internet, Email, Phone, TV): ").lower().strip()
-
-                    if (online_services == "exit"):
-                        step_response = "exit"
+                    # Check for online services provided by service provider.
+                    online_services, online_services_list, number_of_online_services = manipulate_comma_seperated_string(
+                        "Enter a comma seperated list of working services. (Ex. Internet, Email, Phone, TV): ")
+                    if (step_response == "exit"):
                         return
 
-                    # Convert user input into a list of offline services
-                    ################################################
-
-                    # Create a list of online services from sentence entered by user, with a new entry in list after every entered comma
-                    online_services_list = online_services.split(",")
-                    # Strip any whitespace before and after every online service in list
-                    online_services_list = [online_service.strip(
-                    ) for online_service in online_services_list]
-
-                    step_response_sentence += "\nOnline Services: " + \
-                        ", ".join(online_services_list)
-
-                    ################################################
+                    step_response_sentence += "\nOnline Services: " + online_services
 
                     # # Inform that at least one of the online services is not a service provided by the service provider
                     # # While not all entered online services are provided
@@ -2194,20 +2263,13 @@ class Ticket():
                 print_responses(
                     can_check_cabling=self.can_check_cabling)
 
-                correct_ports = input(
-                    "Are all cables in the correct ports? Enter “yes” or “no” to respond: ").lower().strip()
+                # Check if cables are in the correct ports
+                correct_ports = check_for_a_or_b(
+                    "Are all cables in the correct ports? Enter “yes” or “no” to respond: ", "yes", "no")
+                if (step_response == "exit"):
+                    return
 
-                while (correct_ports != "yes" and correct_ports != "no"):
-                    print("Invalid response - 'yes' or 'no' was not entered.")
-
-                    correct_ports = input(
-                        "\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                    if (correct_ports == "exit"):
-
-                        step_response = "exit"
-                        return
-
+                # If cables are in the correct ports ...
                 if (correct_ports == "yes"):
                     step_response_sentence += "\n\nCables are in the correct ports."
                     self.correct_ports = "yes"
@@ -2215,6 +2277,7 @@ class Ticket():
                     print_responses(can_check_cabling=self.can_check_cabling,
                                     correct_ports=correct_ports)
 
+                # If cables are not in the correct ports ...
                 elif (correct_ports == "no"):
 
                     step_response_sentence += "\nCables are not in the correct ports."
@@ -2222,26 +2285,20 @@ class Ticket():
                     print_responses(can_check_cabling=self.can_check_cabling,
                                     correct_ports=correct_ports)
 
-                    can_be_corrected = input(
-                        "Can the cables be moved to the correct ports? Enter “yes” or “no” to respond: ").lower().strip()
+                    # Check if cables can be moved to the correct ports ...
+                    can_be_corrected = check_for_a_or_b(
+                        "Can the cables be moved to the correct ports? Enter “yes” or “no” to respond: ", "yes", "no")
+                    if (step_response == "exit"):
+                        return
 
-                    while (can_be_corrected != "yes" and can_be_corrected != "no"):
-                        print("Invalid response - 'yes' or 'no' was not entered.")
-
-                        can_be_corrected = input(
-                            "\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                        if (can_be_corrected == "exit"):
-
-                            step_response = "exit"
-                            return
-
+                    # If cables can be moved to the correct ports ...
                     if (can_be_corrected == "yes"):
                         step_response_sentence += "\nCables moved to the correct ports.\n\n"
                         self.correct_ports = "yes"
 
                         check_cable_connections()
 
+                    # If cables cannot be moved to the correct ports ...
                     elif (can_be_corrected == "no"):
                         self.cables_in_correct_ports = False
 
@@ -2251,8 +2308,6 @@ class Ticket():
                         print_responses(
                             all_questions_answered=True, can_check_cabling=self.can_check_cabling,
                             correct_ports=correct_ports, can_be_corrected=can_be_corrected)
-
-                        return
 
             def check_cable_conditions():
 
@@ -2272,32 +2327,20 @@ class Ticket():
                         can_check_cabling=self.can_check_cabling,
                         correct_ports=correct_ports, can_be_corrected=can_be_corrected)
 
-                    cables_not_loose_or_damaged = input(
-                        "Are all cables secure and tight on all ends with no visible damage?\nEnter “yes”, “damaged”, or “loose” to respond: ").lower().strip()
-
-                    if (cables_not_loose_or_damaged == "exit"):
-
-                        step_response = "exit"
+                    # Check if cabling is good, damaged, or loose
+                    cables_not_loose_or_damaged = check_for_a_or_b_or_c(
+                        "Are all cables secure and tight on all ends with no visible damage?\nEnter “yes”, “damaged”, or “loose” to respond: ", "yes", "damaged", "loose")
+                    if (step_response == "exit"):
                         return
 
-                    while (cables_not_loose_or_damaged != "yes" and cables_not_loose_or_damaged != "damaged" and cables_not_loose_or_damaged != "loose"):
-                        print(
-                            "\nInvalid response - Neither 'yes', 'damaged', or 'loose' were entered.")
-
-                        cables_not_loose_or_damaged = input(
-                            "\nEnter “yes”, “damaged”, or “loose” to respond: ").lower().strip()
-
-                        if (cables_not_loose_or_damaged == "exit"):
-
-                            step_response = "exit"
-                            return
-
+                    # If cabling is good ...
                     if (cables_not_loose_or_damaged == "yes"):
                         step_response_sentence += "\n\nAll cables secure with no visible damage."
                         self.good_cable_conditions = "yes"
 
                         break
 
+                    # If cabling is damaged ...
                     elif (cables_not_loose_or_damaged == "damaged"):
 
                         print_responses(
@@ -2305,6 +2348,7 @@ class Ticket():
                             correct_ports=correct_ports, can_be_corrected=can_be_corrected,
                             cables_not_loose_or_damaged=cables_not_loose_or_damaged)
 
+                        # See which cables are damaged
                         damaged_cable = input(
                             "Which cable is damaged? Enter in format of 'beginning device and port > end device and port':\n")
 
@@ -2315,25 +2359,11 @@ class Ticket():
                             correct_ports=correct_ports, can_be_corrected=can_be_corrected,
                             cables_not_loose_or_damaged=cables_not_loose_or_damaged)
 
-                        can_be_replaced = input(
-                            "Can the cable be replaced? Enter “yes” or “no” to respond: ").lower().strip()
-
-                        if (can_be_replaced == "exit"):
-
-                            step_response = "exit"
+                        # Check if cabling can be replaced
+                        can_be_replaced = check_for_a_or_b(
+                            "Can the cable be replaced? Enter “yes” or “no” to respond: ", "yes", "no")
+                        if (step_response == "exit"):
                             return
-
-                        while (can_be_replaced != "yes" and can_be_replaced != "no"):
-                            print(
-                                "Invalid response - 'yes' or 'no' was not entered.")
-
-                            can_be_replaced = input(
-                                "\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                            if (can_be_replaced == "exit"):
-
-                                step_response = "exit"
-                                return
 
                         if (can_be_replaced == "no"):
                             step_response_sentence += "\nCable cannot be replaced."
@@ -2346,6 +2376,7 @@ class Ticket():
                             cables_not_loose_or_damaged = "yes"
                             self.good_cable_conditions = "yes"
 
+                    # If cabling is loose ...
                     elif (cables_not_loose_or_damaged == "loose"):
 
                         print_responses(
@@ -2353,6 +2384,7 @@ class Ticket():
                             correct_ports=correct_ports, can_be_corrected=can_be_corrected,
                             cables_not_loose_or_damaged=cables_not_loose_or_damaged)
 
+                        # See which cables are loose
                         loose_cable = input(
                             "Which cable is loose? Enter in format of 'beginning device and port > end device and port':\n")
 
@@ -2363,62 +2395,36 @@ class Ticket():
                             correct_ports=correct_ports, can_be_corrected=can_be_corrected,
                             cables_not_loose_or_damaged=cables_not_loose_or_damaged)
 
-                        can_be_fixed = input(
-                            "Can the cable be pushed in or replaced? Enter “yes” or “no” to respond: ").lower().strip()
-
-                        if (can_be_fixed == "exit"):
-
-                            step_response = "exit"
+                        # Check if cabling can be pushed in or replaced
+                        can_be_fixed = check_for_a_or_b(
+                            "Can the cable be pushed in or replaced? Enter “yes” or “no” to respond: ", "yes", "no")
+                        if (step_response == "exit"):
                             return
 
-                        while (can_be_fixed != "yes" and can_be_fixed != "no"):
-                            print(
-                                "Invalid response - 'yes' or 'no' was not entered.")
-
-                            can_be_fixed = input(
-                                "\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                            if (can_be_fixed == "exit"):
-
-                                step_response = "exit"
-                                return
-
+                        # If cabling cannot be pushed in or replaced ...
                         if (can_be_fixed == "no"):
                             step_response_sentence += "\nCable cannot be pushed in or replaced."
                             self.good_cable_conditions = "no"
 
                             break
 
+                        # If cabling can be pushed in or replaced ...
                         elif (can_be_fixed == "yes"):
                             step_response_sentence += "\nJust fixed cabling."
                             cables_not_loose_or_damaged = "yes"
                             self.good_cable_conditions = "yes"
 
-            # See if cabling can be checked
+            # If function hasn't been run before or previously stated cabling couldn't be checked ...
             if (self.can_check_cabling == "no" or self.can_check_cabling == None):
                 print_responses(can_be_checked=self.can_check_cabling)
 
-                # See if cabling can be checked
-                self.can_check_cabling = input(
-                    "Can cabling be checked? Enter “yes” or “no” to respond: ").lower().strip()
-
-                if (self.can_check_cabling == "exit"):
-
-                    step_response = "exit"
+                # Check if cabling can be checked
+                self.can_check_cabling = check_for_a_or_b(
+                    "Can cabling be checked? Enter “yes” or “no” to respond: ", "yes", "no")
+                if (step_response == "exit"):
                     return
 
-                while (self.can_check_cabling != "yes" and self.can_check_cabling != "no"):
-                    print("Invalid response - 'yes' or 'no' was not entered.")
-
-                    self.can_check_cabling = input(
-                        "\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                    if (self.can_check_cabling == "exit"):
-
-                        step_response = "exit"
-                        return
-
-            # if cabling cannot be checked, mention that and do nothing else
+            # if cabling cannot be checked ...
             if (self.can_check_cabling == "no"):
                 step_response_sentence = "Cabling cannot be checked."
 
@@ -2427,21 +2433,20 @@ class Ticket():
 
                 return
 
-            # if cabling can be checked, mention that and ask probing questions
+            # if cabling can be checked ...
             elif (self.can_check_cabling == "yes"):
 
                 correct_ports = ""
 
-                # In print_responses, there's simple 'pass' condition when value is never changed
                 can_be_corrected = ""
 
                 cables_not_loose_or_damaged = ""
 
-                # In print_responses, there's simple 'pass' conditions when values are never changed
                 can_be_replaced = ""
                 can_be_fixed = ""
 
                 self.cables_in_correct_ports = None
+                self.good_cable_conditions = None
 
                 check_cable_connections()
 
@@ -2453,7 +2458,6 @@ class Ticket():
 
                 check_cable_conditions()
 
-                # Edit this to account for all variables in all three functions
                 print_responses(
                     all_questions_answered=True, can_check_cabling=self.can_check_cabling,
                     correct_ports=correct_ports, can_be_corrected=can_be_corrected,
@@ -2535,29 +2539,17 @@ class Ticket():
 
             print("Were all the following devices power cycled:\n")
 
-            # Print the self.network_devices dictionary with printed indexes before each item (Ex. 1. Brand - Model | Type of device)
+            # Print all network devices
             for brand_and_model, type_of_device in self.network_devices.items():
                 print(brand_and_model + " | " + type_of_device)
 
-            can_be_power_cycled = input(
-                "\n\nEnter “yes” or “no” to respond: ").lower().strip()
-
-            if (can_be_power_cycled == "exit"):
-
-                step_response = "exit"
+            # Check if all network devices could be power cycled
+            can_be_power_cycled = check_for_a_or_b(
+                "\n\nEnter “yes” or “no” to respond: ", "yes", "no")
+            if (step_response == "exit"):
                 return
 
-            while (can_be_power_cycled != "yes" and can_be_power_cycled != "no"):
-                print("Invalid response - 'yes' or 'no' was not entered.")
-
-                can_be_power_cycled = input(
-                    "\nEnter “yes” or “no” to respond: ").lower().strip()
-
-                if (can_be_power_cycled == "exit"):
-
-                    step_response = "exit"
-                    return
-
+            # If all network devices could be power cycled ...
             if (can_be_power_cycled == "yes"):
                 step_response_sentence = "All network devices power cycled for 30 seconds off."
                 self.power_cycled = "yes"
@@ -2565,6 +2557,7 @@ class Ticket():
                 print_responses(all_questions_answered="True",
                                 can_be_power_cycled="Yes")
 
+            # If all network devices could not be power cycled ...
             if (can_be_power_cycled == "no"):
 
                 number_of_network_devices = len(self.network_devices)
@@ -3084,7 +3077,6 @@ class Ticket():
                 nonlocal step_response
                 nonlocal step_response_sentence
 
-                # Variable for whether device being checked is getting a non-self-assigned IP
                 # Set to none when checking a device since this value should be reset when checking a new device
                 self.device_has_valid_ip_but_no_internet = None
 
@@ -3124,33 +3116,18 @@ class Ticket():
                 if (device != "mobile device" and device != "tv"):
                     print_responses(device=device)
 
-                # if device is a computer, verify what type of computer is being checked
+                # if device is a computer ...
                 type_of_computer = ""
 
                 if (device == "computer"):
 
-                    type_of_computer = input(
-                        "What kind of computer is being checked?\nEnter “Windows”, “Mac”, or “Linux” to respond: ").lower().strip()
-
-                    if (type_of_computer == "exit"):
-
-                        step_response = "exit"
+                    # Check what type of computer is being checked
+                    type_of_computer = check_for_a_or_b_or_c(
+                        "What kind of computer is being checked?\nEnter “Windows”, “Mac”, or “Linux” to respond: ", "windows", "mac", "linux")
+                    if (step_response == "exit"):
                         return
 
-                    while (type_of_computer != "windows" and type_of_computer != "mac" and type_of_computer != "linux"):
-                        print(
-                            "\nInvalid response - Neither 'Windows', 'Mac', or 'Linux' were entered.")
-
-                        type_of_computer = input(
-                            "\nEnter “Windows”, “Mac”, or “Linux” to respond: ").lower().strip()
-
-                        if (type_of_computer == "exit"):
-
-                            step_response = "exit"
-                            return
-
-                # Display the device being checked
-
+                # Display device being checked
                 if (device == "other"):
                     name_of_device = input(
                         "What's the name of the device?\nEnter the device name to respond: ")
@@ -3169,37 +3146,25 @@ class Ticket():
 
                 how_device_is_connected = ""
 
-                # if not checking for internet on a mobile device, determine how the device is connected to the internet?
+                # if not checking for internet on a mobile device ...
                 if (device != "mobile device" or bypassing_main_router == True):
-                    how_device_is_connected = input(
-                        "Is the device bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
 
-                    if (how_device_is_connected == "exit"):
-
-                        step_response = "exit"
+                    # Check for how device connects to internet
+                    how_device_is_connected = check_for_a_or_b_or_c(
+                        "Is the device bypassing the main router, wiring to a network device, or using Wi-Fi?\nEnter 'bypass', 'wire', or 'wifi' to respond: ", "bypass", "wire", "wifi")
+                    if (step_response == "exit"):
                         return
-
-                    while (how_device_is_connected != "bypass" and how_device_is_connected != "wire" and how_device_is_connected != "wifi"):
-                        print(
-                            "\nInvalid response - Neither 'Bypass', 'Wire', or 'WiFi' were entered.")
-
-                        how_device_is_connected = input(
-                            "\nEnter 'bypass', 'wire', or 'wifi' to respond: ").lower().strip()
-
-                        if (how_device_is_connected == "exit"):
-
-                            step_response = "exit"
-                            return
 
                 name_of_wifi_network = ""
 
-                # if device connects over WiFi, determine what WiFi network the device is connected to
+                # If device connects over WiFi ...
                 if (how_device_is_connected == "wifi" or device == "mobile device"):
                     how_device_is_connected = "wifi"
 
                     print_responses(device=device, type_of_computer=type_of_computer,
                                     name_of_device=name_of_device, how_device_is_connected=how_device_is_connected)
 
+                    # Check what WiFi network device connects to
                     name_of_wifi_network = input(
                         "What WiFi network is the device connected to?\nEnter name of WiFi network to respond: ").strip()
 
@@ -3207,26 +3172,12 @@ class Ticket():
                                 name_of_device=name_of_device, how_device_is_connected=how_device_is_connected, name_of_wifi_network=name_of_wifi_network)
 
                 # Check if internet is working
-                is_internet_working = input(
-                    "Is the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
-
-                if (is_internet_working == "exit"):
-
-                    step_response = "exit"
+                is_internet_working = check_for_a_or_b(
+                    "Is the internet working?\nEnter 'yes' or 'no' to respond: ", "yes", "no")
+                if (step_response == "exit"):
                     return
 
-                while (is_internet_working != "yes" and is_internet_working != "no"):
-                    print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                    is_internet_working = input(
-                        "\nEnter 'yes' or 'no' to respond: ").lower().strip()
-
-                    if (is_internet_working == "exit"):
-
-                        step_response = "exit"
-                        return
-
-                # if yes, internet is working, add "Internet is working." to ticket.
+                # if internet is working ...
                 if (is_internet_working == "yes"):
 
                     if (how_device_is_connected == "bypass" or bypassing_main_router == True):
@@ -3235,17 +3186,16 @@ class Ticket():
                     elif (how_device_is_connected == "wire"):
                         step_response_sentence += "\nInternet is working when wired to a network device"
 
-                    # if device connects over WiFi, determine what WiFi network the device is connected to
                     elif (how_device_is_connected == "wifi" or device == "mobile device"):
                         step_response_sentence += "\nInternet is working when connected to SSID of: " + \
                             name_of_wifi_network
 
+                    self.devices_online = True
+
                     print_responses(all_questions_answered=True, device=device, type_of_computer=type_of_computer,
                                     name_of_device=name_of_device, how_device_is_connected=how_device_is_connected, name_of_wifi_network=name_of_wifi_network, is_internet_working=is_internet_working)
 
-                    self.devices_online = True
-
-                # if no, internet is not working, ask more probing questions:
+                # if internet is not working ...
                 elif (is_internet_working == "no"):
 
                     device_has_self_assigned_ip = None
@@ -3297,7 +3247,7 @@ class Ticket():
                                     name_of_wifi_network=name_of_wifi_network, is_internet_working=is_internet_working,
                                     ipv4_address=ipv4_address, default_gateway=default_gateway)
 
-                    # if device's IPv4 address is self-assigned, inform there's a self-assigned IP and/or manually renew the IP address
+                    # If device's IPv4 address is self-assigned ...
                     if (ipv4_address.startswith("169.254.")):
                         device_has_self_assigned_ip = True
                         self.device_has_valid_ip_but_no_internet = False
@@ -3366,7 +3316,7 @@ class Ticket():
 
                             step_response_sentence += "\nDefault Gateway: " + default_gateway
 
-                            # if there's still a self-assigned IPv4 address
+                            # if there's still a self-assigned IPv4 address ...
                             if (ipv4_address.startswith("169.254.")):
                                 device_has_self_assigned_ip = True
 
@@ -3377,7 +3327,7 @@ class Ticket():
                                                 name_of_wifi_network=name_of_wifi_network, is_internet_working=is_internet_working,
                                                 ipv4_address=ipv4_address, default_gateway=default_gateway)
 
-                            # if there's a non-self-assigned IPv4 address, ask if the internet is working
+                            # if there's a non-self-assigned IPv4 address ...
                             elif (not (ipv4_address.startswith("169.254."))):
                                 device_has_self_assigned_ip == False
 
@@ -3387,29 +3337,16 @@ class Ticket():
                                                 ipv4_address=ipv4_address, default_gateway=default_gateway)
 
                                 # Check if internet is working
-                                is_internet_working = input(
-                                    "Is the internet working?\nEnter 'yes' or 'no' to respond: ").lower().strip()
-
-                                if (is_internet_working == "exit"):
-
-                                    step_response = "exit"
+                                is_internet_working = check_for_a_or_b(
+                                    "Is the internet working?\nEnter 'yes' or 'no' to respond: ", "yes", "no")
+                                if (step_response == "exit"):
                                     return
 
-                                while (is_internet_working != "yes" and is_internet_working != "no"):
-                                    print(
-                                        "\nInvalid response - 'yes' or 'no' was not entered.")
-
-                                    is_internet_working = input(
-                                        "\nEnter 'yes' or 'no' to respond: ").lower().strip()
-
-                                    if (is_internet_working == "exit"):
-
-                                        step_response = "exit"
-                                        return
-
-                                # if internet is working, mention that and leave the function
+                                # if internet is working ...
                                 if (is_internet_working == "yes"):
                                     step_response_sentence += "\n\nInternet working now."
+
+                                    self.devices_online = True
 
                                     print_responses(all_questions_answered=True, device=device, type_of_computer=type_of_computer,
                                                     name_of_device=name_of_device, how_device_is_connected=how_device_is_connected,
@@ -3418,7 +3355,7 @@ class Ticket():
 
                                     return
 
-                                # if internet is not working, assign self.device_has_valid_ip_but_no_internet = True
+                                # if internet is not working ...
                                 if (is_internet_working == "no"):
                                     self.device_has_valid_ip_but_no_internet = True
 
@@ -3431,27 +3368,14 @@ class Ticket():
 
                     device_has_internet_after_power_cycling = ""
 
-                    # if there's no internet after manually renewing IPv4 address and devices besides this device are online, power cycle this device
+                    # if there's no internet after manually renewing IPv4 address and devices besides this device are online ...
                     if (self.devices_online == True and (device_has_self_assigned_ip == True or self.device_has_valid_ip_but_no_internet == True)):
-                        device_has_internet_after_power_cycling = input(
-                            "Is the internet working after power cycling the devive?\nEnter 'yes' or 'no': ").lower().strip()
 
-                        if (device_has_internet_after_power_cycling == "exit"):
-
-                            step_response = "exit"
+                        # Power cycle device
+                        device_has_internet_after_power_cycling = check_for_a_or_b(
+                            "Is the internet working after power cycling the devive?\nEnter 'yes' or 'no': ", "yes", "no")
+                        if (step_response == "exit"):
                             return
-
-                        while (device_has_internet_after_power_cycling != "yes" and device_has_internet_after_power_cycling != "no"):
-                            print(
-                                "\nInvalid response - 'yes' or 'no' was not entered.")
-
-                            device_has_internet_after_power_cycling = input(
-                                "\nEnter 'yes' or 'no' to respond: ").lower().strip()
-
-                            if (device_has_internet_after_power_cycling == "exit"):
-
-                                step_response = "exit"
-                                return
 
                         if (device_has_internet_after_power_cycling == "yes"):
                             self.device_has_valid_ip_but_no_internet = False
@@ -4188,56 +4112,28 @@ class Ticket():
 
             print_responses()
 
-            can_check_ont = input(
-                "Can the ONT be checked? Enter “yes” or “no” to respond: ").lower().strip()
+            if (self.can_check_ont == None or self.can_check_ont == "no"):
+                self.can_check_ont = check_for_a_or_b(
+                    "Can the ONT be checked? Enter “yes” or “no” to respond: ", "yes", "no")
 
-            if (can_check_ont == "exit"):
+                # if the ONT cannot be checked, mention that and do nothing else
+                if (self.can_check_ont == "no"):
+                    step_response_sentence = "ONT cannot be checked."
 
-                step_response = "exit"
-                return
-
-            while (can_check_ont != "yes" and can_check_ont != "no"):
-                print("\nInvalid response - 'yes' or 'no' was not entered.")
-
-                can_check_ont = input(
-                    "\nCan the ONT be checked? Enter “yes” or “no” to respond: ").lower().strip()
-
-                if (can_check_ont == "exit"):
-
-                    step_response = "exit"
-                    return
-
-            # if the ONT cannot be checked, mention that and do nothing else
-            if (can_check_ont == "no"):
-                step_response_sentence = "ONT cannot be checked."
-
-                print_responses(all_questions_answered=True,
-                                can_check_ont=can_check_ont)
+                    print_responses(all_questions_answered=True,
+                                    can_check_ont=self.can_check_ont)
 
             # if ONT can be checked, check the ONT lights
-            elif (can_check_ont == "yes"):
+            if (self.can_check_ont == "yes"):
 
                 step_response_sentence = "ONT"
-                ont_light = ""
 
-                while (ont_light.lower().strip() != "done"):
-
-                    print_responses(checking_ont_lights=True,
-                                    can_check_ont=can_check_ont)
-
-                    ont_light = input(
-                        "Enter light in format of 'Light Name: Color – Status': ").strip()
-
-                    if (ont_light.lower().strip() == "exit"):
-                        step_response = "exit"
-                        return
-                    elif (ont_light.lower().strip() == "done"):
-                        break
-
-                    step_response_sentence += "\n" + ont_light
+                document_lights_or_cabling("lights", print_responses)
 
                 print_responses(all_questions_answered=True,
-                                can_check_ont=can_check_ont)
+                                can_check_ont=self.can_check_ont)
+
+            self.set_troubleshooting_steps()
 
         def check_battery_backup():
 
@@ -4526,6 +4422,7 @@ class Ticket():
                                     step_response_sentence += "\nBattery backup gets power from outlet's other port."
 
                                     self.battery_backup_status = "on"
+                                    self.battery_backup_fixed = True
                                     return
 
                 # Check if a nearby GCF reset button can be pressed
@@ -4581,6 +4478,7 @@ class Ticket():
                             step_response_sentence += "\n\nPressed GFCI reset button. > Battery backup has power."
 
                             self.battery_backup_status = "on"
+                            self.battery_backup_fixed = True
                             return
 
                 # Check if battery backup can be plugged into a different, working outlet
@@ -4640,6 +4538,7 @@ class Ticket():
                             step_response_sentence += "\n\nBattery backup has power after wiring to a working outlet."
 
                             self.battery_backup_status = "on"
+                            self.battery_backup_fixed = True
                             return
 
                 print_responses(
@@ -4776,6 +4675,7 @@ class Ticket():
                                 step_response_sentence += "\nReset breakers > Internet is back online."
 
                             self.battery_backup_status = "on"
+                            self.battery_backup_fixed = True
 
             print_responses()
 
@@ -4828,6 +4728,8 @@ class Ticket():
                             are_any_breakers_tripped_or_off=are_any_breakers_tripped_or_off,
                             does_resetting_breakers_give_battery_backup_power=does_resetting_breakers_give_battery_backup_power,
                             battery_backup_status=self.battery_backup_status)
+
+            self.set_troubleshooting_steps()
 
         if (step == "Check account status."):
             system.clear_prompt_or_terminal()
