@@ -1333,7 +1333,7 @@ class Ticket():
 
         # Used when asking for a comma seperated string
         # Returns formatted string, list, and list length
-        def manipulate_comma_seperated_string(instructions, user_list=None, how_to_compare=None):
+        def manipulate_comma_seperated_string(instructions):
 
             nonlocal step_response
 
@@ -1353,9 +1353,6 @@ class Ticket():
 
             # Remove duplicate items from the list
             list_from_string = list(set(list_from_string))
-
-            # if (list != None):
-            #     check_if_all_list_one_values_are_in_list_two(list_from_string, list)
 
             # Create int type variable for the number of items in list_from_string
             list_length = len(list_from_string)
@@ -1658,6 +1655,11 @@ class Ticket():
             offline_services = ""
             online_services = ""
 
+            # User chooses an option from this list
+            service_options = ["internet", "email",
+                               "phone", "cable tv", "iptv"]
+
+            # These lists populate based on what user enters
             services_list = []
             offline_services_list = []
             online_services_list = []
@@ -1814,11 +1816,23 @@ class Ticket():
             print_responses(
                 checking_services="services", devices_online=str(self.devices_online))
 
-            # Check for services provided by service provider.
-            services, services_list, number_of_services = manipulate_comma_seperated_string(
-                "Enter a comma seperated list of services: ")
-            if (step_response == "exit"):
-                return
+            valid_services = False
+
+            while (valid_services == False):
+
+                # Check for services provided by service provider
+                services, services_list, number_of_services = manipulate_comma_seperated_string(
+                    "Enter a comma seperated list of services: ")
+                if (step_response == "exit"):
+                    return
+
+                # Check if all services entered are valid options
+                valid_services = all(
+                    service in service_options for service in services_list)
+
+                if (valid_services == False):
+                    print(
+                        "\nInvalid response - Not all entered services are valid options.\n")
 
             if (self.service in self.internet_services and (self.category == "Connectivity" or self.category == "Intermittent Connectivity/Speed")):
                 step_response_sentence += "\n\nServices: " + services
@@ -1831,24 +1845,48 @@ class Ticket():
                 print_responses(
                     checking_services="offline_services", devices_online=str(self.devices_online), services=services)
 
-                # Check for offline services provided by service provider.
-                offline_services, offline_services_list, number_of_offline_services = manipulate_comma_seperated_string(
-                    "Enter a comma seperated list of offline services: ")
-                if (step_response == "exit"):
-                    return
+                valid_offline_services = False
 
-                # Prompt for offline services repeatedly
-                # If user entered more offline services than services ...
-                while ((number_of_offline_services > number_of_services)):
-
-                    print(
-                        "There cannot be more offline services than services provided by service provider.")
+                while (valid_offline_services == False):
 
                     # Check for offline services provided by service provider.
                     offline_services, offline_services_list, number_of_offline_services = manipulate_comma_seperated_string(
                         "Enter a comma seperated list of offline services: ")
                     if (step_response == "exit"):
                         return
+
+                    # Check if all services entered are valid options
+                    valid_offline_services = all(
+                        service in service_options for service in offline_services_list)
+
+                    if (valid_offline_services == False):
+                        print(
+                            "\nInvalid response - Not all entered services are valid options.\n")
+
+                # # Prompt for offline services repeatedly
+                # # If user entered more offline services than services ...
+                # while ((number_of_offline_services > number_of_services)):
+
+                #     print(
+                #         "There cannot be more offline services than services provided by service provider.")
+
+                #     valid_online_services = False
+
+                #     while (valid_online_services == False):
+
+                #         # Check for offline services provided by service provider.
+                #         offline_services, offline_services_list, number_of_offline_services = manipulate_comma_seperated_string(
+                #             "Enter a comma seperated list of offline services: ")
+                #         if (step_response == "exit"):
+                #             return
+
+                #         # Check if all services entered are valid options
+                #         valid_online_services = all(
+                #             service in service_options for service in online_services_list)
+
+                #         if (valid_online_services == False):
+                #             print(
+                #                 "\nInvalid response - Not all entered services are valid options.\n")
 
                 # # While not offline services are provided by the service provider
                 # while (not all(offline_service in offline_services_list for service in service_list)):
@@ -1891,11 +1929,23 @@ class Ticket():
                     print_responses(
                         checking_services="online_services", devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list))
 
-                    # Check for online services provided by service provider.
-                    online_services, online_services_list, number_of_online_services = manipulate_comma_seperated_string(
-                        "Enter a comma seperated list of working services: ")
-                    if (step_response == "exit"):
-                        return
+                    valid_online_services = False
+
+                    while (valid_online_services == False):
+
+                        # Check for online services provided by service provider.
+                        online_services, online_services_list, number_of_online_services = manipulate_comma_seperated_string(
+                            "Enter a comma seperated list of working services: ")
+                        if (step_response == "exit"):
+                            return
+
+                        # Check if all services entered are valid options
+                        valid_online_services = all(
+                            service in service_options for service in online_services_list)
+
+                        if (valid_online_services == False):
+                            print(
+                                "\nInvalid response - Not all entered services are valid options.\n")
 
                     step_response_sentence += "\nOnline Services: " + online_services
 
