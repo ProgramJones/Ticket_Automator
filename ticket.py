@@ -1343,7 +1343,7 @@ class Ticket():
             if (comma_seperated_string == "exit"):
                 comma_seperated_string = ""
                 step_response = "exit"
-                return
+                return "", "", ""
 
             # Create a list of all words in comma_seperated_string
             list_from_string = comma_seperated_string.split(",")
