@@ -121,60 +121,60 @@ class Ticket():
             "Check account status.",
             "Check landline phone for dial tone.",
             "Check status of all services.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check cabling.", "Power cycle all network devices.", "Check ONT.",
             "Check ONT's battery backup.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check network devices for internet.", "Check a device for internet.",  "Run ping tests on a computer."
         ]
         self.dsl_connectivity_steps = [
             "Check account status.",
             "Check landline phone for dial tone.",
             "Check status of all services.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check cabling.", "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check network devices for internet.", "Check a device for internet.", "Run ping tests on a computer."
         ]
         self.cable_connectivity_steps = [
             "Check account status.",
             "Check status of all services.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check cabling.", "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check network devices for internet.", "Check a device for internet.", "Run ping tests on a computer."
         ]
         self.fixed_wireless_connectivity_steps = [
             "Check account status.",
             "Check status of all services.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check cabling.", "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check network devices for internet.", "Check a device for internet.", "Run ping tests on a computer."
         ]
         self.general_connectivity_steps = [
             "Check account status.",
             "Check status of all services.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check cabling.", "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check network devices for internet.", "Check a device for internet.", "Run ping tests on a computer."
         ]
         self.speed_steps = [
             "Run speed tests on a device.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check cabling.",
             "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check network devices for internet.", "Check a device for internet.",
             "Run speed tests on a device.", "Run ping tests on a computer."
         ]
         self.intermittent_connectivity_and_speed_steps = [
             "Check status of all services.", "Run speed tests on a device.", "Run ping tests on a computer.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check cabling.",
             "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check network devices for internet.", "Check a device for internet.",
             "Run speed tests on a device.", "Run ping tests on a computer."
         ]
@@ -182,10 +182,10 @@ class Ticket():
             "Check status of all services.",
             "Check landline phone for dial tone.",
             "Run speed tests on a device.", "Run ping tests on a computer.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check cabling.",
             "Power cycle all network devices.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check network devices for internet.", "Check a device for internet.",
             "Run speed tests on a device.", "Run ping tests on a computer."
         ]
@@ -193,12 +193,12 @@ class Ticket():
             "Check status of all services.",
             "Check landline phone for dial tone.",
             "Run speed tests on a device.", "Run ping tests on a computer.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check cabling.",
             "Power cycle all network devices.",
             "Check ONT.",
             "Check ONT's battery backup.",
-            "Check each network device’s name, model, and lights.",
+            "Check each network device's name, model, and lights.",
             "Check network devices for internet.", "Check a device for internet.",
             "Run speed tests on a device.", "Run ping tests on a computer."
         ]
@@ -525,6 +525,36 @@ class Ticket():
 
         self.troubleshooting_steps = []
 
+        def determine_steps_after_checking_network_devices_for_internet():
+
+            # END of branch - Main router offline | Third party
+            if (self.main_router["status"] == "offline" and self.main_router["provided_by"] == "third party" and
+                    self.main_router["can_bypass"] == "no"):
+                self.ticket_status = "Ticket Status: Problem should be referred to a third party.\nThe main router is offline and can't be bypassed."
+
+            # END of branch - Main router offline | service provider
+            elif (self.main_router["status"] == "offline" and self.main_router["provided_by"] == "service provider" and
+                    self.main_router["can_bypass"] == "no"):
+                self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe main router is offline and can't be bypassed."
+
+            # If the main router is online - If main router is offline and can be bypassed
+            elif (self.main_router["status"] == "online" or (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes")):
+                self.ticket_status = "Ticket Status: Problem not resolved yet.\nNetwork devices show internet, but a device hasn't been checked for internet."
+
+                self.recommended_troubleshooting_steps[0].append(
+                    "Check a device for internet.")
+
+            # if main router is online and additional router is offline
+
+            # if main router is online and extender is offline
+
+        def determine_steps_when_device_ip_is_valid_but_theres_no_internet():
+            # END of branch - If checked device has no valid IP - If no other device is online
+            if (self.device_has_valid_ip_but_no_internet == True and self.devices_online == False):
+                self.ticket_status = "Ticket Status: Problem not resolved yet.\nAt least one device has a valid IP, but there's still no internet."
+                self.recommended_troubleshooting_steps[0].append(
+                    "Run ping tests on a computer.")
+
         # Connectivity Steps
 
         # If current service is DSL and category is Connectivity, assign self.troubleshooting_steps to value of self.dsl_connectivity_steps
@@ -623,26 +653,65 @@ class Ticket():
                                 self.recommended_troubleshooting_steps[0].append(
                                     "Check a device for internet.")
 
-                            # If a device has internet ...
+                            # END OF BRANCH - If a device has internet ...
                             elif (self.devices_online == True):
                                 self.ticket_status = "Ticket Status: Problem resolved.\nInternet and landline are back online."
-
-                                # END OF BRANCH
 
                             # If a device has no internet ...
                             elif (self.devices_online == False):
 
-                                # (Possible router problem - TASK: Code this condition then branch is done)
-                                #
-                                # Add:
-                                # "Check each network device’s name, model, and lights."
-                                # "Check cabling."
-                                # "Power cycle all network devices."
-                                # "Check each network device’s name, model, and lights."
-                                # "Check network devices for internet."
-                                # "Check a device for internet."
-                                # "Run ping tests on a computer."
-                                pass
+                                if (len(self.recommended_troubleshooting_steps[0]) == 7):
+                                    self.recommended_troubleshooting_steps[0].append(
+                                        "Check each network device's name, model, and lights.")
+                                    self.recommended_troubleshooting_steps[0].append(
+                                        "Check cabling.")
+
+                                # if cables in wrong ports can't be moved ...
+                                elif (self.cables_in_correct_ports == False):
+                                    self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be switched to the correct ports."
+
+                                # If checked network devices and cabling
+                                elif (self.can_check_cabling != None and self.can_check_network_device_lights != None):
+
+                                    if (len(self.recommended_troubleshooting_steps[0]) == 9):
+                                        self.ticket_status = "Ticket Status: Problem not resolved yet.\nAttempted to check cabling, but network devices haven't been power cycled."
+
+                                        self.recommended_troubleshooting_steps[0].append(
+                                            "Power cycle all network devices.")
+
+                                    elif (self.power_cycled == "yes"):
+
+                                        if (len(self.recommended_troubleshooting_steps[0]) == 10):
+                                            self.recommended_troubleshooting_steps[0].append(
+                                                "Check each network device's name, model, and lights.")
+                                            self.recommended_troubleshooting_steps[0].append(
+                                                "Check network devices for internet.")
+
+                                        # Condition after step to check network devices is added ...
+                                        elif (len(self.recommended_troubleshooting_steps[0]) == 12):
+
+                                            determine_steps_after_checking_network_devices_for_internet()
+
+                                        # Condition after step to check devices is added ...
+                                        elif (len(self.recommended_troubleshooting_steps[0]) == 13):
+
+                                            determine_steps_when_device_ip_is_valid_but_theres_no_internet()
+
+                                    elif (self.power_cycled == "no"):
+
+                                        if (len(self.recommended_troubleshooting_steps[0]) == 10):
+                                            self.recommended_troubleshooting_steps[0].append(
+                                                "Check network devices for internet.")
+
+                                        # Condition after step to check network devices is added ...
+                                        elif (len(self.recommended_troubleshooting_steps[0]) == 11):
+
+                                            determine_steps_after_checking_network_devices_for_internet()
+
+                                        # Condition after step to check devices is added ...
+                                        elif (len(self.recommended_troubleshooting_steps[0]) == 12):
+
+                                            determine_steps_when_device_ip_is_valid_but_theres_no_internet()
 
                 # If either some or the only service is offline ...
                 # Branching from the 'check_status_of_all_services' function
@@ -652,19 +721,24 @@ class Ticket():
 
                     if (len(self.recommended_troubleshooting_steps[0]) == 2):
                         self.recommended_troubleshooting_steps[0].append(
-                            "Check each network device’s name, model, and lights.")
+                            "Check each network device's name, model, and lights.")
                         self.recommended_troubleshooting_steps[0].append(
                             "Check cabling.")
 
-                    elif (self.can_check_cabling != None and self.can_check_network_device_lights != None and len(self.recommended_troubleshooting_steps[0]) == 4):
-                        self.ticket_status = "Ticket Status: Problem not resolved yet.\nAttempted to check cabling, but network devices haven't been power cycled."
+                    # if cables in wrong ports can't be moved ...
+                    elif (self.cables_in_correct_ports == False):
+                        self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be switched to the correct ports."
 
-                        self.recommended_troubleshooting_steps[0].append(
-                            "Power cycle all network devices.")
+                    elif (len(self.recommended_troubleshooting_steps[0]) == 4):
 
-                    # Branching from the 'power_cycle' function
-                    #
-                    # If ONT status unknown and no equipment could be power cycled ...
+                        # If attempted to check network devices and cabling ...
+                        if (self.can_check_cabling != None and self.can_check_network_device_lights != None):
+                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nAttempted to check cabling, but network devices haven't been power cycled."
+
+                            self.recommended_troubleshooting_steps[0].append(
+                                "Power cycle all network devices.")
+
+                    # Branching from the 'power_cycle' function - If ONT status unknown and no equipment could be power cycled ...
                     elif ((self.only_service_offline == True) and (self.power_cycled == "no")):
 
                         if (len(self.recommended_troubleshooting_steps[0]) == 5):
@@ -674,19 +748,14 @@ class Ticket():
                             self.recommended_troubleshooting_steps[0].append(
                                 "Check ONT's battery backup.")
 
-                    # Branching from the 'power_cycle' function
-                    #
-                    # ONT is online or unknown status| Equipment power cycled
+                    # Branching from the 'power_cycle' function - ONT is online/unknown status | Equipment power cycled
                     elif (self.power_cycled == "yes"):
 
-                        # TASK: Assign ticket status for all below scenarios
-
                         if (len(self.recommended_troubleshooting_steps[0]) == 5):
-
                             self.ticket_status = "Ticket Status: Problem not resolved yet.\nEquipment power cycled, but network devices haven't been checked for internet."
 
                             self.recommended_troubleshooting_steps[0].append(
-                                "Check each network device’s name, model, and lights.")
+                                "Check each network device's name, model, and lights.")
                             self.recommended_troubleshooting_steps[0].append(
                                 "Check network devices for internet.")
 
@@ -698,76 +767,34 @@ class Ticket():
 
                             pass
 
-                        # END of branch - Main router offline | Third party
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 7 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "third party" and
-                              self.main_router["can_bypass"] == "no"
-                              ):
-                            self.ticket_status = "Ticket Status: Problem should be referred to a third party.\nThe main router is offline and can't be bypassed."
+                        # Condition after step to check network devices is added ...
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 7):
 
-                        # END of branch - Main router offline | service provider
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 7 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "service provider" and
-                              self.main_router["can_bypass"] == "no"
-                              ):
-                            self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe main router is offline and can't be bypassed."
+                            determine_steps_after_checking_network_devices_for_internet()
 
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 7 and (self.main_router["status"] == "online" or (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"))):
+                        # Condition after step to check devices is added ...
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 8):
 
-                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nNetwork devices show internet, but a device hasn't been checked for internet."
-                            self.recommended_troubleshooting_steps[0].append(
-                                "Check a device for internet.")
+                            determine_steps_when_device_ip_is_valid_but_theres_no_internet()
 
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 8 and (self.device_has_valid_ip_but_no_internet == True and self.devices_online == False)):
-
-                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nAt least one device has a valid IP, but there's still no internet."
-                            self.recommended_troubleshooting_steps[0].append(
-                                "Run ping tests on a computer.")
-
-                            # END OF BRANCH
-
-                        # if main router is online and additional router is offline
-
-                        # if main router is online and extender is offline
-
-                    # Branching from the 'power_cycle' function
-                    #
-                    # ONT is online | No equipment could be powercycled
+                    # Branching from the 'power_cycle' function - ONT is online | No equipment could be powercycled
                     elif (self.power_cycled == "no"):
 
-                        if (len(self.recommended_troubleshooting_steps[0]) == 7):
+                        if (len(self.recommended_troubleshooting_steps[0]) == 5):
 
                             self.ticket_status = "Ticket Status: Problem not resolved yet.\nEquipment could not be power cycled, but network devices can still be checked for internet."
                             self.recommended_troubleshooting_steps[0].append(
                                 "Check network devices for internet.")
 
-                        # END of branch - Main router offline | Third party
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 8 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "third party" and
-                              self.main_router["can_bypass"] == "no"
-                              ):
-                            self.ticket_status = "Ticket Status: Problem should be referred to a third party.\nThe main router is offline and can't be bypassed."
+                        # Condition after step to check network devices is added ...
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 6):
 
-                        # END of branch - Main router offline | service provider
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 8 and self.main_router["status"] == "offline" and self.main_router["provided_by"] == "service provider" and
-                              self.main_router["can_bypass"] == "no"
-                              ):
-                            self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe main router is offline and can't be bypassed."
+                            determine_steps_after_checking_network_devices_for_internet()
 
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 8 and (self.main_router["status"] == "online" or (self.main_router["status"] == "offline" and self.main_router["can_bypass"] == "yes"))):
+                        # Condition after step to check devices is added ...
+                        elif (len(self.recommended_troubleshooting_steps[0]) == 7):
 
-                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nNetwork devices show internet, but a device hasn't been checked for internet."
-                            self.recommended_troubleshooting_steps[0].append(
-                                "Check a device for internet.")
-
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 9 and (self.device_has_valid_ip_but_no_internet == True and self.devices_online == False)):
-
-                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nAt least one device has a valid IP, but there's still no internet."
-                            self.recommended_troubleshooting_steps[0].append(
-                                "Run ping tests on a computer.")
-
-                            # END OF BRANCH
-
-                        # if main router is online and additional router is offline
-
-                        # if main router is online and extender is offline
+                            determine_steps_when_device_ip_is_valid_but_theres_no_internet()
 
                 self.troubleshooting_steps = self.recommended_troubleshooting_steps
 
@@ -1543,10 +1570,10 @@ class Ticket():
             # - Condition: Multiple and all services used are offline
 
             # self.ticket_status = "Ticket Status: Problem not resolved yet.\nONT is online, but there's no internet - Issue may be the router or some other device"
-            # - Show Steps: "Check each network device’s name, model, and lights.", "Check cabling.", "Check if cables are in the correct ports."
+            # - Show Steps: "Check each network device's name, model, and lights.", "Check cabling.", "Check if cables are in the correct ports."
             # - Condition: Fiber - Multiple servicves used, but only this service, self.service, is offline
             # Note: Results from "Check if cables are in the correct ports." may add "Check cable conditions." which may add "Power cycle all network devices.",
-            # "Check each network device’s name, model, and lights.", and "Check network devices for internet."
+            # "Check each network device's name, model, and lights.", and "Check network devices for internet."
 
             # self.ticket_status = "Ticket Status: Problem not resolved yet.\nOther services are working fine."
             # Show Steps: Same as above
@@ -2073,6 +2100,8 @@ class Ticket():
                 if (self.can_check_network_device_lights == "no"):
                     step_response_sentence = "No network devices can be checked."
 
+                    self.set_troubleshooting_steps()
+
                     print_responses(all_questions_answered="True",
                                     can_check_network_device_lights=self.can_check_network_device_lights)
 
@@ -2301,8 +2330,6 @@ class Ticket():
                     # If cables cannot be moved to the correct ports ...
                     elif (can_be_corrected == "no"):
                         self.cables_in_correct_ports = False
-
-                        self.ticket_status = "Ticket Status: Problem can't be resolved right now.\nCables can't be switched to the correct ports."
                         step_response_sentence += "\nCables can't be moved to the correct ports."
 
                         print_responses(
@@ -2428,6 +2455,8 @@ class Ticket():
             if (self.can_check_cabling == "no"):
                 step_response_sentence = "Cabling cannot be checked."
 
+                self.set_troubleshooting_steps()
+
                 print_responses(
                     all_questions_answered="True", can_check_cabling=self.can_check_cabling)
 
@@ -2470,7 +2499,7 @@ class Ticket():
             # self.ticket_status = "Ticket Status: Problem not resolved yet.\nPower cycled network devices but haven't verified service works."
             #
             # self.power_cycled == "yes"
-            # - Show Steps: "Check each network device’s name, model, and lights.", "Check network devices for internet."
+            # - Show Steps: "Check each network device's name, model, and lights.", "Check network devices for internet."
             # - Condition: Power cycled all network devices, Power cycled some network devices
             #
             # self.power_cycled == "no" and self.only_service_offline == True
@@ -2511,8 +2540,11 @@ class Ticket():
                             print(
                                 "All network devices power cycled: " + value)
                         if (key == "could_not_power_cycle_list"):
-                            print(
-                                "Could not power cycle: " + value)
+                            if (value == ""):
+                                pass
+                            else:
+                                print(
+                                    "Could not power cycle: " + value)
 
                 print("\n----------------------------------\n\n\n")
 
@@ -2555,26 +2587,31 @@ class Ticket():
                 self.power_cycled = "yes"
 
                 print_responses(all_questions_answered="True",
-                                can_be_power_cycled="Yes")
+                                can_be_power_cycled=can_be_power_cycled)
 
             # If all network devices could not be power cycled ...
             if (can_be_power_cycled == "no"):
 
                 number_of_network_devices = len(self.network_devices)
 
-                print_responses(
-                    can_be_power_cycled="No")
+                could_not_power_cycle_list = ""
 
-                could_not_power_cycle = input(
-                    "Enter a comma seperated list of devices that couldn't be power cycled: ").lower().strip()
+                if (number_of_network_devices != 0):
 
-                # Create a list of devices that couldn't be power cycled from sentence entered by user, with a new entry in list after every entered comma
-                could_not_power_cycle_list = could_not_power_cycle.split(",")
-                # Strip any whitespace before and after every device in list
-                could_not_power_cycle_list = [
-                    device.strip() for device in could_not_power_cycle_list]
+                    print_responses(
+                        can_be_power_cycled=can_be_power_cycled)
 
-                if (number_of_network_devices == len(could_not_power_cycle_list)):
+                    could_not_power_cycle = input(
+                        "Enter a comma seperated list of devices that couldn't be power cycled: ").lower().strip()
+
+                    # Create a list of devices that couldn't be power cycled from sentence entered by user, with a new entry in list after every entered comma
+                    could_not_power_cycle_list = could_not_power_cycle.split(
+                        ",")
+                    # Strip any whitespace before and after every device in list
+                    could_not_power_cycle_list = [
+                        device.strip() for device in could_not_power_cycle_list]
+
+                if ((number_of_network_devices == len(could_not_power_cycle_list)) or number_of_network_devices == 0):
                     step_response_sentence = "Was not able to power cycle any network device."
                     self.power_cycled = "no"
 
@@ -2594,7 +2631,7 @@ class Ticket():
 
             # self.ticket_status = "Ticket Status: Problem not resolved yet.\nIndoor ONT has internet but the main router does not - Bypass the main router."
             # self.power_cycled == "yes"
-            # - Show Steps: "Check each network device’s name, model, and lights.", "Check network devices for internet."
+            # - Show Steps: "Check each network device's name, model, and lights.", "Check network devices for internet."
             # - Condition: Power cycled all network devices, Power cycled some network devices
 
             nonlocal step_response
@@ -4743,7 +4780,7 @@ class Ticket():
             system.clear_prompt_or_terminal()
             check_status_of_all_services()
 
-        elif (step == "Check each network device’s name, model, and lights."):
+        elif (step == "Check each network device's name, model, and lights."):
             system.clear_prompt_or_terminal()
             check_each_network_device()
 
@@ -4959,7 +4996,7 @@ class Ticket():
             print("Is the router in any of the following closed spaces for example:\n\n")
 
             print(
-                "Closet\nCabinet\nEntertainment Center\nKitchen\nLaundry room\nBesides a phone’s base\n\n")
+                "Closet\nCabinet\nEntertainment Center\nKitchen\nLaundry room\nBesides a phone's base\n\n")
 
             if_closed_space = input(
                 "Enter 'yes' or 'no' to respond: ").lower().strip()
@@ -4981,7 +5018,7 @@ class Ticket():
                     return
 
             if (if_closed_space == "no"):
-                question_response_sentence = "Router is not in a closed space like a closet, cabinet, entertainment center, kitchen/laundry room, or besides a phone’s base."
+                question_response_sentence = "Router is not in a closed space like a closet, cabinet, entertainment center, kitchen/laundry room, or besides a phone's base."
 
             elif (if_closed_space == "yes"):
 
