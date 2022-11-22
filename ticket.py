@@ -584,13 +584,11 @@ class Ticket():
                 # - Branching from the 'check_status_of_all_services' function
                 elif (self.devices_online == True and self.devices_offline == True):
 
-                    # self.ticket_status assigned in 'check_status_of_all_services'
+                    # END of branch - self.ticket_status assigned in 'check_status_of_all_services'
 
                     if (len(self.recommended_troubleshooting_steps[0]) == 2):
                         self.recommended_troubleshooting_steps[0].append(
                             "Check a device for internet.")
-
-                    # END OF BRANCH
 
                 # If all services are offline ...
                 # - Branching from the 'check_status_of_all_services' function
@@ -687,12 +685,12 @@ class Ticket():
                                             self.recommended_troubleshooting_steps[0].append(
                                                 "Check network devices for internet.")
 
-                                        # Condition after step to check network devices is added ...
+                                        # END of branch - Condition after step to check network devices is added ...
                                         elif (len(self.recommended_troubleshooting_steps[0]) == 12):
 
                                             determine_steps_after_checking_network_devices_for_internet()
 
-                                        # Condition after step to check devices is added ...
+                                        # END of branch - Condition after step to check devices is added ...
                                         elif (len(self.recommended_troubleshooting_steps[0]) == 13):
 
                                             determine_steps_when_device_ip_is_valid_but_theres_no_internet()
@@ -703,12 +701,12 @@ class Ticket():
                                             self.recommended_troubleshooting_steps[0].append(
                                                 "Check network devices for internet.")
 
-                                        # Condition after step to check network devices is added ...
+                                        # END of branch - Condition after step to check network devices is added ...
                                         elif (len(self.recommended_troubleshooting_steps[0]) == 11):
 
                                             determine_steps_after_checking_network_devices_for_internet()
 
-                                        # Condition after step to check devices is added ...
+                                        # END of branch - Condition after step to check devices is added ...
                                         elif (len(self.recommended_troubleshooting_steps[0]) == 12):
 
                                             determine_steps_when_device_ip_is_valid_but_theres_no_internet()
@@ -738,63 +736,94 @@ class Ticket():
                             self.recommended_troubleshooting_steps[0].append(
                                 "Power cycle all network devices.")
 
-                    # Branching from the 'power_cycle' function - If ONT status unknown and no equipment could be power cycled ...
-                    elif ((self.only_service_offline == True) and (self.power_cycled == "no")):
+                    # If ONT status unknown ...
+                    elif (self.only_service_offline == True):
 
-                        if (len(self.recommended_troubleshooting_steps[0]) == 5):
-                            # Might be better to see if we can bypass, and only check the ONT if we can't bypass
-                            self.recommended_troubleshooting_steps[0].append(
-                                "Check ONT.")
-                            self.recommended_troubleshooting_steps[0].append(
-                                "Check ONT's battery backup.")
+                        # Branching from the 'power_cycle' function - If no equipment could be power cycled ...
+                        if (self.power_cycled == "no"):
 
-                    # Branching from the 'power_cycle' function - ONT is online/unknown status | Equipment power cycled
-                    elif (self.power_cycled == "yes"):
+                            if (len(self.recommended_troubleshooting_steps[0]) == 5):
+                                # Might be better to see if we can bypass, and only check the ONT if we can't bypass
+                                self.recommended_troubleshooting_steps[0].append(
+                                    "Check ONT.")
+                                self.recommended_troubleshooting_steps[0].append(
+                                    "Check ONT's battery backup.")
 
-                        if (len(self.recommended_troubleshooting_steps[0]) == 5):
-                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nEquipment power cycled, but network devices haven't been checked for internet."
+                                # Add steps after ONT
 
-                            self.recommended_troubleshooting_steps[0].append(
-                                "Check each network device's name, model, and lights.")
-                            self.recommended_troubleshooting_steps[0].append(
-                                "Check network devices for internet.")
+                        elif (self.power_cycled == "yes"):
 
-                        # If main router offline and the only service is offline ...
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 7 and self.main_router["status"] == "offline" and
-                              self.only_service_offline == True):
+                            if (len(self.recommended_troubleshooting_steps[0]) == 5):
+                                self.ticket_status = "Ticket Status: Problem not resolved yet.\nEquipment power cycled, but network devices haven't been checked for internet."
 
-                            # TASK: Check ONT
+                                self.recommended_troubleshooting_steps[0].append(
+                                    "Check each network device's name, model, and lights.")
+                                self.recommended_troubleshooting_steps[0].append(
+                                    "Check network devices for internet.")
 
-                            pass
+                            # If main router offline ...
+                            elif (self.main_router["status"] == "offline"):
 
-                        # Condition after step to check network devices is added ...
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 7):
+                                if (len(self.recommended_troubleshooting_steps[0]) == 7):
 
-                            determine_steps_after_checking_network_devices_for_internet()
+                                    # Add ONT steps
 
-                        # Condition after step to check devices is added ...
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 8):
+                                    pass
 
-                            determine_steps_when_device_ip_is_valid_but_theres_no_internet()
+                            elif (self.main_router["status"] == "online"):
 
-                    # Branching from the 'power_cycle' function - ONT is online | No equipment could be powercycled
-                    elif (self.power_cycled == "no"):
+                                # Condition after step to check network devices is added ...
+                                if (len(self.recommended_troubleshooting_steps[0]) == 7):
 
-                        if (len(self.recommended_troubleshooting_steps[0]) == 5):
+                                    determine_steps_after_checking_network_devices_for_internet()
 
-                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nEquipment could not be power cycled, but network devices can still be checked for internet."
-                            self.recommended_troubleshooting_steps[0].append(
-                                "Check network devices for internet.")
+                                # Condition after step to check devices is added ...
+                                elif (len(self.recommended_troubleshooting_steps[0]) == 8):
 
-                        # Condition after step to check network devices is added ...
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 6):
+                                    determine_steps_when_device_ip_is_valid_but_theres_no_internet()
 
-                            determine_steps_after_checking_network_devices_for_internet()
+                    # If ONT is online ...
+                    elif (self.some_services_offline == True):
 
-                        # Condition after step to check devices is added ...
-                        elif (len(self.recommended_troubleshooting_steps[0]) == 7):
+                        # Branching from the 'power_cycle' function - ONT is online/unknown status | Equipment power cycled
+                        if (self.power_cycled == "yes"):
 
-                            determine_steps_when_device_ip_is_valid_but_theres_no_internet()
+                            if (len(self.recommended_troubleshooting_steps[0]) == 5):
+                                self.ticket_status = "Ticket Status: Problem not resolved yet.\nEquipment power cycled, but network devices haven't been checked for internet."
+
+                                self.recommended_troubleshooting_steps[0].append(
+                                    "Check each network device's name, model, and lights.")
+                                self.recommended_troubleshooting_steps[0].append(
+                                    "Check network devices for internet.")
+
+                            # Condition after step to check network devices is added ...
+                            elif (len(self.recommended_troubleshooting_steps[0]) == 7):
+
+                                determine_steps_after_checking_network_devices_for_internet()
+
+                            # Condition after step to check devices is added ...
+                            elif (len(self.recommended_troubleshooting_steps[0]) == 8):
+
+                                determine_steps_when_device_ip_is_valid_but_theres_no_internet()
+
+                        # Branching from the 'power_cycle' function - ONT is online | No equipment could be powercycled
+                        elif (self.power_cycled == "no"):
+
+                            if (len(self.recommended_troubleshooting_steps[0]) == 5):
+
+                                self.ticket_status = "Ticket Status: Problem not resolved yet.\nEquipment could not be power cycled, but network devices can still be checked for internet."
+                                self.recommended_troubleshooting_steps[0].append(
+                                    "Check network devices for internet.")
+
+                            # Condition after step to check network devices is added ...
+                            elif (len(self.recommended_troubleshooting_steps[0]) == 6):
+
+                                determine_steps_after_checking_network_devices_for_internet()
+
+                            # Condition after step to check devices is added ...
+                            elif (len(self.recommended_troubleshooting_steps[0]) == 7):
+
+                                determine_steps_when_device_ip_is_valid_but_theres_no_internet()
 
                 self.troubleshooting_steps = self.recommended_troubleshooting_steps
 
