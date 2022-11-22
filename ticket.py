@@ -1668,7 +1668,7 @@ class Ticket():
             nonlocal step_response_sentence
             nonlocal step_response
 
-            def print_responses(all_questions_answered=False, **kwargs):
+            def print_responses(all_questions_answered=False, checking_services=None, **kwargs):
 
                 nonlocal step_response_sentence
 
@@ -1716,8 +1716,20 @@ class Ticket():
                 print("\n----------------------------------\n\n\n")
 
                 if (all_questions_answered == False):
-                    print(
-                        "Answer the following questions to add this step:\n\n\n")
+
+                    if (checking_services != None):
+                        if (checking_services == "services"):
+                            print("Which of the following services are used:\n")
+                        elif (checking_services == "offline_services"):
+                            print("Which of the following services are offline:\n")
+                        elif (checking_services == "online_services"):
+                            print(
+                                "Which of the following services are online:\n")
+                        print(
+                            "Internet\nEmail\nPhone\nCable TV\nIPTV\n\n\n")
+                    elif (checking_services == None):
+                        print(
+                            "Answer the following questions to add this step:\n\n\n")
                 else:
                     print("All questions answered!\n\n\n")
 
@@ -1800,11 +1812,11 @@ class Ticket():
                     step_response_sentence += "No devices are online."
 
             print_responses(
-                devices_online=str(self.devices_online))
+                checking_services="services", devices_online=str(self.devices_online))
 
             # Check for services provided by service provider.
             services, services_list, number_of_services = manipulate_comma_seperated_string(
-                "Enter a comma seperated list of services provided by the service provider (Ex. Internet, Email, Phone, TV): ")
+                "Enter a comma seperated list of services: ")
             if (step_response == "exit"):
                 return
 
@@ -1817,11 +1829,11 @@ class Ticket():
             if (number_of_services > 1):
 
                 print_responses(
-                    devices_online=str(self.devices_online), services=services)
+                    checking_services="offline_services", devices_online=str(self.devices_online), services=services)
 
                 # Check for offline services provided by service provider.
                 offline_services, offline_services_list, number_of_offline_services = manipulate_comma_seperated_string(
-                    "Enter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ")
+                    "Enter a comma seperated list of offline services: ")
                 if (step_response == "exit"):
                     return
 
@@ -1834,7 +1846,7 @@ class Ticket():
 
                     # Check for offline services provided by service provider.
                     offline_services, offline_services_list, number_of_offline_services = manipulate_comma_seperated_string(
-                        "Enter a comma seperated list of offline services provided by the service provider (Ex. Internet, Email, Phone, TV): ")
+                        "Enter a comma seperated list of offline services: ")
                     if (step_response == "exit"):
                         return
 
@@ -1877,11 +1889,11 @@ class Ticket():
                 elif (number_of_offline_services < number_of_services):
 
                     print_responses(
-                        devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list))
+                        checking_services="online_services", devices_online=str(self.devices_online), services=services, offline_services=", ".join(offline_services_list))
 
                     # Check for online services provided by service provider.
                     online_services, online_services_list, number_of_online_services = manipulate_comma_seperated_string(
-                        "Enter a comma seperated list of working services. (Ex. Internet, Email, Phone, TV): ")
+                        "Enter a comma seperated list of working services: ")
                     if (step_response == "exit"):
                         return
 
