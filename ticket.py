@@ -624,9 +624,7 @@ class Ticket():
 
                     # If attempted checking ONT and turned on battery backup power ...
                     elif (self.can_check_ont != None and self.battery_backup_fixed == True):
-
-                        # If it was fixed, check for interent and dial tone
-                        # Check landline for dial tone and check network devices - If still no dial tone and no internet, send form
+                        self.ticket_status = "Ticket Status: Problem not resolved yet.\nBattery backup has power now, but landline hasn't been checked again."
 
                         if (len(self.recommended_troubleshooting_steps[0]) == 5):
                             self.recommended_troubleshooting_steps[0].append(
@@ -640,6 +638,7 @@ class Ticket():
 
                         # If landline has dial tone ...
                         elif (self.landline_has_dial_tone == "yes"):
+                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nLandline has dial tone, but no device has been checked for internet."
 
                             if (len(self.recommended_troubleshooting_steps[0]) == 6):
                                 self.recommended_troubleshooting_steps[0].append(
@@ -653,6 +652,8 @@ class Ticket():
                             elif (self.devices_online == False):
 
                                 if (len(self.recommended_troubleshooting_steps[0]) == 7):
+                                    self.ticket_status = "Ticket Status: Problem not resolved yet.\nLandline has dial tone, but internet is still offline. Network devices haven't been checked yet."
+
                                     self.recommended_troubleshooting_steps[0].append(
                                         "Check each network device's name, model, and lights.")
                                     self.recommended_troubleshooting_steps[0].append(
@@ -666,7 +667,7 @@ class Ticket():
                                 elif (self.can_check_cabling != None and self.can_check_network_device_lights != None):
 
                                     if (len(self.recommended_troubleshooting_steps[0]) == 9):
-                                        self.ticket_status = "Ticket Status: Problem not resolved yet.\nAttempted to check cabling, but network devices haven't been power cycled."
+                                        self.ticket_status = "Ticket Status: Problem not resolved yet.\nAttempted to check network devices and cabling, but devices haven't been power cycled yet."
 
                                         self.recommended_troubleshooting_steps[0].append(
                                             "Power cycle all network devices.")
@@ -674,6 +675,8 @@ class Ticket():
                                     elif (self.power_cycled == "yes"):
 
                                         if (len(self.recommended_troubleshooting_steps[0]) == 10):
+                                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nPower cycled network devices, but network devices have to be checked again."
+
                                             self.recommended_troubleshooting_steps[0].append(
                                                 "Check each network device's name, model, and lights.")
                                             self.recommended_troubleshooting_steps[0].append(
@@ -692,6 +695,8 @@ class Ticket():
                                     elif (self.power_cycled == "no"):
 
                                         if (len(self.recommended_troubleshooting_steps[0]) == 10):
+                                            self.ticket_status = "Ticket Status: Problem not resolved yet.\nNetwork devices couldn't be power cycled, but maybe they can be checked for internet."
+
                                             self.recommended_troubleshooting_steps[0].append(
                                                 "Check network devices for internet.")
 
@@ -738,6 +743,8 @@ class Ticket():
 
                             if (len(self.recommended_troubleshooting_steps[0]) == 5):
                                 # Might be better to see if we can bypass, and only check the ONT if we can't bypass
+                                self.ticket_status = "Ticket Status: Problem not resolved yet.\nNetwork devices couldn't be power cycled, but maybe the ONT and battery backup can be checked."
+
                                 self.recommended_troubleshooting_steps[0].append(
                                     "Check ONT.")
                                 self.recommended_troubleshooting_steps[0].append(
@@ -751,6 +758,8 @@ class Ticket():
                             elif (self.can_check_ont != None and (self.battery_backup_status == "on" or self.battery_backup_status == "n/a")):
 
                                 if (len(self.recommended_troubleshooting_steps[0]) == 7):
+                                    self.ticket_status = "Ticket Status: Problem not resolved yet.\nThe ONT might be working fine, but network devices haven't been checked for internet."
+
                                     self.recommended_troubleshooting_steps[0].append(
                                         "Check network devices for internet.")
 
@@ -779,6 +788,7 @@ class Ticket():
                             elif (self.main_router["status"] == "offline"):
 
                                 if (len(self.recommended_troubleshooting_steps[0]) == 7):
+                                    self.ticket_status = "Ticket Status: Problem not resolved yet.\nMain network device is offline, so ONT and battery backup should be checked."
 
                                     self.recommended_troubleshooting_steps[0].append(
                                         "Check ONT.")
@@ -797,6 +807,8 @@ class Ticket():
                                 elif (self.can_check_ont != None and self.battery_backup_fixed == True):
 
                                     if (len(self.recommended_troubleshooting_steps[0]) == 9):
+                                        self.ticket_status = "Ticket Status: Problem not resolved yet.\nThe ONT might be working fine, but network devices haven't been checked for internet."
+
                                         self.recommended_troubleshooting_steps[0].append(
                                             "Check network devices for internet.")
 
