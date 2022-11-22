@@ -608,28 +608,22 @@ class Ticket():
                             "Check landline phone for dial tone.")
 
                     # Check ONT and battery backup
-                    if (len(self.recommended_troubleshooting_steps[0]) == 3 and self.can_check_landline != None):
+                    elif (len(self.recommended_troubleshooting_steps[0]) == 3 and self.can_check_landline != None):
                         self.recommended_troubleshooting_steps[0].append(
                             "Check ONT.")
                         self.recommended_troubleshooting_steps[0].append(
                             "Check ONT's battery backup.")
 
-                    # If attempted checking ONT and battery backup wouldn't get power ...
-                    if (self.can_check_ont != None and self.battery_backup_status == "off"):
-
+                    # END of branch - If attempted checking ONT and battery backup wouldn't get power ...
+                    elif (self.can_check_ont != None and self.battery_backup_status == "off"):
                         self.ticket_status = "Ticket Status: Problem should be referred to the service provider's main office.\nThe internet, landline, and battery backup are offline."
 
-                        # END OF BRANCH
-
-                    # If attempted checking ONT and battery backup couldn't be checked ...
-                    if (self.can_check_ont != None and self.battery_backup_status == "n/a"):
-
-                        self.ticket_status = "Ticket Status: Problem should be referred to the service provider's main office.\nThe internet and landline are offline. Couldn't troubleshoot the battery backup."
-
-                        # END OF BRANCH
+                    # END of branch - If attempted checking ONT and battery backup couldn't be checked ...
+                    elif (self.can_check_ont != None and self.battery_backup_status == "n/a"):
+                        self.ticket_status = "Ticket Status: Problem should be referred to the service provider's main office.\nThe internet and landline are offline. Battery backup may be offline."
 
                     # If attempted checking ONT and turned on battery backup power ...
-                    if (self.can_check_ont != None and self.battery_backup_fixed == True):
+                    elif (self.can_check_ont != None and self.battery_backup_fixed == True):
 
                         # If it was fixed, check for interent and dial tone
                         # Check landline for dial tone and check network devices - If still no dial tone and no internet, send form
@@ -750,11 +744,11 @@ class Ticket():
                                     "Check ONT's battery backup.")
 
                             # END of branch - If attempted checking ONT and battery backup wouldn't get power ...
-                            if (self.can_check_ont != None and self.battery_backup_status == "off"):
+                            elif (self.can_check_ont != None and self.battery_backup_status == "off"):
                                 self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe battery backup box has no power even after troubleshooting it."
 
                             # If attempted checking ONT and battery backup power status is on/unknown ...
-                            if (self.can_check_ont != None and (self.battery_backup_status == "on" or self.battery_backup_status == "n/a")):
+                            elif (self.can_check_ont != None and (self.battery_backup_status == "on" or self.battery_backup_status == "n/a")):
 
                                 if (len(self.recommended_troubleshooting_steps[0]) == 7):
                                     self.recommended_troubleshooting_steps[0].append(
@@ -786,9 +780,35 @@ class Ticket():
 
                                 if (len(self.recommended_troubleshooting_steps[0]) == 7):
 
-                                    # Add ONT steps
+                                    self.recommended_troubleshooting_steps[0].append(
+                                        "Check ONT.")
+                                    self.recommended_troubleshooting_steps[0].append(
+                                        "Check ONT's battery backup.")
 
-                                    pass
+                                # END of branch - If attempted checking ONT and battery backup wouldn't get power ...
+                                elif (self.can_check_ont != None and self.battery_backup_status == "off"):
+                                    self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nMain router and battery backup are offline."
+
+                                # END of branch - If attempted checking ONT and battery backup couldn't be checked ...
+                                elif (self.can_check_ont != None and self.battery_backup_status == "n/a"):
+                                    self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nMain router and battery backup may be offline."
+
+                                # If attempted checking ONT and turned on battery backup power ...
+                                elif (self.can_check_ont != None and self.battery_backup_fixed == True):
+
+                                    if (len(self.recommended_troubleshooting_steps[0]) == 9):
+                                        self.recommended_troubleshooting_steps[0].append(
+                                            "Check network devices for internet.")
+
+                                    # END of branch - Condition after step to check network devices is added ...
+                                    elif (len(self.recommended_troubleshooting_steps[0]) == 10):
+
+                                        determine_steps_after_checking_network_devices_for_internet()
+
+                                    # END of branch - Condition after step to check devices is added ...
+                                    elif (len(self.recommended_troubleshooting_steps[0]) == 11):
+
+                                        determine_steps_when_device_ip_is_valid_but_theres_no_internet()
 
                             elif (self.main_router["status"] == "online"):
 
