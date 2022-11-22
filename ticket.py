@@ -749,8 +749,28 @@ class Ticket():
                                 self.recommended_troubleshooting_steps[0].append(
                                     "Check ONT's battery backup.")
 
-                                # Add steps after ONT
+                            # END of branch - If attempted checking ONT and battery backup wouldn't get power ...
+                            if (self.can_check_ont != None and self.battery_backup_status == "off"):
+                                self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe battery backup box has no power even after troubleshooting it."
 
+                            # If attempted checking ONT and battery backup power status is on/unknown ...
+                            if (self.can_check_ont != None and (self.battery_backup_status == "on" or self.battery_backup_status == "n/a")):
+
+                                if (len(self.recommended_troubleshooting_steps[0]) == 7):
+                                    self.recommended_troubleshooting_steps[0].append(
+                                        "Check network devices for internet.")
+
+                                # Condition after step to check network devices is added ...
+                                elif (len(self.recommended_troubleshooting_steps[0]) == 8):
+
+                                    determine_steps_after_checking_network_devices_for_internet()
+
+                                # Condition after step to check devices is added ...
+                                elif (len(self.recommended_troubleshooting_steps[0]) == 9):
+
+                                    determine_steps_when_device_ip_is_valid_but_theres_no_internet()
+
+                        # Branching from the 'power_cycle' function - If equipment could be power cycled ...
                         elif (self.power_cycled == "yes"):
 
                             if (len(self.recommended_troubleshooting_steps[0]) == 5):
