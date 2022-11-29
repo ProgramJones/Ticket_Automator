@@ -545,24 +545,11 @@ class Ticket():
         pairable_network_devices = [
             "main router", "additional router", "extender"]
 
-        # Add this later - Algorithm rough draft completed!
-
         # Used to add steps or edit ticket status based off network device status combinations
         def determine_steps_after_checking_network_devices_for_internet():
 
-            # END of branch - Main router offline | Third party
-            if (self.main_router["status"] == "offline" and self.main_router["provided_by"] == "third party" and
-                    self.can_bypass_or_wire == "no"):
-                self.ticket_status = "Ticket Status: Problem should be referred to a third party.\nThe main router is offline and can't be bypassed."
-
-            # END of branch - Main router offline | service provider
-            elif (self.main_router["status"] == "offline" and self.main_router["provided_by"] == "service provider" and
-                    self.can_bypass_or_wire == "no"):
-                self.ticket_status = "Ticket Status: Problem should be escalated to a higher level.\nThe main router is offline and can't be bypassed."
-
-            # If the main router is online - If main router is offline and can be bypassed
-            if (self.main_router["status"] == "online" or (self.main_router["status"] == "offline" and self.can_bypass_or_wire == "yes")):
-                self.ticket_status = "Ticket Status: Problem not resolved yet.\nNetwork devices show internet, but a device hasn't been checked for internet."
+            # If user can connect over WiFi or ETH | If main router is online
+            if (self.can_bypass_or_wire == True or self.main_router["status"] == "online"):
 
                 self.recommended_troubleshooting_steps[0].append(
                     "Check a device for internet.")
@@ -1392,9 +1379,6 @@ class Ticket():
             formatted_string = ", ".join(list_from_string)
 
             return formatted_string, list_from_string, list_length
-
-        def refer_or_escalate():
-            pass
 
         system.clear_prompt_or_terminal()
 
@@ -3011,6 +2995,44 @@ class Ticket():
                         else:
                             online_main_network_device = "modem/router"
 
+                def refer_or_escalate():
+
+                    nonlocal step_response_sentence
+
+                    # #   1.1.0. If main router is offline and nothing comes before it, and the main router cannot be bypassed
+                    # if (self.main_router["status"] == "offline" and
+                    #         (self.indoor_ont["status"] == "" and self.ont_router["status"] == "" and self.modem["status"] == "" and self.modem_router["status"] == "")):
+
+                    #     pass
+
+                    # #   1.1.1. If main router is offline but some indoor ont, ont/router, modem, modem/router is online, and the main router cannot be bypassed
+                    # elif (self.main_router["status"] == "offline" and
+                    #         (self.indoor_ont["status"] == "online" or self.ont_router["status"] == "online" or self.modem["status"] == "online" or self.modem_router["status"] == "online")):
+
+                    #     pass
+
+                    # #   1.1.2. If some indoor ont, ont/router, modem, modem/router is online and cannot be wired to, when no main router
+                    # elif (self.main_router["status"] == "" and
+                    #         (self.indoor_ont["status"] == "online" or self.ont_router["status"] == "online" or self.modem["status"] == "online" or self.modem_router["status"] == "online")):
+
+                    #     pass
+
+                    # #   1.1.3. If there's no kind of ont, modem, router, and service is not fixed wireless, and cannot wire directly to the wall jack
+                    # elif (self.main_router["status"] == "" and
+                    #         (self.indoor_ont["status"] == "" and self.ont_router["status"] == "" and self.modem["status"] == "" and self.modem_router["status"] == "") and
+                    #         self.service != "Fixed Wireless"):
+
+                    #     pass
+
+                    # # If a main network device, besides the main router, is offline
+                    # elif (self.indoor_ont["status"] == "offline" or self.ont_router["status"] == "offline" or self.modem["status"] == "offline" or
+                    #         self.modem_router["status"] == "offline"):
+
+                    #     pass
+
+                    # If we can't check for internet, there's no scenario where we refer to oem - Escalate for all conditions
+                    step_response_sentence += "\n\nEscalate for no internet"
+
                 print_responses(
                     can_check_network_device_lights=self.can_check_network_device_lights)
 
@@ -3023,7 +3045,7 @@ class Ticket():
                           " | " + type_of_device)
 
                 all_network_devices_show_internet = check_for_a_or_b(
-                    "\n\nEnter 'yes' or 'no' to respond: ", "yes", "no").lower().strip()
+                    "Enter 'yes' or 'no' to respond: ", "yes", "no").lower().strip()
 
                 # if yes, all network devices show internet, add "All network devices show internet." to ticket.
                 if (all_network_devices_show_internet == "yes"):
@@ -3172,26 +3194,34 @@ class Ticket():
                     step_response_sentence += "\n\nThere's no network devices."
                     check_if_user_can_bypass_or_wire("wall jack")
 
-                # What about when there is a main network device, excluding main router, but it's offline
+                #   1.1.4. If the main network device, besides the main router, is offline
+                elif (self.indoor_ont["status"] == "offline" or self.ont_router["status"] == "offline" or self.modem["status"] == "offline" or
+                      self.modem_router["status"] == "offline"):
+                    find_online_network_device()
+
+                    step_response_sentence += f"\n\n{online_main_network_device} is offline."
+
+                #   1.1.5. If main router is online
                 elif (self.main_router["status"] == "online"):
                     step_response_sentence += "\n\nMain router is online."
 
                 # * 1.2   Possibly run 'refer_or_escalate' function - Possible END of branch
                 #   1.2.0. Determine whether to run 'refer_or_escalate' function
-                #   # NOTE: If self.can_bypass_or_wire is false, no device can be checked for internet
+                #   NOTE: If self.can_bypass_or_wire is false, no device can be checked for internet
+                #   NOTE: 'refer_or_escalate' is run here whenever we can't check a device internet
 
                 # If (cannot bypass main router, wire to working network device, or wire to wall jack,
-                #     any main network device is offline,
-                #     attempted to check cabling,
-                #     attempted to power cycle,
-                #     (For fiber only: attempted to confirm ONT status and battery backup status),
-                #     (For fiber and dsl: attempted to check landline)
+                #     the main network device, besides the main router, is offline
 
-                # if (self.can_bypass_or_wire == "no" or
-                #         (self.indoor_ont["status"] == "offline" or self.ont_router["status"] == "offline" or self.modem["status"] == "offline" or
-                #          self.modem_router["status"] == "offline")
-                #         ):
-                #     refer_or_escalate()
+                if (self.can_bypass_or_wire == "no" or
+                    (self.indoor_ont["status"] == "offline" or self.ont_router["status"] == "offline" or self.modem["status"] == "offline" or
+                             self.modem_router["status"] == "offline")
+                    ):
+                    refer_or_escalate()
+
+                    print_responses(
+                        all_questions_answered=True, can_check_network_device_lights=self.can_check_network_device_lights, all_network_devices_show_internet=all_network_devices_show_internet)
+                    return
 
                 print_responses(
                     all_questions_answered=True, can_check_network_device_lights=self.can_check_network_device_lights, all_network_devices_show_internet=all_network_devices_show_internet)
