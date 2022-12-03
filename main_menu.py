@@ -6,6 +6,7 @@
 
 
 import os
+import system
 import ticket
 
 
@@ -93,6 +94,7 @@ def execute_menu_command(menu_choice):
 
     # if user enters 'end', end the program.
     elif menu_choice == "end":
+        system.clear_prompt_or_terminal()
         os.sys.exit(0)
 
 
