@@ -3403,60 +3403,6 @@ class Ticket():
                     # NOTE: self.names_of_possible_places_to_wire_devices_for_non_fiber = [
                     #    "Wall Jack", "Modem", "Modem/Router", "Main Router", "Additional Router", "Extender", "Switch"]
 
-                    # * Outcomes after checking devices for internet | When to ref or esc:
-                    #
-                    # * Only some devices offline
-                    #
-                    # ref to oem/LT
-                    #
-                    #
-                    # * All devices offline:
-                    #
-                    # Wired to wall jack | escalate
-                    #
-                    #
-                    #
-                    #
-                    # * Device online:
-                    #
-                    # Loop(s) through network device list in order > Either esc or ref if network device is "offline":
-                    # Wired to wall jack | Offline network device in self.possible_main_network_devices | service provider | escalate for offline {offline_device}
-                    # Wired to wall jack | Offline network device in self.possible_main_network_devices | third party | refer to oem for offline {offline_device}
-
-                    # * Confirm if there's an ONT or modem
-                    ont_or_modem_is_saved = False
-
-                    for network_device in self.possible_main_network_devices[:-1]:
-                        if (network_device["status"] != ""):
-                            ont_or_modem_is_saved = True
-                            break
-
-                    # * Lowercase the list of possible places to wire, for comparing
-                    lowercase_names_of_possible_places_to_wire_devices = ""
-
-                    if (self.service == "Fiber"):
-                        lowercase_names_of_possible_places_to_wire_devices = [
-                            name.lower() for name in self.names_of_possible_places_to_wire_devices_for_fiber]
-                    else:
-                        lowercase_names_of_possible_places_to_wire_devices = [name.lower(
-                        ) for name in self.names_of_possible_places_to_wire_devices_for_non_fiber]
-
-                    first_offline_network_device = ""
-
-                    # * Find the first offline network device
-                    for network_device in self.possible_main_network_devices:
-                        if network_device["status"] == "offline":
-                            first_offline_network_device = network_device
-                            break
-
-                    if (first_offline_network_device != ""):
-                        first_offline_network_device_name = first_offline_network_device[
-                            "device"]
-                        first_offline_network_device_type = first_offline_network_device[
-                            "device_type"]
-                        first_offline_network_device_provider = first_offline_network_device[
-                            "provided_by"]
-
                     # If last checked device is offline AND other devices are online (device issue) ...
                     if (self.last_checked_device_is_online == False and self.devices_online == True):
                         step_response_sentence += "\n\nDevice is offline even though other devices are online."
@@ -3464,37 +3410,67 @@ class Ticket():
 
                         self.ticket_status = "Ticket Status: Problem resolved.\nReferred to oem/LT for device issue."
 
-                    # If device is offline after wiring or bypassing ...
+                    # If device is offline ...
                     elif (self.last_checked_device_is_online == False and self.last_checked_device_was_given_ip == False):
 
-                        # Below conditions for when bypassing or wiring was required to check for internet
+                        # * Confirm if there's an ONT or modem
+                        ont_or_modem_is_saved = False
+
+                        for network_device in self.possible_main_network_devices[:-1]:
+                            if (network_device["status"] != ""):
+                                ont_or_modem_is_saved = True
+                                break
+
+                        # * Lowercase the list of possible places to wire, for comparing
+                        lowercase_names_of_possible_places_to_wire_devices = ""
+
+                        if (self.service == "Fiber"):
+                            lowercase_names_of_possible_places_to_wire_devices = [
+                                name.lower() for name in self.names_of_possible_places_to_wire_devices_for_fiber]
+                        else:
+                            lowercase_names_of_possible_places_to_wire_devices = [name.lower(
+                            ) for name in self.names_of_possible_places_to_wire_devices_for_non_fiber]
+
+                        first_offline_network_device = ""
+
+                        # * Below conditions for when device was wired
 
                         # if wired to the wall jack ...
                         # if wired to some ONT or modem ...
-                        # if wired to main router, there's no ont or modem, and the main router can't be bypassed
+                        # if wired to main router, there's no ont or modem, and the main router can't be bypassed ...
                         if ((self.can_wire_to_wall_jack == True) or
                             (what_device_is_wired_to in lowercase_names_of_possible_places_to_wire_devices[1:3]) or
                                 (what_device_is_wired_to == "main router" and ont_or_modem_is_saved == False and (
                                     self.can_bypass_or_wire != "" and self.can_bypass_main_router == False))
                             ):
-                            step_response_sentence += "\n\nEscalate for no internet"
+                            step_response_sentence += f"\n\nEscalate for no internet from {what_device_is_wired_to}"
 
                             self.ticket_status = f"Ticket Status: Problem resolved.\nEscalated for no internet coming from {what_device_is_wired_to}."
 
-                        # ? Add logic for when third party
-                        # if first_offline_network_device is third party?
-
-                    # ? Wouldn't the below logic in wall_jack apply to every device, at a different sliced index
-
-                    # If device is online after wiring or bypassing ...
+                    # If device is online ...
                     elif (self.last_checked_device_is_online == True):
 
-                        # Below three conditions for when bypassing or wiring was required to check for internet
+                        # * Find the first offline network device
+                        for network_device in self.possible_main_network_devices:
+                            if network_device["status"] == "offline":
+                                first_offline_network_device = network_device
+                                break
 
-                        # If device is wired to wall jack | Internet works in wall jack but not the main network device, if there's a network device ...
-                        if (self.can_wire_to_wall_jack == True):
+                        if (first_offline_network_device != ""):
+                            first_offline_network_device_name = first_offline_network_device[
+                                "device"]
+                            first_offline_network_device_type = first_offline_network_device[
+                                "device_type"]
+                            first_offline_network_device_provider = first_offline_network_device[
+                                "provided_by"]
 
-                            # If there's no main network device ...
+                        # * Below conditions for when device was wired
+
+                        # If device is wired to wall jack ...
+                        # If device is wired to some network device ...
+                        if (self.can_wire_to_wall_jack == True or self.can_wire_to_network_device == True):
+
+                            # If there's no offline main network device ...
                             if (first_offline_network_device == ""):
                                 pass
 
@@ -3508,14 +3484,6 @@ class Ticket():
                                 elif (first_offline_network_device_provider == "third party"):
                                     step_response_sentence += f"\n\nRefer to oem for offline {first_offline_network_device_name} {first_offline_network_device_type}"
                                     self.ticket_status = f"Ticket Status: Problem resolved.\Referred to oem for offline {first_offline_network_device_name} {first_offline_network_device_type}."
-
-                        # If device is wired to some ont or modem ...
-                        if (self.can_wire_to_network_device == True):
-                            pass
-
-                        # If some device is bypassing the main router ...
-                        if (self.can_bypass_main_router == True):
-                            pass
 
                 # * Function to prompt for IPv4 or default gateway address
                 def prompt_for_address(type_of_address):
