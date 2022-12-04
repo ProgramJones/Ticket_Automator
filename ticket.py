@@ -3431,9 +3431,7 @@ class Ticket():
                             lowercase_names_of_possible_places_to_wire_devices = [name.lower(
                             ) for name in self.names_of_possible_places_to_wire_devices_for_non_fiber]
 
-                        first_offline_network_device = ""
-
-                        # * Below conditions for when device was wired
+                        # * Below conditions for when device is connected over ethernet
 
                         # if wired to the wall jack ...
                         # if wired to some ONT or modem ...
@@ -3450,11 +3448,29 @@ class Ticket():
                     # If device is online ...
                     elif (self.last_checked_device_is_online == True):
 
-                        # * Find the first offline network device
+                        first_offline_network_device = ""
+
+                        # * Find the first offline main network device
                         for network_device in self.possible_main_network_devices:
                             if network_device["status"] == "offline":
                                 first_offline_network_device = network_device
                                 break
+
+                        # * Find the first offline additional network device, if no offline main network device
+                        if (first_offline_network_device == ""):
+
+                            # Loop through self.additional_routers and self.extenders
+                            for network_device_list in self.possible_additional_network_devices[1:]:
+                                # If there's no saved device in network_device_list ...
+                                if len(network_device_list) == 0:
+                                    continue
+                                # If there's at lease one saved device in network_device_list ...
+                                else:
+                                    # Check each network_device status in network_device_list
+                                    for network_device in network_device_list:
+                                        if network_device["status"] == "offline":
+                                            first_offline_network_device = network_device
+                                            break
 
                         if (first_offline_network_device != ""):
                             first_offline_network_device_name = first_offline_network_device[
@@ -3464,26 +3480,22 @@ class Ticket():
                             first_offline_network_device_provider = first_offline_network_device[
                                 "provided_by"]
 
-                        # * Below conditions for when device was wired
+                        # * Below conditions for when device is connected over ethernet or WiFi
 
-                        # If device is wired to wall jack ...
-                        # If device is wired to some network device ...
-                        if (self.can_wire_to_wall_jack == True or self.can_wire_to_network_device == True):
+                        # If there's no offline main network device ...
+                        if (first_offline_network_device == ""):
+                            pass
 
-                            # If there's no offline main network device ...
-                            if (first_offline_network_device == ""):
-                                pass
+                        # If the main network device is offline ...
+                        else:
 
-                            # If the main network device is offline ...
-                            else:
+                            if (first_offline_network_device_provider == "service provider"):
+                                step_response_sentence += f"\n\nEscalate for offline {first_offline_network_device_name} {first_offline_network_device_type}"
+                                self.ticket_status = f"Ticket Status: Problem resolved.\nEscalated for offline {first_offline_network_device_name} {first_offline_network_device_type}."
 
-                                if (first_offline_network_device_provider == "service provider"):
-                                    step_response_sentence += f"\n\nEscalate for offline {first_offline_network_device_name} {first_offline_network_device_type}"
-                                    self.ticket_status = f"Ticket Status: Problem resolved.\nEscalated for offline {first_offline_network_device_name} {first_offline_network_device_type}."
-
-                                elif (first_offline_network_device_provider == "third party"):
-                                    step_response_sentence += f"\n\nRefer to oem for offline {first_offline_network_device_name} {first_offline_network_device_type}"
-                                    self.ticket_status = f"Ticket Status: Problem resolved.\Referred to oem for offline {first_offline_network_device_name} {first_offline_network_device_type}."
+                            elif (first_offline_network_device_provider == "third party"):
+                                step_response_sentence += f"\n\nRefer to oem for offline {first_offline_network_device_name} {first_offline_network_device_type}"
+                                self.ticket_status = f"Ticket Status: Problem resolved.\Referred to oem for offline {first_offline_network_device_name} {first_offline_network_device_type}."
 
                 # * Function to prompt for IPv4 or default gateway address
                 def prompt_for_address(type_of_address):
