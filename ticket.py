@@ -3261,7 +3261,8 @@ class Ticket():
                     (self.indoor_ont["status"] == "offline" or self.ont_router["status"] == "offline" or self.modem["status"] == "offline" or
                              self.modem_router["status"] == "offline")
                     ):
-                    refer_or_escalate()
+                    if (self.toggle_steps == "Recommended Steps"):
+                        refer_or_escalate()
 
                     print_responses(
                         all_questions_answered=True, can_check_network_device_lights=self.can_check_network_device_lights, all_network_devices_show_internet=all_network_devices_show_internet)
@@ -3873,16 +3874,8 @@ class Ticket():
 
                             step_response_sentence += "\n\nInternet still not working even after power cycling device."
 
-                    # * Numbering steps after this line
-
-                    # * 1.1    Determine whether to run 'refer_or_escalate' function
-                    #          NOTE: Function is used when problem is a device or network device.
-                    #
-                    #   1.1.0. If last checked device is offline AND other devices are online (device issue),
-                    #              all devices are offline AND device has invalid IP (network device or ISP issue)
-
-                    # Possible END of branch
-                    refer_or_escalate()
+                    if (self.toggle_steps == "Recommended Steps"):
+                        refer_or_escalate()
 
                     print_responses(all_questions_answered=True, device=device, type_of_computer=type_of_computer,
                                     name_of_device=name_of_device, how_device_is_connected=how_device_is_connected,
