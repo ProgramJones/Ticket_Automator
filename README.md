@@ -3,6 +3,7 @@
 ## Project Status
 ---
 
+This program is still being worked on and in pre-alpha stages. 
 I'm currently in college and working a full time job, but will work on this program when I have a chance!
 
 
